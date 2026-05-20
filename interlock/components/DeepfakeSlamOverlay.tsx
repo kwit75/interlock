@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function DeepfakeSlamOverlay({
   show,
@@ -13,6 +13,9 @@ export default function DeepfakeSlamOverlay({
   const [phase, setPhase] = useState<"hidden" | "flash" | "hold" | "fade">(
     "hidden",
   );
+  // Keep latest onDone in a ref so the timer effect only depends on `show`
+  const onDoneRef = useRef(onDone);
+  onDoneRef.current = onDone;
 
   useEffect(() => {
     if (!show) {
@@ -24,14 +27,17 @@ export default function DeepfakeSlamOverlay({
     const t2 = setTimeout(() => setPhase("fade"), 1700);
     const t3 = setTimeout(() => {
       setPhase("hidden");
-      onDone?.();
+      onDoneRef.current?.();
     }, 2400);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
     };
-  }, [show, onDone]);
+    // Intentionally only depending on `show` — re-rendering parents must
+    // not restart the slam timeline.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [show]);
 
   if (phase === "hidden") return null;
 
