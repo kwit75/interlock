@@ -1,0 +1,37 @@
+{
+  "verdict": "SYNTHETIC",
+  "confidence": 0.94,
+  "evidence": [
+    {
+      "category": "lip_sync",
+      "frame_number": 7,
+      "observation": "Phoneme /b/ articulation misaligned with audio onset by approximately one frame (~80 ms) at frame 7 of 25 sampled frames",
+      "severity": "high"
+    },
+    {
+      "category": "facial_geometry",
+      "frame_number": 14,
+      "observation": "Jawline edge shows soft-edge blending artifact inconsistent with skin texture continuity; characteristic of face-swap boundary mask",
+      "severity": "medium"
+    },
+    {
+      "category": "lighting_shadows",
+      "frame_number": 18,
+      "observation": "Cast shadow on right cheek does not update consistently with subtle head rotation between frames 17→19; lighting model decoupled from geometry",
+      "severity": "medium"
+    },
+    {
+      "category": "eye_movement",
+      "frame_number": 22,
+      "observation": "Two micro-blinks within ~0.4 s window — non-physiological cadence; natural blink rate is 12-15 per minute",
+      "severity": "high"
+    },
+    {
+      "category": "temporal_consistency",
+      "frame_number": 24,
+      "observation": "Subtle background flicker near left ear suggests face mask boundary leakage during compositing",
+      "severity": "low"
+    }
+  ],
+  "summary": "Multiple high-severity synthesis artifacts detected: lip-sync drift at frame 7, jaw-edge blending at frame 14, and non-physiological blink cadence at frame 22. The combination is consistent with a face-swap or talking-head deepfake. Confidence is high (94%)."
+}

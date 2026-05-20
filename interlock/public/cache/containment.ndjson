@@ -1,0 +1,3 @@
+{"action":"freeze_wire","wire_id":"W-7821","amount_usd":50000000,"vendor":"TechVenture Ltd.","status":"FROZEN","timestamp":"2026-05-23T21:57:14.413Z"}
+{"action":"lock_account","account_holder":"CEO","account_id":"AC-CEO-0001","status":"LOCKED","timestamp":"2026-05-23T21:57:14.892Z"}
+{"action":"notify_board","recipients":["board@example.com","cfo@example.com","general-counsel@example.com"],"channel":"email+sms","status":"SENT","timestamp":"2026-05-23T21:57:15.341Z"}
