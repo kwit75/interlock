@@ -34,9 +34,9 @@ export default function EndCardResolved({
       <div className="mt-4 text-2xl text-emerald-300 tracking-[0.3em] uppercase">
         saved
       </div>
-      <div className="mt-12 grid grid-cols-3 gap-12 font-mono text-center">
+      <div className="mt-12 grid grid-cols-4 gap-8 font-mono text-center">
         <div>
-          <div className="text-4xl text-white tabular-nums">
+          <div className="text-3xl md:text-4xl text-white tabular-nums">
             {elapsedSec.toString().padStart(2, "0")}
           </div>
           <div className="text-[10px] uppercase tracking-widest text-slate-400 mt-1">
@@ -44,17 +44,30 @@ export default function EndCardResolved({
           </div>
         </div>
         <div>
-          <div className="text-4xl text-white">3</div>
+          <div className="text-3xl md:text-4xl text-white">3</div>
           <div className="text-[10px] uppercase tracking-widest text-slate-400 mt-1">
             agents orchestrated
           </div>
         </div>
         <div>
-          <div className="text-4xl text-white">450<span className="text-2xl text-slate-400">ms</span></div>
+          <div className="text-3xl md:text-4xl text-white">
+            &lt;300<span className="text-xl text-slate-400">ms</span>
+          </div>
           <div className="text-[10px] uppercase tracking-widest text-slate-400 mt-1">
-            inference p50
+            detect latency<sup>1</sup>
           </div>
         </div>
+        <div>
+          <div className="text-3xl md:text-4xl text-white">
+            1.1<span className="text-xl text-slate-400">% EER</span>
+          </div>
+          <div className="text-[10px] uppercase tracking-widest text-slate-400 mt-1">
+            detect-3b class<sup>2</sup>
+          </div>
+        </div>
+      </div>
+      <div className="mt-4 text-[9px] font-mono text-slate-600 tracking-wide text-center">
+        <sup>1</sup>resemble.ai/deepfake-detection-software · <sup>2</sup>modulate.ai velma 03/2026
       </div>
       <div className="mt-10 text-xs font-mono text-slate-500 tracking-wide">
         wire W-7821 · FROZEN · Item 1.05 disclosure drafted for officer review

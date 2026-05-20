@@ -21,9 +21,11 @@ A live deepfake-CEO financial-fraud command center. A CFO gets a video call from
 >
 > INTERLOCK detects the deepfake, freezes the wire by executing Python in an isolated Linux sandbox spawned by a single Gemini API call, and **drafts the SEC Form 8-K Item 1.05 disclosure** for an authorized officer to file. One click."
 
-**Resemble AI / Content-Detection-API framing (after Forensics evidence streams, before Approve):**
+**Detector framing (after Forensics evidence streams, before Approve):**
 
-> "Note: for stage reliability we're streaming a cached detector trace today — Resemble AI's production pattern. The architecture is already mapped to hot-swap to **Google's AI Content Detection API** announced at yesterday's keynote, the minute partner keys go live."
+> "We're streaming a cached detector trace today for stage determinism — the JSON shape models the **DETECT-3B Omni** response (resemble.ai/detect). Production hot-swaps to **Resemble DETECT-3B Omni** or **Reality Defender RealAPI** for arbitrary content; **SynthID Detector** applies only to Google-generated watermarked output (Imagen/Veo/Lyria) and is not a fit for adversarial CEO-deepfakes made with open-source tools."
+
+**RT9 correction:** "Resemble production pattern for cached traces" is NOT documented in Resemble's public materials — strike from pitch. SynthID framing was also wrong: SynthID identifies Google-watermarked content only, not arbitrary third-party deepfakes. CACHED↔LIVE toggle in DETECTOR TELEMETRY panel handles the live-inference Q&A honestly.
 
 ## 3. Architecture
 
@@ -128,7 +130,7 @@ A live deepfake-CEO financial-fraud command center. A CFO gets a video call from
 - Run live call attempt with 10s timeout.
 - If errors or hand-waves (evidence array empty), swap in pre-baked JSON from `/demo-cache/forensics.json`.
 - Hand-craft this JSON to match the specific demo clip with realistic observations (we know our clip is FaceForensics++ deepfake — we can write accurate evidence ahead).
-- Production framing in pitch: "Resemble AI's pattern — dedicated detector + Gemini as explainer. Today shown with cached detector output; production swaps to live detection."
+- Production framing in pitch: "Dedicated detector classifier (Resemble DETECT-3B Omni / Reality Defender RealAPI / Modulate Velma — sub-300ms latency, 1.1% EER class) + Gemini 3.5 Flash as explainer. Today shown with cached detector trace; production swaps to live API via CACHED↔LIVE toggle in DETECTOR TELEMETRY panel."
 
 ### 4.2 CONTAINMENT Agent
 
@@ -234,7 +236,7 @@ Each renders as markdown card in UI panel.
 ## 8. Tracks aimed at
 
 Two-track positioning (SF event tracks not yet announced as of 2026-05-20; the global Devpost Marathon Agent / Vibe Engineering tracks are NOT confirmed for SF):
-- **"Multi-agent crisis command"** — proven winning archetype (Globot 1st, Aegis 2nd at global Gemini 3 Hackathon)
+- **"Multi-agent crisis command + visible HITL approval gates"** — proven winning pattern at **Devpost × Google DeepMind Gemini 3 Hackathon** (Globot grand prize: Deck.gl 3D Globe + transparent Chain-of-Thought + HITL approval per devpost.com/software/globot-341w9q). **RT9 correction:** Globot won Devpost/DeepMind, NOT a Cerebral Valley event.
 - **"Live code execution in sandboxed AI"** — first-mover on Managed Agents launched 4 days prior
 
 If specific tracks are announced Saturday morning, pitch is re-aimable.
@@ -267,7 +269,7 @@ If specific tracks are announced Saturday morning, pitch is re-aimable.
 ## 11. Risks I'm taking on with conviction
 
 - **Single-builder execution risk** on 9 integration surfaces — mitigated by extreme scope discipline; will cut COMMS Live API voice (already removed) if behind by hour 8, then COMMS entirely if hour 10
-- **Preview-API stability risk on demo day** — mitigated by full DEMO_MODE cache; pitch frames pre-baked Forensics as production pattern (Resemble AI), not theater
+- **Preview-API stability risk on demo day** — mitigated by full DEMO_MODE cache; pitch frames pre-baked Forensics trace as "stage-deterministic cinematic cache" honestly via CACHED↔LIVE toggle on DETECTOR TELEMETRY panel. Avoid attribution to "Resemble production pattern" — phrase undocumented in Resemble materials.
 - **Prior-art collision with Aegis (silver, same archetype)** — mitigated by (a) different domain (fintech deepfake vs 911), (b) live wire-flip climax Aegis didn't have, (c) live Managed Agents sandbox Aegis didn't have
 
 ## 12. Renamed from
