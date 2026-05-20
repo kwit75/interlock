@@ -10,15 +10,46 @@ export default function IncomingCallCard({
   activeEvidence: ForensicsEvidence[];
 }) {
   const vref = useRef<HTMLVideoElement>(null);
+
+  // Skip past the first few frames of the source clip (intro/black/credits)
+  // so the still poster looks like a participant's camera preview.
   useEffect(() => {
     const v = vref.current;
     if (!v) return;
+    const onMeta = () => {
+      if (v.currentTime < 0.5) v.currentTime = 1.5;
+    };
+    v.addEventListener("loadedmetadata", onMeta);
+    if (v.readyState >= 1) onMeta();
+    return () => v.removeEventListener("loadedmetadata", onMeta);
+  }, []);
+
+  // Respond to play/pause from parent, with retry fallback for Chrome's
+  // background-media power saver.
+  useEffect(() => {
+    const v = vref.current;
+    if (!v) return;
+    let cancelled = false;
+    const attemptPlay = () => {
+      v.play().catch(() => {
+        if (cancelled) return;
+        const retry = () => {
+          v.play().catch(() => {});
+          document.removeEventListener("click", retry);
+          document.removeEventListener("keydown", retry);
+        };
+        document.addEventListener("click", retry, { once: true });
+        document.addEventListener("keydown", retry, { once: true });
+      });
+    };
     if (playing) {
-      v.currentTime = 0;
-      v.play().catch(() => {});
+      attemptPlay();
     } else {
       v.pause();
     }
+    return () => {
+      cancelled = true;
+    };
   }, [playing]);
 
   const recent = activeEvidence.slice(-3);
@@ -31,6 +62,8 @@ export default function IncomingCallCard({
         muted
         playsInline
         loop
+        autoPlay
+        preload="auto"
         className="w-full h-full object-cover"
       />
       {/* Bounding-box overlays */}
