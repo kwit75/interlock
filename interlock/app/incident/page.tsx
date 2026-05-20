@@ -4,6 +4,9 @@ import IncomingCallCard from "@/components/IncomingCallCard";
 import AgentPanel from "@/components/AgentPanel";
 import AgentTrace from "@/components/AgentTrace";
 import OverrideEscapeHatch from "@/components/OverrideEscapeHatch";
+import DetectorTelemetry, {
+  DetectorMode,
+} from "@/components/DetectorTelemetry";
 import WireStatusBank from "@/components/WireStatusBank";
 import AttributionSlide from "@/components/AttributionSlide";
 import DeepfakeSlamOverlay from "@/components/DeepfakeSlamOverlay";
@@ -49,6 +52,7 @@ export default function IncidentPage() {
   const [traceActive, setTraceActive] = useState<boolean>(false);
   const [demoStartedAt, setDemoStartedAt] = useState<number | null>(null);
   const [resolvedElapsed, setResolvedElapsed] = useState<number>(0);
+  const [detectorMode, setDetectorMode] = useState<DetectorMode>("cached");
 
   const esRef = useRef<EventSource | null>(null);
 
@@ -233,6 +237,12 @@ export default function IncidentPage() {
       )}
 
       {phase !== "idle" && (
+        <>
+        <DetectorTelemetry
+          mode={detectorMode}
+          onModeChange={setDetectorMode}
+          active={true}
+        />
         <div className="grid grid-cols-12 gap-4 flex-1">
           <div className="col-span-4 space-y-4">
             <IncomingCallCard playing={callPlaying} activeEvidence={evidence} />
@@ -396,6 +406,7 @@ export default function IncidentPage() {
             </AgentPanel>
           </div>
         </div>
+        </>
       )}
       <AttributionSlide />
     </main>
