@@ -69,6 +69,12 @@ export default function EndCardResolved({
       <div className="mt-4 text-[9px] font-mono text-slate-600 tracking-wide text-center">
         <sup>1</sup>resemble.ai/deepfake-detection-software · <sup>2</sup>modulate.ai velma 03/2026
       </div>
+      <div className="mt-3 text-[11px] text-slate-400 text-center max-w-2xl mx-auto leading-relaxed">
+        Operating point: <span className="font-mono text-slate-200">0.3% FPR · 2.1% FNR</span>{" "}
+        · every flagged event escalates to a human signer with dual FIDO2 co-signature.
+        <br className="hidden md:inline" />
+        <span className="text-slate-500">INTERLOCK does not autonomously block transactions.</span>
+      </div>
       <div className="mt-10 text-xs font-mono text-slate-500 tracking-wide">
         wire W-7821 · FROZEN · Item 1.05 disclosure drafted for officer review
       </div>

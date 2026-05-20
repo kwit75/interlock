@@ -47,14 +47,15 @@ export default function MeetShell({
     >
       {/* MAIN STAGE */}
       <main className="flex-1 relative flex flex-col min-w-0">
-        {/* Top-left: meeting code only (like real Meet) */}
-        <div className="absolute top-3 left-4 z-10 flex items-center gap-2 pointer-events-none">
+        {/* Top-left: meeting code + tenant switcher */}
+        <div className="absolute top-3 left-4 z-10 flex items-center gap-2">
           <span
-            className="px-2 py-1 rounded text-[12px] font-medium leading-none"
+            className="px-2 py-1 rounded text-[12px] font-medium leading-none pointer-events-none"
             style={{ background: "rgba(60,64,67,0.6)", color: MEET_TEXT }}
           >
             qrx-vfgr-djy
           </span>
+          <TenantSwitcher />
         </div>
         {/* Top-right: recording + time */}
         <div className="absolute top-3 right-4 z-10 flex items-center gap-2 pointer-events-none">
@@ -214,6 +215,92 @@ export default function MeetShell({
         {/* Sidebar body */}
         <div className="flex-1 overflow-y-auto">{rightPanel}</div>
       </aside>
+    </div>
+  );
+}
+
+function TenantSwitcher() {
+  const [open, setOpen] = useState(false);
+  const [tenant, setTenant] = useState("Arup Group plc");
+  const tenants = [
+    { name: "Arup Group plc", id: "ten_arup", region: "us-east1" },
+    { name: "Maersk Treasury", id: "ten_maersk", region: "europe-west4" },
+    {
+      name: "Lufthansa AG · Finance",
+      id: "ten_lufthansa",
+      region: "europe-west3",
+    },
+  ];
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="px-2 py-1 rounded text-[12px] font-medium leading-none flex items-center gap-1.5 transition hover:brightness-110"
+        style={{
+          background: "rgba(60,64,67,0.6)",
+          color: MEET_TEXT,
+          border: "1px solid rgba(255,255,255,0.08)",
+        }}
+        title="Switch tenant"
+      >
+        <span
+          className="w-1.5 h-1.5 rounded-full"
+          style={{ background: "#8ab4f8" }}
+        />
+        <span>{tenant}</span>
+        <span style={{ color: "#bdc1c6" }}>▾</span>
+      </button>
+      {open && (
+        <div
+          className="absolute top-full left-0 mt-1.5 w-[260px] rounded-lg overflow-hidden z-30"
+          style={{
+            background: "#1f1f23",
+            border: "1px solid #3c4043",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+          }}
+          onMouseLeave={() => setOpen(false)}
+        >
+          <div
+            className="px-3 py-2 text-[10px] tracking-widest uppercase font-medium"
+            style={{ color: "#9aa0a6", borderBottom: "1px solid #3c4043" }}
+          >
+            ◆ Active tenant
+          </div>
+          {tenants.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => {
+                setTenant(t.name);
+                setOpen(false);
+              }}
+              className="w-full px-3 py-2.5 text-left text-[12px] flex items-center justify-between hover:bg-white/[0.04] transition"
+              style={{
+                color: t.name === tenant ? "#8ab4f8" : MEET_TEXT,
+              }}
+            >
+              <div>
+                <div>{t.name}</div>
+                <div
+                  className="text-[10px] font-mono"
+                  style={{ color: "#9aa0a6" }}
+                >
+                  {t.id} · {t.region}
+                </div>
+              </div>
+              {t.name === tenant && <span>●</span>}
+            </button>
+          ))}
+          <div
+            className="px-3 py-2 text-[11.5px] cursor-pointer hover:bg-white/[0.04]"
+            style={{
+              color: "#8ab4f8",
+              borderTop: "1px solid #3c4043",
+            }}
+          >
+            + Add tenant
+          </div>
+        </div>
+      )}
     </div>
   );
 }

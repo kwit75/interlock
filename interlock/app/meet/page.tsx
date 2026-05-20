@@ -250,8 +250,12 @@ export default function MeetIncidentPage() {
                 {confidence !== null ? (confidence * 100).toFixed(0) : "—"}%
               </div>
             </div>
+            {/* Confidence badge + safe-failure indicator (RT11 killshot) */}
+            {confidence !== null && (
+              <ConfidenceBadge confidence={confidence} />
+            )}
             <div
-              className="mt-1 text-[12px] leading-snug"
+              className="mt-1.5 text-[12px] leading-snug"
               style={{ color: C.textSubtle }}
             >
               Synthetic media in CEO video stream. Wire authorization is
@@ -638,6 +642,37 @@ function Hint({ children }: { children: React.ReactNode }) {
   return (
     <div className="text-[11.5px]" style={{ color: C.textMuted }}>
       {children}
+    </div>
+  );
+}
+
+function ConfidenceBadge({ confidence }: { confidence: number }) {
+  const threshold = 0.98;
+  const ok = confidence >= threshold;
+  return (
+    <div
+      className="mt-2 rounded-md px-2.5 py-1.5 text-[11px] leading-snug"
+      style={{
+        background: ok ? "rgba(52,211,153,0.10)" : "rgba(251,191,36,0.10)",
+        border: ok
+          ? "1px solid rgba(52,211,153,0.30)"
+          : "1px solid rgba(251,191,36,0.30)",
+      }}
+    >
+      <div className="flex items-center justify-between font-mono">
+        <span style={{ color: "#9aa0a6" }}>
+          confidence {confidence.toFixed(2)} {ok ? "≥" : "<"}{" "}
+          {threshold.toFixed(2)} threshold
+        </span>
+        <span style={{ color: ok ? "#34d399" : "#fbbf24" }}>
+          {ok ? "● proceed" : "● QUARANTINE"}
+        </span>
+      </div>
+      <div className="text-[10.5px] mt-1" style={{ color: "#9aa0a6" }}>
+        {ok
+          ? "Threshold met — actions auto-execute under signer policy."
+          : "Below auto-execute threshold. Dual FIDO2 co-signature required for any action. Detector never blocks autonomously."}
+      </div>
     </div>
   );
 }

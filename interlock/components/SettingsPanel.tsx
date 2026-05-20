@@ -1,6 +1,14 @@
 "use client";
 import { useState } from "react";
 
+type Tab =
+  | "detector"
+  | "bank"
+  | "signers"
+  | "rules"
+  | "governance"
+  | "audit";
+
 export default function SettingsPanel({
   open,
   onClose,
@@ -8,14 +16,12 @@ export default function SettingsPanel({
   open: boolean;
   onClose: () => void;
 }) {
-  const [tab, setTab] = useState<"detector" | "bank" | "signers" | "rules">(
-    "detector",
-  );
+  const [tab, setTab] = useState<Tab>("governance");
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[55] flex" onClick={onClose}>
       <div
-        className="ml-auto h-full w-full md:w-[420px] flex flex-col shadow-2xl"
+        className="ml-auto h-full w-full md:w-[480px] flex flex-col shadow-2xl"
         style={{ background: "#1c1c1f", borderLeft: "1px solid #3c4043" }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -40,28 +46,36 @@ export default function SettingsPanel({
         </header>
 
         <nav
-          className="flex"
+          className="flex overflow-x-auto"
           style={{ borderBottom: "1px solid #3c4043" }}
         >
-          <Tab on={tab === "detector"} onClick={() => setTab("detector")}>
+          <TabBtn on={tab === "governance"} onClick={() => setTab("governance")}>
+            Governance
+          </TabBtn>
+          <TabBtn on={tab === "detector"} onClick={() => setTab("detector")}>
             Detector
-          </Tab>
-          <Tab on={tab === "bank"} onClick={() => setTab("bank")}>
+          </TabBtn>
+          <TabBtn on={tab === "bank"} onClick={() => setTab("bank")}>
             Bank API
-          </Tab>
-          <Tab on={tab === "signers"} onClick={() => setTab("signers")}>
+          </TabBtn>
+          <TabBtn on={tab === "signers"} onClick={() => setTab("signers")}>
             Signers
-          </Tab>
-          <Tab on={tab === "rules"} onClick={() => setTab("rules")}>
+          </TabBtn>
+          <TabBtn on={tab === "rules"} onClick={() => setTab("rules")}>
             Rules
-          </Tab>
+          </TabBtn>
+          <TabBtn on={tab === "audit"} onClick={() => setTab("audit")}>
+            Audit log
+          </TabBtn>
         </nav>
 
         <div className="flex-1 overflow-y-auto p-4 text-[12.5px] text-slate-300 space-y-3">
+          {tab === "governance" && <GovernanceTab />}
           {tab === "detector" && <DetectorTab />}
           {tab === "bank" && <BankTab />}
           {tab === "signers" && <SignersTab />}
           {tab === "rules" && <RulesTab />}
+          {tab === "audit" && <AuditTab />}
         </div>
 
         <div
@@ -76,7 +90,7 @@ export default function SettingsPanel({
   );
 }
 
-function Tab({
+function TabBtn({
   on,
   children,
   onClick,
@@ -88,7 +102,7 @@ function Tab({
   return (
     <button
       onClick={onClick}
-      className="flex-1 px-3 py-2.5 text-[12px] font-medium transition"
+      className="px-3 py-2.5 text-[12px] font-medium transition whitespace-nowrap"
       style={{
         color: on ? "#8ab4f8" : "#9aa0a6",
         borderBottom: on ? "2px solid #8ab4f8" : "2px solid transparent",
@@ -110,16 +124,11 @@ function Row({
 }) {
   return (
     <div
-      className="py-2 grid grid-cols-[120px_1fr] gap-3"
+      className="py-2 grid grid-cols-[150px_1fr] gap-3"
       style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}
     >
       <span className="text-slate-500">{k}</span>
-      <span
-        className="text-slate-200"
-        style={{ color: ok ? "#e8eaed" : "#fbbf24" }}
-      >
-        {v}
-      </span>
+      <span style={{ color: ok ? "#e8eaed" : "#fbbf24" }}>{v}</span>
     </div>
   );
 }
@@ -130,6 +139,135 @@ function Mono({ children }: { children: React.ReactNode }) {
   );
 }
 
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-slate-500 mt-3 mb-1">
+      ◆ {children}
+    </div>
+  );
+}
+
+/* === GOVERNANCE TAB — RT11 highest-uplift addition === */
+function GovernanceTab() {
+  return (
+    <>
+      <SectionLabel>Guardrails as code</SectionLabel>
+      <p
+        className="text-[11.5px] leading-relaxed"
+        style={{ color: "#9aa0a6" }}
+      >
+        Deterministic hard-stops evaluated <em>before</em> the LLM agents
+        propose any action. The model never has wire-cancellation authority.
+      </p>
+      <div
+        className="mt-2 rounded-md overflow-hidden"
+        style={{
+          background: "#0e0e10",
+          border: "1px solid rgba(255,255,255,0.06)",
+        }}
+      >
+        <div
+          className="px-3 py-1.5 text-[10px] uppercase tracking-widest font-mono flex items-center justify-between"
+          style={{
+            background: "rgba(255,255,255,0.03)",
+            color: "#9aa0a6",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+          }}
+        >
+          <span>guardrails.json · resolved at runtime</span>
+          <span style={{ color: "#34d399" }}>● live</span>
+        </div>
+        <pre className="px-3 py-2.5 text-[10.5px] font-mono leading-relaxed text-slate-300 overflow-x-auto whitespace-pre">
+{`{
+  "detection_pipeline_check":   "PASSED",
+  "biological_plausibility":    "PASSED",
+  "av_sync_in_range":           "PASSED",
+  "regulatory_constraint_flag": "NONE",
+  "tenant_policy_consistency":  "PASSED",
+  "wire_authority_check":       "ESCALATE",
+  "confidence_threshold":       0.98,
+  "current_confidence":         0.94,
+  "override_threshold":         "FIDO2_REQUIRED",
+  "co_signers_required":        ["cfo", "general_counsel"],
+  "fail_mode":                  "QUARANTINE",
+  "operating_point": {
+    "fpr": 0.003,
+    "fnr": 0.021
+  }
+}`}
+        </pre>
+      </div>
+
+      <SectionLabel>Fail-safe quarantine</SectionLabel>
+      <p
+        className="text-[11.5px] leading-relaxed"
+        style={{ color: "#9aa0a6" }}
+      >
+        Flagged transactions enter a quarantine escrow that requires{" "}
+        <span className="text-slate-200 font-medium">
+          dual FIDO2 co-signature
+        </span>{" "}
+        to either execute or cancel. If detector confidence is below 98%, the
+        system defaults to safe-failure rather than autonomous action.
+      </p>
+
+      <div className="mt-2 grid grid-cols-3 gap-2">
+        <FlagCell label="Block authority" value="DISABLED" tone="ok" />
+        <FlagCell
+          label="Default on uncertainty"
+          value="QUARANTINE"
+          tone="warn"
+        />
+        <FlagCell label="Override" value="2× FIDO2" tone="ok" />
+      </div>
+
+      <SectionLabel>Model risk validation</SectionLabel>
+      <Row k="Framework" v="SR 26-2 (FRB/OCC/FDIC, formerly SR 11-7)" />
+      <Row k="Last validation" v="2026-04-18 · A-LIGN" />
+      <Row k="Next review" v="2026-10-18 · 180-day cycle" />
+      <Row k="Backtest p&l (cohort)" v="0 false-positive wire cancellations · 30 days" />
+
+      <SectionLabel>Compliance copilot</SectionLabel>
+      <Row
+        k="Live citation engine"
+        v="31 CFR §1020.320(a) · SAR filing readiness"
+      />
+      <Row
+        k="Real-time mapping"
+        v="SWIFT CSCF v2025 · PCI-DSS 4.0 · NIST CSF 2.0"
+      />
+    </>
+  );
+}
+
+function FlagCell({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: "ok" | "warn";
+}) {
+  const c =
+    tone === "ok"
+      ? { color: "#34d399", bg: "rgba(52,211,153,0.08)", border: "rgba(52,211,153,0.3)" }
+      : { color: "#fbbf24", bg: "rgba(251,191,36,0.08)", border: "rgba(251,191,36,0.3)" };
+  return (
+    <div
+      className="rounded-md px-2 py-1.5 text-center"
+      style={{ background: c.bg, border: `1px solid ${c.border}` }}
+    >
+      <div className="text-[9.5px] uppercase tracking-widest" style={{ color: "#9aa0a6" }}>
+        {label}
+      </div>
+      <div className="text-[11.5px] font-mono mt-1" style={{ color: c.color }}>
+        {value}
+      </div>
+    </div>
+  );
+}
+
 function DetectorTab() {
   return (
     <>
@@ -137,6 +275,7 @@ function DetectorTab() {
       <Row k="Primary" v={<Mono>resemble · detect-3b-omni-v2.1</Mono>} />
       <Row k="Fallback" v={<Mono>realitydefender · realapi/scan-v3</Mono>} />
       <Row k="EER (benchmark)" v="1.1% (Modulate Velma 03/2026)" />
+      <Row k="Operating point" v="0.3% FPR · 2.1% FNR" />
       <Row k="Latency p50" v="287ms (cached / mock)" />
       <Row k="Mode" v="CACHED · production toggle in plugin footer" />
       <SectionLabel>Detector explainer</SectionLabel>
@@ -264,10 +403,179 @@ function RulesTab() {
   );
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+/* === AUDIT TAB — RT10 #3 === */
+function AuditTab() {
+  const rows: AuditRow[] = [
+    {
+      ts: "2026-05-23T20:55:14.872Z",
+      actor: "system",
+      action: "detection.verdict",
+      tgt: "det_01HXY2VF...",
+      req: "req_01HXY2VFM7K1QZ",
+      ip: "35.190.220.14",
+      geo: "us-east1",
+    },
+    {
+      ts: "2026-05-23T20:55:15.107Z",
+      actor: "system",
+      action: "wire.freeze",
+      tgt: "wire/W-7821",
+      req: "req_01HXY2VFXB44PA",
+      ip: "35.190.220.14",
+      geo: "us-east1",
+    },
+    {
+      ts: "2026-05-23T20:55:15.418Z",
+      actor: "system",
+      action: "account.lock",
+      tgt: "user/ceo@northwind",
+      req: "req_01HXY2VFY3RD8M",
+      ip: "35.190.220.14",
+      geo: "us-east1",
+    },
+    {
+      ts: "2026-05-23T20:55:16.029Z",
+      actor: "system",
+      action: "disclosure.draft",
+      tgt: "8K-1.05-2026-05-23",
+      req: "req_01HXY2VG24K3P5",
+      ip: "35.190.220.14",
+      geo: "us-east1",
+    },
+    {
+      ts: "2026-05-23T20:55:16.288Z",
+      actor: "mary.chen@northwind",
+      action: "approval.granted",
+      tgt: "det_01HXY2VF...",
+      req: "req_01HXY2VG3WDFGM",
+      ip: "98.139.180.149",
+      geo: "us-east4",
+    },
+    {
+      ts: "2026-05-23T20:54:48.221Z",
+      actor: "mary.chen@northwind",
+      action: "meet.joined",
+      tgt: "meet/qrx-vfgr-djy",
+      req: "req_01HXY2V8PA2J71",
+      ip: "98.139.180.149",
+      geo: "us-east4",
+    },
+    {
+      ts: "2026-05-23T20:54:46.119Z",
+      actor: "robert.henderson@northwind",
+      action: "meet.joined",
+      tgt: "meet/qrx-vfgr-djy",
+      req: "req_01HXY2V8N9K2DP",
+      ip: "203.0.113.42",
+      geo: "ap-east1 (HK)",
+    },
+    {
+      ts: "2026-05-23T19:30:00.000Z",
+      actor: "system",
+      action: "key.rotated",
+      tgt: "api_key/ilk_live_sk_***",
+      req: "req_01HXY2UAB1Z9N1",
+      ip: "35.190.220.14",
+      geo: "us-east1",
+    },
+    {
+      ts: "2026-05-23T15:14:02.553Z",
+      actor: "david.reeves@northwind",
+      action: "signer.added",
+      tgt: "officer/gc",
+      req: "req_01HXY2U2VPK8XW",
+      ip: "98.139.180.150",
+      geo: "us-east4",
+    },
+    {
+      ts: "2026-05-23T11:00:01.001Z",
+      actor: "system",
+      action: "health.ok",
+      tgt: "detector_chain",
+      req: "req_01HXY2T9X4Q2BR",
+      ip: "35.190.220.14",
+      geo: "us-east1",
+    },
+    {
+      ts: "2026-05-22T22:18:33.984Z",
+      actor: "joon.park@northwind",
+      action: "tenant.switched",
+      tgt: "ten_lufthansa",
+      req: "req_01HXY2QY3K0FD9",
+      ip: "98.139.180.151",
+      geo: "us-east4",
+    },
+    {
+      ts: "2026-05-22T09:44:11.310Z",
+      actor: "system",
+      action: "model.deployed",
+      tgt: "detect-3b-omni-v2.1",
+      req: "req_01HXY2PN0KAC51",
+      ip: "35.190.220.14",
+      geo: "us-east1",
+    },
+  ];
   return (
-    <div className="text-[10px] font-medium uppercase tracking-[0.2em] text-slate-500 mt-3 mb-1">
-      ◆ {children}
-    </div>
+    <>
+      <SectionLabel>Immutable audit log · last 12 events</SectionLabel>
+      <div
+        className="rounded-md overflow-hidden text-[10.5px] font-mono"
+        style={{
+          background: "#0e0e10",
+          border: "1px solid rgba(255,255,255,0.06)",
+        }}
+      >
+        <div
+          className="grid grid-cols-[100px_140px_100px_1fr] gap-2 px-2.5 py-1.5 text-[9.5px] tracking-widest uppercase"
+          style={{
+            background: "rgba(255,255,255,0.03)",
+            color: "#9aa0a6",
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+          }}
+        >
+          <span>time (UTC)</span>
+          <span>actor</span>
+          <span>action</span>
+          <span>target</span>
+        </div>
+        {rows.map((r, i) => (
+          <div
+            key={r.req}
+            className={`grid grid-cols-[100px_140px_100px_1fr] gap-2 px-2.5 py-1.5 ${
+              i % 2 === 0 ? "bg-white/[0.015]" : ""
+            }`}
+            title={`${r.req} · ${r.ip} · ${r.geo}`}
+          >
+            <span style={{ color: "#9aa0a6" }}>
+              {r.ts.slice(11, 19)}
+            </span>
+            <span
+              style={{ color: r.actor.includes("@") ? "#8ab4f8" : "#9aa0a6" }}
+              className="truncate"
+            >
+              {r.actor.length > 18 ? r.actor.slice(0, 18) + "…" : r.actor}
+            </span>
+            <span style={{ color: "#fcd34d" }}>{r.action}</span>
+            <span style={{ color: "#e8eaed" }} className="truncate">
+              {r.tgt}
+            </span>
+          </div>
+        ))}
+      </div>
+      <div className="text-[10.5px] mt-2" style={{ color: "#9aa0a6" }}>
+        Append-only · WORM-backed in <Mono>gcs://interlock-audit-northwind</Mono> ·
+        SOC 2 CC7.2
+      </div>
+    </>
   );
 }
+
+type AuditRow = {
+  ts: string;
+  actor: string;
+  action: string;
+  tgt: string;
+  req: string;
+  ip: string;
+  geo: string;
+};
