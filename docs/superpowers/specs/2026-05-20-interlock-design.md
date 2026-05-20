@@ -210,7 +210,7 @@ Each renders as markdown card in UI panel.
 |---|---|
 | Gemini 3.1 Pro multimodal errors / hand-waves | Pre-baked FORENSICS JSON cache; deterministic re-prompt path; UI shows same output either way |
 | Managed Agents 429 / quota | Pre-warm sandbox; if first call fails, retry once; if still fails, DEMO_MODE auto-swap to canned stdout trace |
-| Gemini 3.5 Flash text errors | Multi-model fallback chain: 3.5-flash → 3.1-flash → 2.5-flash. Independent quota pools. |
+| Gemini 3.5 Flash text errors | Multi-model fallback chain: **gemini-3.5-flash → gemini-3.1-pro → gemini-3.1-flash** (updated 2026-05-20: 3.5 Flash is new agentic default per I/O 2026, dropped 2.5 Flash entirely). Independent quota pools. |
 | SSE drops on venue WiFi | Heartbeat ping every 5s; on drop, frontend buffers + retries; offline mode plays cached trace |
 | Vercel cold start | Deployed days ahead; warm with a curl ping before demo |
 | Live demo clock | 90:00 countdown is a UI element, not tied to backend; keeps ticking regardless |
