@@ -7,6 +7,7 @@ import OverrideEscapeHatch from "@/components/OverrideEscapeHatch";
 import DetectorTelemetry, {
   DetectorMode,
 } from "@/components/DetectorTelemetry";
+import DraftRow from "@/components/DraftRow";
 import WireStatusBank from "@/components/WireStatusBank";
 import AttributionSlide from "@/components/AttributionSlide";
 import DeepfakeSlamOverlay from "@/components/DeepfakeSlamOverlay";
@@ -253,23 +254,15 @@ export default function IncidentPage() {
                 </div>
                 {phase === "awaiting_approval" && (
                   <>
-                    <div className="mt-2 text-[11px] text-slate-300">
-                      Recommended strategy:
+                    <div className="mt-2 text-sm text-slate-200">
+                      Recommend: <span className="text-white font-medium">freeze wire W-7821</span> &amp; draft disclosure.
                     </div>
-                    <ol className="text-[11px] list-decimal list-inside text-slate-200 mt-1 space-y-0.5">
-                      <li>Freeze wire W-7821</li>
-                      <li>Lock CEO accounts</li>
-                      <li>Draft Item 1.05 disclosure (officer review)</li>
-                    </ol>
                     <button
                       onClick={approveStrategy}
-                      className="mt-2.5 w-full py-2.5 bg-rose-600 hover:bg-rose-500 rounded font-semibold text-sm shadow-[0_0_20px_rgba(244,63,94,0.5)]"
+                      className="mt-3 w-full py-3 bg-rose-600 hover:bg-rose-500 rounded-md font-semibold text-sm shadow-[0_0_24px_rgba(244,63,94,0.6)] transition"
                     >
-                      ▶ Approve Strategy
+                      Approve &amp; Execute
                     </button>
-                    <div className="text-[10px] text-slate-500 mt-1.5 leading-snug">
-                      One-click batch. Step-through per-action available.
-                    </div>
                   </>
                 )}
                 {(phase === "executing" ||
@@ -349,7 +342,7 @@ export default function IncidentPage() {
               ))}
               <OverrideEscapeHatch
                 visible={
-                  containmentLines.some((l) => l.includes("freeze_wire")) &&
+                  containmentLines.some((l) => l.includes("lock_account")) &&
                   (phase === "executing" ||
                     phase === "awaiting_signature" ||
                     phase === "done")
@@ -372,36 +365,25 @@ export default function IncidentPage() {
                       : "idle"
               }
             >
-              {commsDrafts.item_1_05_draft && (
-                <details className="border border-slate-800 rounded p-2 mb-2 bg-slate-950/50" open>
-                  <summary className="cursor-pointer text-slate-200">
-                    📄 SEC Form 8-K · Item 1.05 disclosure (DRAFT — officer
-                    review &amp; filing)
-                  </summary>
-                  <pre className="whitespace-pre-wrap mt-2 text-[10px] text-slate-400 leading-relaxed max-h-40 overflow-y-auto">
-                    {commsDrafts.item_1_05_draft}
-                  </pre>
-                </details>
-              )}
-              {commsDrafts.board_alert && (
-                <details className="border border-slate-800 rounded p-2 mb-2 bg-slate-950/50">
-                  <summary className="cursor-pointer text-slate-200">
-                    📄 Board alert
-                  </summary>
-                  <pre className="whitespace-pre-wrap mt-2 text-[10px] text-slate-400 leading-relaxed">
-                    {commsDrafts.board_alert}
-                  </pre>
-                </details>
-              )}
-              {commsDrafts.customer_comms && (
-                <details className="border border-slate-800 rounded p-2 bg-slate-950/50">
-                  <summary className="cursor-pointer text-slate-200">
-                    📄 Customer communications
-                  </summary>
-                  <pre className="whitespace-pre-wrap mt-2 text-[10px] text-slate-400 leading-relaxed">
-                    {commsDrafts.customer_comms}
-                  </pre>
-                </details>
+              {Object.keys(commsDrafts).length > 0 && (
+                <div className="mt-2 space-y-1.5">
+                  {commsDrafts.item_1_05_draft && (
+                    <DraftRow
+                      label="SEC Form 8-K · Item 1.05 disclosure"
+                      body={commsDrafts.item_1_05_draft}
+                      primary
+                    />
+                  )}
+                  {commsDrafts.board_alert && (
+                    <DraftRow label="Board alert" body={commsDrafts.board_alert} />
+                  )}
+                  {commsDrafts.customer_comms && (
+                    <DraftRow
+                      label="Customer communications"
+                      body={commsDrafts.customer_comms}
+                    />
+                  )}
+                </div>
               )}
             </AgentPanel>
           </div>

@@ -16,10 +16,16 @@ export default function Home() {
         an authorized officer to file via EDGAR.
       </p>
       <Link
-        href="/incident"
+        href="/meet"
         className="px-10 py-4 bg-blue-500 hover:bg-blue-400 active:bg-blue-600 text-white rounded-md text-lg font-medium transition"
       >
-        Start Live Demo
+        Open in Google Meet
+      </Link>
+      <Link
+        href="/incident"
+        className="mt-3 text-[11px] text-slate-500 hover:text-slate-300 underline-offset-4 hover:underline"
+      >
+        Or open the standalone command center
       </Link>
       <div className="mt-16 text-[10px] text-slate-500 tracking-widest uppercase text-center">
         Built for Google I/O Hackathon · Cerebral Valley × Google DeepMind
