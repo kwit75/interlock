@@ -397,7 +397,21 @@ export default function MeetIncidentPage() {
     );
 
   // === CENTER STAGE ===
-  const call = <IncomingCallCard playing={callPlaying} activeEvidence={evidence} />;
+  // Keep the scan-line + target brackets active across detection + approval +
+  // execution, so the visual narrative continues. Verdict prop drives the
+  // target-acquired transition.
+  const stageActive =
+    phase === "detection" ||
+    phase === "awaiting_approval" ||
+    phase === "executing" ||
+    phase === "awaiting_signature";
+  const call = (
+    <IncomingCallCard
+      playing={stageActive}
+      activeEvidence={evidence}
+      verdict={verdict}
+    />
+  );
 
   // === WIRE STATUS PILL (above control bar) ===
   const wirePill =
