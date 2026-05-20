@@ -15,11 +15,11 @@ A live deepfake-CEO financial-fraud command center. A CFO gets a video call from
 
 ## 2. Opening pitch (memorize verbatim)
 
-> "Antigravity 2.0 shipped Tuesday without an editor. We built this on Managed Agents anyway — day 4. This is what's possible.
+> "Managed Agents shipped Tuesday. Here's what Day 4 looks like.
 >
 > It's 4:55 PM Friday. EOD market close in 5 minutes. Your CFO just got a video call from the CEO — face clear, voice clear — authorizing a $50 million wire to a new vendor. There's one problem: the CEO is asleep in Singapore. This is a deepfake. You don't have 5 minutes.
 >
-> INTERLOCK detects it, freezes the wire in a Linux sandbox spawned by a single Gemini API call, and drafts the 8-K filing — all approved with one click."
+> INTERLOCK detects it, freezes the wire by executing Python in a Linux sandbox spawned by a single Gemini API call, and **drafts the Item 1.05 cybersecurity-incident disclosure** for an authorized officer to file — all approved with one click."
 
 ## 3. Architecture
 
@@ -160,12 +160,14 @@ print(json.dumps(status))
 **Model:** Gemini 3.5 Flash (direct API).
 **Why Flash, not Pro:** Faster, cheaper, more stable. Text-only output — no Live API voice (drops 5-10s latency risk per RT3 + complexity).
 
-**Tools:** Google Search grounding (for current SEC 8-K filing requirements as of 2026).
+**Tools:** Google Search grounding (for current SEC Form 8-K Item 1.05 disclosure requirements as of 2026; SEC press release 2023-139 mandates filing within four business days of materiality determination).
 
-**Output:** Three text artifacts streamed to UI:
-1. SEC 8-K filing draft (Item 1.05 cybersecurity incident, with Search-grounded boilerplate)
+**Output (DRAFTS for human officer to file — agent never submits to EDGAR):** Three text artifacts streamed to UI:
+1. **Item 1.05 disclosure draft** — populated SEC 8-K Form Item 1.05 text describing the cybersecurity incident; agent drafts, human officer signs and submits to EDGAR
 2. Board alert (concise, urgent tone, action items)
 3. Customer communications (apology + reassurance + remediation timeline)
+
+**Legal positioning in pitch:** Explicitly say "drafts" not "files." Cite SEC press release 2023-139 (July 26, 2023) on the four-business-day Item 1.05 rule. Avoids fraud-adjacency concern from securities-law-aware judges.
 
 Each renders as markdown card in UI panel.
 
@@ -210,7 +212,7 @@ Each renders as markdown card in UI panel.
 |---|---|
 | Gemini 3.1 Pro multimodal errors / hand-waves | Pre-baked FORENSICS JSON cache; deterministic re-prompt path; UI shows same output either way |
 | Managed Agents 429 / quota | Pre-warm sandbox; if first call fails, retry once; if still fails, DEMO_MODE auto-swap to canned stdout trace |
-| Gemini 3.5 Flash text errors | Multi-model fallback chain: **gemini-3.5-flash → gemini-3.1-pro → gemini-3.1-flash** (updated 2026-05-20: 3.5 Flash is new agentic default per I/O 2026, dropped 2.5 Flash entirely). Independent quota pools. |
+| Gemini 3.5 Flash text errors | Multi-model fallback chain: **`gemini-3.5-flash` → `gemini-3.1-pro-preview` → `gemini-3.1-flash-lite-preview` → `gemini-2.5-flash`** (corrected 2026-05-20 RT5: plain `gemini-3.1-flash` does NOT exist as text/multimodal model — only `-lite/-live/-image/-tts` variants. NEVER call `gemini-3-flash-preview` — has documented 22% clock drift, demo-killer on video). Independent quota pools. |
 | SSE drops on venue WiFi | Heartbeat ping every 5s; on drop, frontend buffers + retries; offline mode plays cached trace |
 | Vercel cold start | Deployed days ahead; warm with a curl ping before demo |
 | Live demo clock | 90:00 countdown is a UI element, not tied to backend; keeps ticking regardless |
