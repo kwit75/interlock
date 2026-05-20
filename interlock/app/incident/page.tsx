@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import IncomingCallCard from "@/components/IncomingCallCard";
 import AgentPanel from "@/components/AgentPanel";
 import AgentTrace from "@/components/AgentTrace";
+import OverrideEscapeHatch from "@/components/OverrideEscapeHatch";
 import WireStatusBank from "@/components/WireStatusBank";
 import AttributionSlide from "@/components/AttributionSlide";
 import DeepfakeSlamOverlay from "@/components/DeepfakeSlamOverlay";
@@ -336,6 +337,14 @@ export default function IncidentPage() {
                   $ {l}
                 </div>
               ))}
+              <OverrideEscapeHatch
+                visible={
+                  containmentLines.some((l) => l.includes("freeze_wire")) &&
+                  (phase === "executing" ||
+                    phase === "awaiting_signature" ||
+                    phase === "done")
+                }
+              />
             </AgentPanel>
 
             <AgentPanel

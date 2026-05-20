@@ -45,7 +45,7 @@ export default function SignatureCeremony({
           </button>
         </div>
         <div className="mt-3 font-mono text-[10px] text-slate-600 text-center">
-          endpoint: https://efts.sec.gov/LATEST/search-index?▒▒▒▒▒▒▒▒▒  ·  redacted
+          endpoint: https://efts.sec.gov/LATEST/submit · token: [FIDO2_SIGNED_PAYLOAD_REDACTED]
         </div>
       </div>
     </div>

@@ -1,7 +1,8 @@
 [
-  { "thought": "Synthetic media classification received. confidence=0.94 > threshold=0.85", "rule_id": "INTERLOCK-R001", "pause_ms": 400 },
-  { "thought": "Cross-checking strategy policy STRAT-WIRE-FREEZE-A. Pre-execution freeze authorized.", "rule_id": "STRAT-WIRE-FREEZE-A", "pause_ms": 350 },
-  { "thought": "Spawning isolated Linux sandbox via Managed Agents Interactions API (antigravity-preview-05-2026)", "rule_id": null, "pause_ms": 600 },
-  { "thought": "Generating Python payload: import bank_api_v2; freeze_wire(W-7821); lock_account('CEO'); notify_board()", "rule_id": null, "pause_ms": 500 },
-  { "thought": "Executing in sandbox. Streaming stdout to operator console.", "rule_id": null, "pause_ms": 0 }
+  { "thought": "Audio transcript parsed. Extracted target vendor=\"TechVenture Ltd.\", wire_id=W-7821, amount_usd=50000000 from CEO video-call utterance at 00:02.317", "rule_id": "NIST-IR-8432-SYNTH", "pause_ms": 450 },
+  { "thought": "Cross-referencing extracted wire_id against pending-transactions ledger. Match: W-7821 scheduled 17:00 PDT, status=PENDING", "rule_id": "SOX-404-SEC-FREEZE", "pause_ms": 350 },
+  { "thought": "Synthetic media classifier returned verdict=SYNTHETIC, confidence=0.94 (>0.85 threshold). Triggering pre-execution freeze policy.", "rule_id": "NIST-IR-8432-SYNTH", "pause_ms": 400 },
+  { "thought": "Spawning isolated Linux sandbox via Managed Agents Interactions API (base_agent=antigravity-preview-05-2026)", "rule_id": null, "pause_ms": 600 },
+  { "thought": "Generating Python payload with extracted parameters: bank_api_v2.freeze_wire(wire_id=\"W-7821\", reason=\"synthetic_media_detected\"); lock_account(holder=\"CEO\"); notify_board(channel=\"email+sms\")", "rule_id": null, "pause_ms": 500 },
+  { "thought": "Executing in sandbox. Streaming stdout to operator console. Override path available via REVOKE button (requires officer credentials).", "rule_id": null, "pause_ms": 0 }
 ]

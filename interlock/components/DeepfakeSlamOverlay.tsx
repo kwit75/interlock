@@ -23,12 +23,12 @@ export default function DeepfakeSlamOverlay({
       return;
     }
     setPhase("flash");
-    const t1 = setTimeout(() => setPhase("hold"), 250);
-    const t2 = setTimeout(() => setPhase("fade"), 1700);
+    const t1 = setTimeout(() => setPhase("hold"), 150);
+    const t2 = setTimeout(() => setPhase("fade"), 500);
     const t3 = setTimeout(() => {
       setPhase("hidden");
       onDoneRef.current?.();
-    }, 2400);
+    }, 900);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -41,10 +41,11 @@ export default function DeepfakeSlamOverlay({
 
   if (phase === "hidden") return null;
 
+  // Per RT8: keep underlying data visible — translucent overlay, not opaque block.
   const opacity =
-    phase === "flash" ? "opacity-100" : phase === "hold" ? "opacity-95" : "opacity-0";
+    phase === "flash" ? "opacity-100" : phase === "hold" ? "opacity-90" : "opacity-0";
   const bgFlash =
-    phase === "flash" ? "bg-red-600" : "bg-red-950/95";
+    phase === "flash" ? "bg-red-600/80" : "bg-red-900/70";
 
   return (
     <div

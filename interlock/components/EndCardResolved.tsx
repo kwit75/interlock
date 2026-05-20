@@ -40,19 +40,19 @@ export default function EndCardResolved({
             {elapsedSec.toString().padStart(2, "0")}
           </div>
           <div className="text-[10px] uppercase tracking-widest text-slate-400 mt-1">
-            seconds
+            seconds wall-clock
           </div>
         </div>
         <div>
           <div className="text-4xl text-white">3</div>
           <div className="text-[10px] uppercase tracking-widest text-slate-400 mt-1">
-            agents
+            agents orchestrated
           </div>
         </div>
         <div>
-          <div className="text-4xl text-white">0</div>
+          <div className="text-4xl text-white">450<span className="text-2xl text-slate-400">ms</span></div>
           <div className="text-[10px] uppercase tracking-widest text-slate-400 mt-1">
-            funds lost
+            inference p50
           </div>
         </div>
       </div>
