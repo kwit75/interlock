@@ -8,6 +8,7 @@ import DetectorTelemetry, {
   DetectorMode,
 } from "@/components/DetectorTelemetry";
 import DraftRow from "@/components/DraftRow";
+import SettingsPanel from "@/components/SettingsPanel";
 import DeepfakeSlamOverlay from "@/components/DeepfakeSlamOverlay";
 import EndCardResolved from "@/components/EndCardResolved";
 import SignatureCeremony from "@/components/SignatureCeremony";
@@ -64,6 +65,7 @@ export default function MeetIncidentPage() {
   const [detectorMode, setDetectorMode] = useState<DetectorMode>("cached");
   const [audioMuted, setAudioMuted] = useState(false);
   const [muteToast, setMuteToast] = useState(0);
+  const [showSettings, setShowSettings] = useState(false);
 
   const esRef = useRef<EventSource | null>(null);
 
@@ -381,42 +383,58 @@ export default function MeetIncidentPage() {
           </SidebarItem>
         )}
 
-        {/* Telemetry footer */}
-        <div
-          className="px-4 py-3 mt-auto"
-          style={{ borderTop: `1px solid ${C.divider}`, color: C.textDim }}
-        >
-          <div className="flex items-center gap-2 text-[11px]">
-            <span style={{ color: C.textMuted }}>◆</span>
-            <span>Detector</span>
-            <span className="font-mono" style={{ color: C.textMuted }}>
-              detect-3b-omni · 1.1% EER · {detectorMode}
+        {/* Admin settings link + telemetry footer */}
+        <div className="mt-auto">
+          <button
+            onClick={() => setShowSettings(true)}
+            className="w-full flex items-center gap-2 px-4 py-2 text-[11.5px] transition hover:bg-white/[0.03]"
+            style={{
+              color: C.textDim,
+              borderTop: `1px solid ${C.divider}`,
+            }}
+          >
+            <span style={{ color: C.textMuted }}>⚙</span>
+            <span>Admin · detector · bank API · signers · rules</span>
+            <span className="ml-auto text-[10px]" style={{ color: C.textMuted }}>
+              →
             </span>
-            <button
-              onClick={() =>
-                setDetectorMode(detectorMode === "cached" ? "live" : "cached")
-              }
-              className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-medium transition"
-              style={{
-                background:
-                  detectorMode === "cached"
-                    ? "rgba(138,180,248,0.18)"
-                    : "rgba(251,191,36,0.18)",
-                color: detectorMode === "cached" ? C.accent : "#fcd34d",
-                border:
-                  detectorMode === "cached"
-                    ? "1px solid rgba(138,180,248,0.4)"
-                    : "1px solid rgba(251,191,36,0.4)",
-              }}
-            >
-              {detectorMode === "cached" ? "switch to live" : "querying…"}
-            </button>
+          </button>
+          <div
+            className="px-4 py-3"
+            style={{ borderTop: `1px solid ${C.divider}`, color: C.textDim }}
+          >
+            <div className="flex items-center gap-2 text-[11px]">
+              <span style={{ color: C.textMuted }}>◆</span>
+              <span>Detector</span>
+              <span className="font-mono" style={{ color: C.textMuted }}>
+                detect-3b-omni · 1.1% EER · {detectorMode}
+              </span>
+              <button
+                onClick={() =>
+                  setDetectorMode(detectorMode === "cached" ? "live" : "cached")
+                }
+                className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-medium transition"
+                style={{
+                  background:
+                    detectorMode === "cached"
+                      ? "rgba(138,180,248,0.18)"
+                      : "rgba(251,191,36,0.18)",
+                  color: detectorMode === "cached" ? C.accent : "#fcd34d",
+                  border:
+                    detectorMode === "cached"
+                      ? "1px solid rgba(138,180,248,0.4)"
+                      : "1px solid rgba(251,191,36,0.4)",
+                }}
+              >
+                {detectorMode === "cached" ? "switch to live" : "querying…"}
+              </button>
+            </div>
+            {detectorMode === "live" && (
+              <DetectorLivePopover
+                onClose={() => setDetectorMode("cached")}
+              />
+            )}
           </div>
-          {detectorMode === "live" && (
-            <DetectorLivePopover
-              onClose={() => setDetectorMode("cached")}
-            />
-          )}
         </div>
       </div>
     );
@@ -494,6 +512,10 @@ export default function MeetIncidentPage() {
       />
       <EndCardResolved show={phase === "done"} elapsedSec={resolvedElapsed} />
       <MuteToast key={muteToast} show={muteToast > 0} muted={audioMuted} />
+      <SettingsPanel
+        open={showSettings}
+        onClose={() => setShowSettings(false)}
+      />
       <MeetShell
         call={call}
         rightPanel={sidebar}
