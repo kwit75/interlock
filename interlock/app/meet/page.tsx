@@ -35,6 +35,15 @@ type Phase =
   | "awaiting_signature"
   | "done";
 
+const C = {
+  text: "#e8eaed",
+  textSubtle: "#bdc1c6",
+  textDim: "#9aa0a6",
+  textMuted: "#5f6368",
+  divider: "rgba(255,255,255,0.08)",
+  accent: "#8ab4f8",
+};
+
 export default function MeetIncidentPage() {
   const [phase, setPhase] = useState<Phase>("idle");
   const [evidence, setEvidence] = useState<ForensicsEvidence[]>([]);
@@ -51,7 +60,6 @@ export default function MeetIncidentPage() {
   const [demoStartedAt, setDemoStartedAt] = useState<number | null>(null);
   const [resolvedElapsed, setResolvedElapsed] = useState<number>(0);
   const [detectorMode, setDetectorMode] = useState<DetectorMode>("cached");
-  const [showTelemetry, setShowTelemetry] = useState(false);
 
   const esRef = useRef<EventSource | null>(null);
 
@@ -166,104 +174,138 @@ export default function MeetIncidentPage() {
   const s = countdown % 60;
   const callPlaying = phase === "detection";
   const wireFrozen = wire?.status === "FROZEN" || countdownFrozen;
+  const forensicsStatus: Status =
+    evidence.length === 0 ? "idle" : verdict ? "done" : "running";
+  const containmentStatus: Status =
+    phase === "executing" && containmentLines.length === 0
+      ? "running"
+      : containmentLines.length
+        ? phase === "done" || phase === "awaiting_signature"
+          ? "done"
+          : "running"
+        : "idle";
+  const commsStatus: Status =
+    Object.keys(commsDrafts).length === 3
+      ? phase === "done" || phase === "awaiting_signature"
+        ? "done"
+        : "running"
+      : Object.keys(commsDrafts).length || phase === "executing"
+        ? "running"
+        : "idle";
 
   // === SIDEBAR ===
   const sidebar =
     phase === "idle" ? (
       <SidebarIdle onStart={startDemo} />
     ) : (
-      <>
-        {/* Verdict — hero surface, shown only when SYNTHETIC */}
+      <div className="flex flex-col">
+        {/* Verdict — Material notification banner */}
         {verdict === "SYNTHETIC" && (
-          <div className="rounded-lg border-2 border-rose-500/70 bg-rose-950/30 p-2.5 shadow-[0_0_24px_rgba(244,63,94,0.25)]">
+          <div
+            className="px-4 py-3"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(234,67,53,0.18) 0%, rgba(234,67,53,0.08) 100%)",
+              borderBottom: `1px solid ${C.divider}`,
+            }}
+          >
             <div className="flex items-baseline justify-between">
-              <div className="text-rose-200 text-[13px] font-semibold leading-tight">
+              <div
+                className="text-[14px] font-semibold leading-tight"
+                style={{ color: "#fda4af" }}
+              >
                 Deepfake detected
               </div>
-              <div className="text-[11px] text-rose-400 font-mono tabular-nums">
+              <div
+                className="text-[12px] font-mono tabular-nums"
+                style={{ color: "#fda4af" }}
+              >
                 {confidence !== null ? (confidence * 100).toFixed(0) : "—"}%
               </div>
             </div>
+            <div
+              className="mt-1 text-[12px] leading-snug"
+              style={{ color: C.textSubtle }}
+            >
+              Synthetic media in CEO video stream. Wire authorization is
+              compromised.
+            </div>
             {phase === "awaiting_approval" && (
-              <>
-                <div className="mt-1.5 text-[12px] text-slate-200 leading-snug">
-                  Recommend:{" "}
-                  <span className="text-white font-medium">
-                    freeze wire W-7821
-                  </span>
-                  .
-                </div>
-                <button
-                  onClick={approveStrategy}
-                  className="mt-2 w-full py-2 bg-rose-600 hover:bg-rose-500 rounded-md font-semibold text-[13px] shadow-[0_0_20px_rgba(244,63,94,0.55)] transition"
-                >
-                  Approve &amp; Execute
-                </button>
-              </>
+              <button
+                onClick={approveStrategy}
+                className="mt-2.5 w-full py-2.5 rounded-md transition"
+                style={{
+                  background: "#ea4335",
+                  color: "white",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  boxShadow: "0 0 24px rgba(234,67,53,0.55)",
+                }}
+              >
+                Approve &amp; Execute
+              </button>
             )}
             {(phase === "executing" ||
               phase === "awaiting_signature" ||
               phase === "done") && (
-              <div className="mt-1.5 text-[11px] text-emerald-300">
-                ✓ Wire frozen · 8-K drafted
+              <div className="mt-2 text-[12px] text-emerald-300">
+                ✓ Wire frozen · 8-K disclosure drafted
               </div>
             )}
           </div>
         )}
 
-        {/* FORENSICS */}
-        <SidebarSection
+        {/* Agents — Material list, no card chrome */}
+        <SidebarItem
           title="Forensics"
-          subtitle="gemini-3.1-pro · multimodal"
-          status={evidence.length === 0 ? "idle" : verdict ? "done" : "running"}
-          collapsedOk={phase === "executing" || phase === "done" || phase === "awaiting_signature"}
+          subtitle="Gemini 3.1 Pro · multimodal"
+          status={forensicsStatus}
         >
-          <div className="font-mono text-[10px] leading-snug space-y-0.5 max-h-[110px] overflow-y-auto">
-            {evidence.slice(-4).map((ev, i) => (
-              <div key={i}>
-                <span className="text-slate-500">
-                  f{ev.frame_number.toString().padStart(3, "0")}
-                </span>{" "}
-                <span className="text-amber-300">{ev.category}</span>{" "}
-                <span className="text-slate-400">{ev.observation}</span>
+          {evidence.length === 0 ? (
+            <Hint>Analyzing live video frames…</Hint>
+          ) : (
+            <>
+              <div className="font-mono text-[10.5px] leading-relaxed space-y-0.5 max-h-[120px] overflow-y-auto">
+                {evidence.slice(-4).map((ev, i) => (
+                  <div key={i}>
+                    <span style={{ color: C.textMuted }}>
+                      f{ev.frame_number.toString().padStart(3, "0")}
+                    </span>{" "}
+                    <span className="text-amber-300">{ev.category}</span>{" "}
+                    <span style={{ color: C.textDim }}>{ev.observation}</span>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          {verdict && (
-            <div className="mt-1.5 text-[10px] text-slate-500">
-              EER 0.087 · audio EER 0.021 · verdict{" "}
-              <span className="text-rose-300 font-medium">{verdict}</span> ·
-              conf{" "}
-              <span className="text-rose-300 font-mono">
-                {confidence?.toFixed(2)}
-              </span>
-            </div>
+              {verdict && (
+                <div
+                  className="mt-1.5 text-[11px]"
+                  style={{ color: C.textMuted }}
+                >
+                  EER 0.087 image · 0.021 audio · verdict{" "}
+                  <span style={{ color: "#fda4af" }}>{verdict}</span>
+                </div>
+              )}
+            </>
           )}
-        </SidebarSection>
+        </SidebarItem>
 
-        {/* CONTAINMENT */}
         {(phase === "executing" ||
           phase === "awaiting_signature" ||
           phase === "done") && (
-          <SidebarSection
+          <SidebarItem
             title="Containment"
-            subtitle="managed-agents · antigravity"
-            status={
-              containmentLines.length
-                ? phase === "done" || phase === "awaiting_signature"
-                  ? "done"
-                  : "running"
-                : "running"
-            }
-            collapsedOk={phase === "done" || phase === "awaiting_signature"}
+            subtitle="Managed Agents · sandbox"
+            status={containmentStatus}
           >
-            <div className="max-h-[100px] overflow-y-auto">
+            <div className="max-h-[110px] overflow-y-auto">
               <AgentTrace thoughts={agentThoughts} active={traceActive} />
             </div>
             {containmentLines.length > 0 && (
-              <div className="font-mono text-[10px] leading-snug text-emerald-300 mt-1.5 max-h-[60px] overflow-y-auto">
+              <div className="font-mono text-[10.5px] leading-relaxed text-emerald-300 mt-1.5 max-h-[60px] overflow-y-auto">
                 {containmentLines.map((l, i) => (
-                  <div key={i} className="truncate">$ {l}</div>
+                  <div key={i} className="truncate">
+                    $ {l}
+                  </div>
                 ))}
               </div>
             )}
@@ -275,30 +317,19 @@ export default function MeetIncidentPage() {
                   phase === "done")
               }
             />
-          </SidebarSection>
+          </SidebarItem>
         )}
 
-        {/* COMMS */}
         {(phase === "executing" ||
           phase === "awaiting_signature" ||
           phase === "done") && (
-          <SidebarSection
+          <SidebarItem
             title="Comms"
-            subtitle="gemini-3.5-flash · search grounding"
-            status={
-              Object.keys(commsDrafts).length === 3
-                ? phase === "done" || phase === "awaiting_signature"
-                  ? "done"
-                  : "running"
-                : Object.keys(commsDrafts).length
-                  ? "running"
-                  : "running"
-            }
+            subtitle="Gemini 3.5 Flash · grounded"
+            status={commsStatus}
           >
             {Object.keys(commsDrafts).length === 0 ? (
-              <div className="text-slate-500 text-[11px]">
-                Awaiting containment…
-              </div>
+              <Hint>Awaiting containment confirmation…</Hint>
             ) : (
               <div className="space-y-1">
                 {commsDrafts.item_1_05_draft && (
@@ -322,68 +353,92 @@ export default function MeetIncidentPage() {
                 )}
               </div>
             )}
-          </SidebarSection>
+          </SidebarItem>
         )}
 
-        {/* TELEMETRY badge */}
-        <div className="pt-1">
-          <button
-            onClick={() => setShowTelemetry((v) => !v)}
-            className="w-full flex items-center justify-between px-2.5 py-1.5 rounded border border-slate-800 bg-slate-950/40 hover:border-slate-700 transition text-[11px]"
-          >
-            <span className="flex items-center gap-2">
-              <span className="text-slate-500">◆</span>
-              <span className="text-slate-300">detector</span>
-              <span className="text-slate-500 font-mono">
-                1.1% EER · cached
-              </span>
+        {/* Telemetry footer */}
+        <div
+          className="px-4 py-3 mt-auto"
+          style={{ borderTop: `1px solid ${C.divider}`, color: C.textDim }}
+        >
+          <div className="flex items-center gap-2 text-[11px]">
+            <span style={{ color: C.textMuted }}>◆</span>
+            <span>Detector</span>
+            <span className="font-mono" style={{ color: C.textMuted }}>
+              detect-3b-omni · 1.1% EER · {detectorMode}
             </span>
-            <span className="text-slate-500">{showTelemetry ? "−" : "+"}</span>
-          </button>
-          {showTelemetry && (
-            <div className="mt-1.5">
-              <DetectorTelemetry
-                mode={detectorMode}
-                onModeChange={setDetectorMode}
-                active={true}
-              />
-            </div>
+            <button
+              onClick={() =>
+                setDetectorMode(detectorMode === "cached" ? "live" : "cached")
+              }
+              className="ml-auto px-2 py-0.5 rounded-full text-[10px] font-medium transition"
+              style={{
+                background:
+                  detectorMode === "cached"
+                    ? "rgba(138,180,248,0.18)"
+                    : "rgba(251,191,36,0.18)",
+                color: detectorMode === "cached" ? C.accent : "#fcd34d",
+                border:
+                  detectorMode === "cached"
+                    ? "1px solid rgba(138,180,248,0.4)"
+                    : "1px solid rgba(251,191,36,0.4)",
+              }}
+            >
+              {detectorMode === "cached" ? "switch to live" : "querying…"}
+            </button>
+          </div>
+          {detectorMode === "live" && (
+            <DetectorLivePopover
+              onClose={() => setDetectorMode("cached")}
+            />
           )}
         </div>
-      </>
+      </div>
     );
 
   // === CENTER STAGE ===
   const call = <IncomingCallCard playing={callPlaying} activeEvidence={evidence} />;
 
-  // === FLOATING WIRE STATUS PILL (above bottom control bar) ===
-  const wireChip =
+  // === WIRE STATUS PILL (above control bar) ===
+  const wirePill =
     phase !== "idle" ? (
-      <div className="flex justify-center">
-        <div
-          className={`pointer-events-auto rounded-full backdrop-blur-md border shadow-[0_4px_20px_rgba(0,0,0,0.4)] flex items-center gap-3 px-3 py-1.5 transition-all duration-300 ${
-            wireFrozen
-              ? "bg-emerald-950/85 border-emerald-500/60"
-              : "bg-amber-950/80 border-amber-500/50"
-          }`}
+      <div
+        className="rounded-full flex items-center gap-3 px-4 py-2 transition-all duration-300"
+        style={{
+          background: wireFrozen
+            ? "rgba(6,78,59,0.92)"
+            : "rgba(120,53,15,0.85)",
+          border: wireFrozen
+            ? "1px solid rgba(52,211,153,0.55)"
+            : "1px solid rgba(251,191,36,0.45)",
+          backdropFilter: "blur(10px)",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.4)",
+        }}
+      >
+        <span
+          className="text-[11px] font-mono"
+          style={{ color: "rgba(255,255,255,0.65)" }}
         >
-          <div className="text-[11px] text-slate-400 font-mono">
-            wire W-7821
-          </div>
-          <div className="text-[13px] font-semibold text-white tabular-nums">
-            $50,000,000
-          </div>
-          <div className="w-px h-4 bg-white/15" />
-          <div
-            className={`text-[11px] font-mono uppercase tracking-widest ${
-              wireFrozen ? "text-emerald-300" : "text-amber-300"
-            }`}
-          >
-            {wireFrozen
-              ? "● Frozen"
-              : `T-${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`}
-          </div>
-        </div>
+          wire W-7821
+        </span>
+        <span
+          className="text-[14px] font-semibold tabular-nums"
+          style={{ color: "white" }}
+        >
+          $50,000,000
+        </span>
+        <span
+          className="w-px h-4"
+          style={{ background: "rgba(255,255,255,0.15)" }}
+        />
+        <span
+          className="text-[11px] font-mono uppercase tracking-widest"
+          style={{ color: wireFrozen ? "#6ee7b7" : "#fcd34d" }}
+        >
+          {wireFrozen
+            ? "● Frozen"
+            : `T−${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`}
+        </span>
       </div>
     ) : null;
 
@@ -404,82 +459,126 @@ export default function MeetIncidentPage() {
         rightPanel={sidebar}
         callStartedAt={demoStartedAt}
       >
-        {wireChip}
+        {wirePill}
       </MeetShell>
     </>
   );
 }
 
+type Status = "idle" | "running" | "done";
+
 function SidebarIdle({ onStart }: { onStart: () => void }) {
   return (
-    <div className="space-y-2.5">
-      <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-2.5">
-        <div className="text-[11px] text-slate-400 leading-relaxed">
-          INTERLOCK monitors live video calls for synthetic-media indicators on
-          every frame. On a detected deepfake of a wire-authorizing call, the
-          wire is frozen automatically and an SEC Form 8-K Item 1.05 disclosure
-          is drafted for the authorized officer.
-        </div>
+    <div className="px-4 py-4">
+      <div className="text-[13px] leading-relaxed" style={{ color: C.textSubtle }}>
+        INTERLOCK monitors live video calls for synthetic-media indicators
+        every frame. On a detected deepfake of a wire-authorizing call, the
+        wire is frozen automatically and an SEC Form 8-K Item 1.05 disclosure
+        is drafted for the authorized officer.
       </div>
       <button
         onClick={onStart}
-        className="w-full py-2.5 bg-blue-500 hover:bg-blue-400 rounded-md font-medium text-[13px] transition shadow-[0_0_20px_rgba(59,130,246,0.4)]"
+        className="mt-4 w-full py-3 rounded-md transition"
+        style={{
+          background: C.accent,
+          color: "#202124",
+          fontWeight: 600,
+          fontSize: 14,
+          boxShadow: "0 0 20px rgba(138,180,248,0.4)",
+        }}
       >
         Start incident simulation
       </button>
-      <div className="text-[10px] text-slate-500 leading-relaxed">
-        Simulated: deepfake video call from &quot;CEO&quot; requesting $50M
-        wire transfer, 4:32 before market close.
+      <div className="mt-3 text-[11px]" style={{ color: C.textMuted }}>
+        Simulated scenario: deepfake video call from &quot;CEO&quot; requesting
+        $50M wire transfer, 4:32 before market close.
       </div>
     </div>
   );
 }
 
-function SidebarSection({
+function SidebarItem({
   title,
   subtitle,
   status,
   children,
-  collapsedOk,
 }: {
   title: string;
   subtitle: string;
-  status: "idle" | "running" | "done";
+  status: Status;
   children: React.ReactNode;
-  collapsedOk?: boolean;
 }) {
-  const [collapsed, setCollapsed] = useState(collapsedOk);
-  useEffect(() => {
-    setCollapsed(!!collapsedOk);
-  }, [collapsedOk]);
-  const dot =
+  const dotColor =
     status === "done"
-      ? "bg-emerald-400"
+      ? "#34d399"
       : status === "running"
-        ? "bg-amber-400 animate-pulse"
-        : "bg-slate-700";
+        ? "#fbbf24"
+        : "#5f6368";
   return (
-    <section className="rounded-lg border border-slate-800 bg-slate-950/40">
-      <header
-        onClick={() => setCollapsed((v) => !v)}
-        className="px-2.5 py-1.5 flex items-center justify-between border-b border-slate-900 cursor-pointer"
+    <div
+      className="px-4 py-3"
+      style={{ borderBottom: `1px solid ${C.divider}` }}
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <span
+          className={`w-1.5 h-1.5 rounded-full ${status === "running" ? "animate-pulse" : ""}`}
+          style={{ background: dotColor }}
+        />
+        <span
+          className="text-[13px] font-medium"
+          style={{ color: C.text }}
+        >
+          {title}
+        </span>
+        <span
+          className="text-[10.5px] ml-auto font-mono"
+          style={{ color: C.textMuted }}
+        >
+          {subtitle}
+        </span>
+      </div>
+      <div>{children}</div>
+    </div>
+  );
+}
+
+function Hint({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="text-[11.5px]" style={{ color: C.textMuted }}>
+      {children}
+    </div>
+  );
+}
+
+function DetectorLivePopover({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onClose, 3500);
+    return () => clearTimeout(t);
+  }, [onClose]);
+  return (
+    <div
+      className="mt-2 rounded-md p-2.5"
+      style={{
+        background: "rgba(251,191,36,0.08)",
+        border: "1px solid rgba(251,191,36,0.3)",
+      }}
+    >
+      <div
+        className="text-[10px] font-mono uppercase tracking-widest"
+        style={{ color: "#fcd34d" }}
       >
-        <div className="flex items-center gap-2">
-          <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
-          <span className="text-[12px] text-slate-100 font-medium">
-            {title}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-[9px] text-slate-500 font-mono">
-            {subtitle}
-          </span>
-          <span className="text-slate-500 text-[10px]">
-            {collapsed ? "+" : "−"}
-          </span>
-        </div>
-      </header>
-      {!collapsed && <div className="px-2.5 py-2">{children}</div>}
-    </section>
+        ⟳ would call · production endpoint
+      </div>
+      <pre
+        className="mt-1.5 text-[10px] font-mono leading-relaxed whitespace-pre-wrap"
+        style={{ color: C.textDim }}
+      >{`POST api.resemble.ai/v1/detect
+  model: detect-3b-omni-v2.1
+  file: deepfake_clip.mp4 (4.3MB)
+→ { verdict, confidence, latency_ms }`}</pre>
+      <div className="mt-1 text-[10px] font-mono" style={{ color: "#fcd34d" }}>
+        ⚠ preview API quota exceeded · reverting
+      </div>
+    </div>
   );
 }

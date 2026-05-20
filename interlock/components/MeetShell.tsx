@@ -1,6 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 
+const MEET_BG = "#202124";
+const MEET_SURFACE = "#2c2c2f";
+const MEET_BORDER = "#3c4043";
+const MEET_TEXT = "#e8eaed";
+
 export default function MeetShell({
   children,
   call,
@@ -23,11 +28,9 @@ export default function MeetShell({
           .toString()
           .padStart(2, "0")}`,
       );
-      if (callStartedAt) {
-        setCallElapsed(Math.floor((Date.now() - callStartedAt) / 1000));
-      } else {
-        setCallElapsed(0);
-      }
+      setCallElapsed(
+        callStartedAt ? Math.floor((Date.now() - callStartedAt) / 1000) : 0,
+      );
     }, 1000);
     return () => clearInterval(t);
   }, [callStartedAt]);
@@ -38,39 +41,64 @@ export default function MeetShell({
   const ss = (callElapsed % 60).toString().padStart(2, "0");
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex bg-[#202124] text-slate-100 font-sans">
-      {/* MAIN STAGE — fills everything except sidebar */}
+    <div
+      className="h-screen w-screen overflow-hidden flex font-sans"
+      style={{ background: MEET_BG, color: MEET_TEXT }}
+    >
+      {/* MAIN STAGE */}
       <main className="flex-1 relative flex flex-col min-w-0">
-        {/* Floating top-left: meeting name */}
-        <div className="absolute top-3 left-4 z-10 text-[12px] text-white/85 leading-snug pointer-events-none">
-          <div className="font-medium tracking-tight">
-            Q4 Vendor Wire Authorization
-          </div>
-          <div className="text-[11px] text-white/55">
-            meet.google.com/qrx-vfgr-djy
-          </div>
+        {/* Top-left: meeting code only (like real Meet) */}
+        <div className="absolute top-3 left-4 z-10 flex items-center gap-2 pointer-events-none">
+          <span
+            className="px-2 py-1 rounded text-[12px] font-medium leading-none"
+            style={{ background: "rgba(60,64,67,0.6)", color: MEET_TEXT }}
+          >
+            qrx-vfgr-djy
+          </span>
         </div>
-        {/* Floating top-right: recording + clock */}
-        <div className="absolute top-3 right-4 z-10 flex items-center gap-3 text-[11px] text-white/75 pointer-events-none">
-          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-black/35 backdrop-blur-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-            <span>Rec</span>
-            <span className="font-mono tabular-nums">
+        {/* Top-right: recording + time */}
+        <div className="absolute top-3 right-4 z-10 flex items-center gap-2 pointer-events-none">
+          <div
+            className="flex items-center gap-1.5 px-2 py-1 rounded text-[12px] font-medium"
+            style={{ background: "rgba(60,64,67,0.6)" }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#ea4335] animate-pulse" />
+            <span style={{ color: MEET_TEXT }}>Rec</span>
+            <span
+              className="font-mono tabular-nums"
+              style={{ color: "#bdc1c6" }}
+            >
               {mm}:{ss}
             </span>
           </div>
-          <div className="font-mono tabular-nums">{time}</div>
+          <div
+            className="px-2 py-1 rounded text-[12px] font-mono tabular-nums"
+            style={{ background: "rgba(60,64,67,0.6)", color: "#bdc1c6" }}
+          >
+            {time}
+          </div>
         </div>
 
-        {/* VIDEO STAGE — large central area, fills available space */}
-        <div className="flex-1 min-h-0 flex items-center justify-center p-4 pb-24">
-          <div className="relative w-full h-full max-w-[1280px] flex items-center justify-center">
-            <div className="relative w-full h-full rounded-2xl overflow-hidden bg-[#0e0e10] border border-black/60 shadow-[0_8px_40px_rgba(0,0,0,0.5)]">
+        {/* Stage — video fills available space, minimal padding */}
+        <div className="flex-1 min-h-0 flex p-3 pb-20">
+          <div className="relative w-full h-full">
+            <div
+              className="absolute inset-0 rounded-xl overflow-hidden"
+              style={{ background: "#000", border: `1px solid ${MEET_BORDER}` }}
+            >
               {call}
-              <div className="absolute bottom-3 left-4 px-2.5 py-1 rounded-md bg-black/55 backdrop-blur-sm text-[12px] text-white font-medium">
+              {/* Caller pill, bottom-left */}
+              <div
+                className="absolute bottom-3 left-3 px-2 py-1 rounded text-[13px] font-medium"
+                style={{
+                  background: "rgba(0,0,0,0.55)",
+                  color: MEET_TEXT,
+                  backdropFilter: "blur(8px)",
+                }}
+              >
                 Robert Henderson · CEO
               </div>
-              {/* Participant strip — bottom-right thumbnails */}
+              {/* Participant tiles, bottom-right */}
               <div className="absolute bottom-3 right-3 flex gap-1.5">
                 <ParticipantTile name="Mary Chen" sub="CFO" />
                 <ParticipantTile name="J. Park" sub="Treasury" muted />
@@ -79,62 +107,112 @@ export default function MeetShell({
           </div>
         </div>
 
-        {/* Floating bottom control bar */}
-        <div className="absolute bottom-3 left-0 right-0 flex justify-center pointer-events-none">
-          <div className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-[#2a2a2e]/95 border border-black/50 shadow-[0_4px_20px_rgba(0,0,0,0.4)] pointer-events-auto backdrop-blur-sm">
-            <CtrlBtn label="mic" icon={<MicIcon />} />
-            <CtrlBtn label="camera" icon={<CamIcon />} />
-            <CtrlBtn label="captions" icon={<CCIcon />} />
-            <CtrlBtn label="present" icon={<PresentIcon />} />
-            <CtrlBtn label="hand" icon={<HandIcon />} />
-            <CtrlBtn label="more" icon={<MoreIcon />} />
-            <div className="w-px h-6 bg-white/15 mx-1" />
+        {/* Floating overlay above control bar — e.g. wire pill */}
+        {children && (
+          <div className="absolute bottom-[72px] left-0 right-0 flex justify-center pointer-events-none">
+            <div className="pointer-events-auto">{children}</div>
+          </div>
+        )}
+
+        {/* Bottom control bar */}
+        <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center pointer-events-none">
+          <div
+            className="pointer-events-auto flex items-center gap-1 px-2 py-1.5 rounded-full"
+            style={{
+              background: "rgba(32,33,36,0.92)",
+              border: `1px solid ${MEET_BORDER}`,
+              backdropFilter: "blur(12px)",
+            }}
+          >
+            <CtrlBtn icon={<MicIcon />} label="Mute" />
+            <CtrlBtn icon={<CamIcon />} label="Turn off camera" />
+            <CtrlBtn icon={<CCIcon />} label="Captions" />
+            <CtrlBtn icon={<HandIcon />} label="Raise hand" />
+            <CtrlBtn icon={<PresentIcon />} label="Present now" />
+            <CtrlBtn icon={<EmojiIcon />} label="Send a reaction" />
+            <CtrlBtn icon={<MoreIcon />} label="More options" />
+            <div className="w-px h-6 bg-white/10 mx-0.5" />
             <button
+              className="h-9 px-4 rounded-full flex items-center gap-1.5 transition"
+              style={{
+                background: "#ea4335",
+                color: "white",
+                fontSize: 13,
+                fontWeight: 500,
+              }}
               aria-label="Leave call"
-              className="h-9 px-4 rounded-full bg-rose-600 hover:bg-rose-500 text-white text-[12px] font-medium transition flex items-center gap-1.5"
             >
               <PhoneEndIcon />
               <span>Leave</span>
             </button>
-            <div className="w-px h-6 bg-white/15 mx-1" />
-            <CtrlBtn label="people" icon={<PeopleIcon />} />
-            <CtrlBtn label="chat" icon={<ChatIcon />} />
+            <div className="w-px h-6 bg-white/10 mx-0.5" />
+            <CtrlBtn icon={<InfoIcon />} label="Meeting details" />
+            <CtrlBtn icon={<PeopleIcon />} label="People" />
+            <CtrlBtn icon={<ChatIcon />} label="Chat with everyone" />
             <button
+              className="w-9 h-9 rounded-full flex items-center justify-center transition"
+              style={{
+                background: "rgba(138,180,248,0.18)",
+                color: "#8ab4f8",
+                border: "1px solid rgba(138,180,248,0.45)",
+              }}
               aria-label="Activities"
-              className="w-9 h-9 rounded-full bg-blue-500/15 hover:bg-blue-500/25 border border-blue-400/40 text-blue-300 flex items-center justify-center transition"
-              title="Workspace add-on · INTERLOCK"
+              title="Activities · INTERLOCK"
             >
-              <span className="text-[15px]">◆</span>
+              <ActivitiesIcon />
             </button>
+            <CtrlBtn icon={<HostIcon />} label="Host controls" />
           </div>
         </div>
-        {children && (
-          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-[min(640px,calc(100%-2rem))] pointer-events-none">
-            {children}
-          </div>
-        )}
       </main>
 
-      {/* RIGHT SIDEBAR — Activities/Add-on panel */}
-      <aside className="hidden md:flex w-[400px] flex-col border-l border-black/60 bg-[#1c1c1f]">
-        <div className="px-3 h-12 border-b border-black/40 flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-md bg-gradient-to-br from-rose-500 via-rose-600 to-purple-600 flex items-center justify-center text-white text-[13px] font-semibold shadow-[0_2px_8px_rgba(244,63,94,0.4)]">
+      {/* RIGHT SIDEBAR (Activities) */}
+      <aside
+        className="hidden md:flex w-[360px] flex-col"
+        style={{ background: MEET_SURFACE, borderLeft: `1px solid ${MEET_BORDER}` }}
+      >
+        {/* Activities header */}
+        <div
+          className="h-14 px-4 flex items-center gap-3"
+          style={{ borderBottom: `1px solid ${MEET_BORDER}` }}
+        >
+          <span
+            className="text-[16px] font-medium"
+            style={{ color: MEET_TEXT, letterSpacing: "-0.01em" }}
+          >
+            Activities
+          </span>
+        </div>
+        {/* Plugin sub-header */}
+        <div
+          className="px-4 py-3 flex items-center gap-3"
+          style={{ borderBottom: `1px solid ${MEET_BORDER}` }}
+        >
+          <div
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-[14px] font-semibold"
+            style={{
+              background:
+                "linear-gradient(135deg,#f43f5e 0%,#a855f7 100%)",
+              boxShadow: "0 2px 10px rgba(244,63,94,0.35)",
+            }}
+          >
             ◆
           </div>
           <div className="flex flex-col leading-tight min-w-0">
-            <div className="text-[13px] text-slate-50 font-medium tracking-tight truncate">
+            <div className="text-[14px] font-medium" style={{ color: MEET_TEXT }}>
               INTERLOCK
             </div>
-            <div className="text-[10px] text-slate-400 truncate">
-              Workspace add-on · v1.0
+            <div className="text-[11px]" style={{ color: "#9aa0a6" }}>
+              CFO Wire-Fraud Defense
             </div>
           </div>
-          <div className="ml-auto flex items-center gap-1 text-[10px] text-emerald-400">
+          <div className="ml-auto flex items-center gap-1 text-[11px] text-emerald-400">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             live
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto p-3 space-y-2.5">{rightPanel}</div>
+        {/* Sidebar body */}
+        <div className="flex-1 overflow-y-auto">{rightPanel}</div>
       </aside>
     </div>
   );
@@ -155,14 +233,27 @@ function ParticipantTile({
     .join("")
     .slice(0, 2);
   return (
-    <div className="w-[112px] aspect-video rounded-md bg-[#28282c] border border-black/60 relative overflow-hidden flex items-center justify-center shadow-md">
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose-500 to-amber-500 flex items-center justify-center text-white text-[10px] font-medium">
+    <div
+      className="w-[100px] aspect-video rounded-lg relative overflow-hidden flex items-center justify-center"
+      style={{ background: MEET_SURFACE, border: `1px solid ${MEET_BORDER}` }}
+    >
+      <div
+        className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-medium"
+        style={{
+          background: "linear-gradient(135deg,#f43f5e,#f59e0b)",
+        }}
+      >
         {initials}
       </div>
-      <div className="absolute bottom-1 left-1.5 right-1.5 flex items-center justify-between text-[9px] text-white/85 leading-none">
-        <span className="truncate">{name}</span>
+      <div className="absolute bottom-1 left-1.5 right-1.5 flex items-center justify-between text-[9px] leading-none">
+        <span style={{ color: MEET_TEXT }} className="truncate">
+          {name}
+        </span>
         {muted && (
-          <span className="w-3 h-3 rounded-full bg-rose-600/90 flex items-center justify-center text-[8px]">
+          <span
+            className="w-3 h-3 rounded-full flex items-center justify-center"
+            style={{ background: "#ea4335" }}
+          >
             <MicMutedIcon />
           </span>
         )}
@@ -175,15 +266,16 @@ function CtrlBtn({ label, icon }: { label: string; icon: React.ReactNode }) {
   return (
     <button
       aria-label={label}
-      className="w-9 h-9 rounded-full hover:bg-white/10 flex items-center justify-center text-slate-200 transition"
       title={label}
+      className="w-9 h-9 rounded-full flex items-center justify-center transition hover:bg-white/10"
+      style={{ color: MEET_TEXT }}
     >
       {icon}
     </button>
   );
 }
 
-/* === Inline SVG icons (Material-ish, simplified) === */
+/* Material-style icons (simplified, 18-20px) */
 function MicIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -200,8 +292,15 @@ function CamIcon() {
 }
 function CCIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
       <path d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V6c0-1.1-.89-2-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1c0 .55-.45 1-1 1h-3c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1h3c.55 0 1 .45 1 1v1z" />
+    </svg>
+  );
+}
+function HandIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M9 11.24V7.5C9 6.12 10.12 5 11.5 5S14 6.12 14 7.5v3.74c1.21-.81 2-2.18 2-3.74C16 5.01 13.99 3 11.5 3S7 5.01 7 7.5c0 1.56.79 2.93 2 3.74zm9.84 4.63-4.54-2.26c-.17-.07-.35-.11-.54-.11H13v-6c0-.83-.67-1.5-1.5-1.5S10 6.67 10 7.5v10.74l-3.43-.72c-.08-.01-.15-.03-.24-.03-.31 0-.59.13-.79.33l-.79.8 4.94 4.94c.27.27.65.44 1.06.44h6.79c.75 0 1.33-.55 1.44-1.28l.75-5.27c.01-.07.02-.14.02-.2 0-.62-.38-1.16-.91-1.38z" />
     </svg>
   );
 }
@@ -212,16 +311,16 @@ function PresentIcon() {
     </svg>
   );
 }
-function HandIcon() {
+function EmojiIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M13 24c-3.1 0-5.7-1.83-7-4.46l-.94-1.95.91-.86C6.66 16.16 7.6 16 8.1 16c.43 0 .85.07 1.25.2.43-1.32 1.43-1.92 2.4-2.1V4.5C11.75 3.67 12.42 3 13.25 3s1.5.67 1.5 1.5V11h1V3.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5V11h1V4.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5V13h1V7.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5V15c0 4.97-4.03 9-9 9z" />
+      <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" />
     </svg>
   );
 }
 function MoreIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
       <circle cx="12" cy="5" r="2" />
       <circle cx="12" cy="12" r="2" />
       <circle cx="12" cy="19" r="2" />
@@ -237,21 +336,42 @@ function PhoneEndIcon() {
 }
 function PeopleIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
       <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
     </svg>
   );
 }
 function ChatIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
       <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+    </svg>
+  );
+}
+function ActivitiesIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-1 9h-5v5h-2v-5H6v-2h5V5h2v5h5v2z" />
+    </svg>
+  );
+}
+function HostIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" />
+    </svg>
+  );
+}
+function InfoIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
     </svg>
   );
 }
 function MicMutedIcon() {
   return (
-    <svg width="6" height="6" viewBox="0 0 24 24" fill="white">
+    <svg width="7" height="7" viewBox="0 0 24 24" fill="white">
       <path d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zM14.98 11.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3 3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3 .22 0 .44-.03.65-.08l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z" />
     </svg>
   );
