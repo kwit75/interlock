@@ -179,7 +179,7 @@ export default function IncidentPage() {
   const callPlaying = phase === "detection";
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 p-6 flex flex-col relative">
+    <main className="min-h-screen bg-slate-950 text-slate-100 p-4 flex flex-col relative">
       <DeepfakeSlamOverlay
         show={showSlam}
         confidence={confidence ?? 0.94}
@@ -243,33 +243,31 @@ export default function IncidentPage() {
           onModeChange={setDetectorMode}
           active={true}
         />
-        <div className="grid grid-cols-12 gap-4 flex-1">
-          <div className="col-span-4 space-y-4">
-            <IncomingCallCard playing={callPlaying} activeEvidence={evidence} />
-            <WireStatusBank wire={wire} />
+        <div className="grid grid-cols-12 gap-3 flex-1 min-h-0 overflow-y-auto">
+          <div className="col-span-4 space-y-3">
             {verdict === "SYNTHETIC" && (
-              <div className="border-2 border-rose-500 bg-rose-950/30 rounded-lg p-4">
+              <div className="border-2 border-rose-500 bg-rose-950/40 rounded-lg p-3 shadow-[0_0_30px_rgba(244,63,94,0.25)]">
                 <div className="text-rose-300 text-sm font-bold tracking-wide">
                   ⚠ DEEPFAKE DETECTED —{" "}
                   {confidence !== null ? (confidence * 100).toFixed(0) : "—"}%
                 </div>
                 {phase === "awaiting_approval" && (
                   <>
-                    <div className="mt-3 text-xs text-slate-300">
+                    <div className="mt-2 text-[11px] text-slate-300">
                       Recommended strategy:
                     </div>
-                    <ol className="text-xs list-decimal list-inside text-slate-200 mt-1 space-y-0.5">
+                    <ol className="text-[11px] list-decimal list-inside text-slate-200 mt-1 space-y-0.5">
                       <li>Freeze wire W-7821</li>
                       <li>Lock CEO accounts</li>
                       <li>Draft Item 1.05 disclosure (officer review)</li>
                     </ol>
                     <button
                       onClick={approveStrategy}
-                      className="mt-3 w-full py-2.5 bg-rose-600 hover:bg-rose-500 rounded font-medium text-sm"
+                      className="mt-2.5 w-full py-2.5 bg-rose-600 hover:bg-rose-500 rounded font-semibold text-sm shadow-[0_0_20px_rgba(244,63,94,0.5)]"
                     >
-                      Approve Strategy
+                      ▶ Approve Strategy
                     </button>
-                    <div className="text-[10px] text-slate-500 mt-2 leading-snug">
+                    <div className="text-[10px] text-slate-500 mt-1.5 leading-snug">
                       One-click batch. Step-through per-action available.
                     </div>
                   </>
@@ -277,13 +275,15 @@ export default function IncidentPage() {
                 {(phase === "executing" ||
                   phase === "awaiting_signature" ||
                   phase === "done") && (
-                  <div className="mt-3 text-xs text-emerald-300">
+                  <div className="mt-2 text-[11px] text-emerald-300">
                     ✓ Strategy executed. Wire frozen. Disclosure drafted for
                     officer signature.
                   </div>
                 )}
               </div>
             )}
+            <IncomingCallCard playing={callPlaying} activeEvidence={evidence} />
+            <WireStatusBank wire={wire} />
           </div>
 
           <div className="col-span-8 grid grid-cols-1 gap-4">

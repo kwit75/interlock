@@ -43,7 +43,7 @@ export default function IncomingCallCard({
           muted
           playsInline
           loop
-          className="w-full block"
+          className="w-full block max-h-[220px] object-cover"
         />
         {/* Bounding-box overlays — appear as forensics evidence streams */}
         {recent.map((ev, i) => {
