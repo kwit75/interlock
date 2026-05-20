@@ -1,0 +1,39 @@
+{
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/meetings.space.readonly",
+    "https://www.googleapis.com/auth/meetings.events.readonly",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/script.locale"
+  ],
+  "addOns": {
+    "common": {
+      "name": "INTERLOCK",
+      "logoUrl": "https://interlock.ai/static/logo-32.png",
+      "useLocaleFromApp": true,
+      "homepageTrigger": {
+        "runFunction": "onInterlockHomepageTrigger",
+        "enabled": true
+      }
+    },
+    "googleMeet": {
+      "supportsCollaboration": false,
+      "web": {
+        "sidePanelUri": "https://interlock-mu.vercel.app/meet/sidepanel",
+        "sidePanelUriWhenActiveConference": "https://interlock-mu.vercel.app/meet/sidepanel?conference=true",
+        "mainStageUri": "https://interlock-mu.vercel.app/meet/stage",
+        "supportsScreenShareStarting": false,
+        "supportsCollaborationStarting": false
+      },
+      "additionalDescriptions": [
+        {
+          "type": "OUTSIDE_OF_MEETINGS",
+          "description": "Configure tenant API keys and signer FIDO2 hardware keys"
+        },
+        {
+          "type": "IN_MEETING",
+          "description": "Live synthetic-media detection on the active conference. Wire-freeze and SEC Form 8-K Item 1.05 disclosure drafted on detection — never auto-filed."
+        }
+      ]
+    }
+  }
+}

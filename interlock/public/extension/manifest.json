@@ -1,0 +1,59 @@
+{
+  "manifest_version": 3,
+  "name": "INTERLOCK · Deepfake-CEO Defense for Google Meet",
+  "short_name": "INTERLOCK",
+  "version": "1.0.0",
+  "description": "Real-time deepfake-CEO detection on every Google Meet call where money moves. Workspace add-on + tab-frame capture, FIDO2 dual co-signature on every irreversible action.",
+  "minimum_chrome_version": "121",
+  "icons": {
+    "16": "icons/interlock-16.png",
+    "32": "icons/interlock-32.png",
+    "48": "icons/interlock-48.png",
+    "128": "icons/interlock-128.png"
+  },
+  "action": {
+    "default_title": "INTERLOCK",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "sw.js",
+    "type": "module"
+  },
+  "permissions": [
+    "tabCapture",
+    "storage",
+    "alarms",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "https://meet.google.com/*",
+    "https://api.interlock.ai/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://meet.google.com/*"],
+      "js": ["content/meet-hook.js"],
+      "run_at": "document_idle",
+      "world": "MAIN"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["sidepanel/*", "icons/*"],
+      "matches": ["https://meet.google.com/*"]
+    }
+  ],
+  "externally_connectable": {
+    "matches": ["https://meet.google.com/*", "https://*.interlock.ai/*"]
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; connect-src 'self' https://api.interlock.ai wss://stream.interlock.ai"
+  },
+  "oauth2": {
+    "client_id": "774485276930-interlock-meet.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/meetings.space.readonly",
+      "https://www.googleapis.com/auth/meetings.events.readonly"
+    ]
+  }
+}

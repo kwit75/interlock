@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>INTERLOCK · Workspace Add-on</title>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <header class="hdr">
+      <div class="brand">
+        <div class="logo">◆</div>
+        <div class="ttl">
+          <div class="t1">INTERLOCK</div>
+          <div class="t2">Workspace add-on · v1.0</div>
+        </div>
+        <div class="live"><span class="dot"></span> live</div>
+      </div>
+      <div class="status" id="status">monitoring · 0 frames</div>
+    </header>
+
+    <iframe
+      id="ilk-frame"
+      src="https://interlock-mu.vercel.app/meet"
+      title="INTERLOCK"
+      sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+      allow="autoplay; clipboard-read; clipboard-write"
+    ></iframe>
+
+    <footer class="ftr">
+      <div>Tenant northwind.example · Enterprise</div>
+      <div class="m">tab #<span id="tabid">—</span></div>
+    </footer>
+
+    <script src="index.js" type="module"></script>
+  </body>
+</html>
