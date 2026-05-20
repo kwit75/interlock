@@ -1,0 +1,7 @@
+[
+  { "thought": "Synthetic media classification received. confidence=0.94 > threshold=0.85", "rule_id": "INTERLOCK-R001", "pause_ms": 400 },
+  { "thought": "Cross-checking strategy policy STRAT-WIRE-FREEZE-A. Pre-execution freeze authorized.", "rule_id": "STRAT-WIRE-FREEZE-A", "pause_ms": 350 },
+  { "thought": "Spawning isolated Linux sandbox via Managed Agents Interactions API (antigravity-preview-05-2026)", "rule_id": null, "pause_ms": 600 },
+  { "thought": "Generating Python payload: import bank_api_v2; freeze_wire(W-7821); lock_account('CEO'); notify_board()", "rule_id": null, "pause_ms": 500 },
+  { "thought": "Executing in sandbox. Streaming stdout to operator console.", "rule_id": null, "pause_ms": 0 }
+]

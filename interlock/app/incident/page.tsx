@@ -2,20 +2,35 @@
 import { useEffect, useRef, useState } from "react";
 import IncomingCallCard from "@/components/IncomingCallCard";
 import AgentPanel from "@/components/AgentPanel";
+import AgentTrace from "@/components/AgentTrace";
 import WireStatusBank from "@/components/WireStatusBank";
 import AttributionSlide from "@/components/AttributionSlide";
+import DeepfakeSlamOverlay from "@/components/DeepfakeSlamOverlay";
+import EndCardResolved from "@/components/EndCardResolved";
+import SignatureCeremony from "@/components/SignatureCeremony";
+import ForensicsHeader from "@/components/ForensicsHeader";
 import type {
   SSEEvent,
   ForensicsEvidence,
   BankWire,
   CommsResult,
+  AgentThought,
 } from "@/lib/types";
+import {
+  playPhoneRing,
+  playDeepfakeAlarm,
+  playFreezeSlam,
+  playResolvedChime,
+  startAmbientPulse,
+  stopAmbientPulse,
+} from "@/lib/audio";
 
 type Phase =
   | "idle"
   | "detection"
   | "awaiting_approval"
   | "executing"
+  | "awaiting_signature"
   | "done";
 
 export default function IncidentPage() {
@@ -26,26 +41,41 @@ export default function IncidentPage() {
   const [containmentLines, setContainmentLines] = useState<string[]>([]);
   const [commsDrafts, setCommsDrafts] = useState<Partial<CommsResult>>({});
   const [wire, setWire] = useState<BankWire | null>(null);
-  const [countdown, setCountdown] = useState<number>(272); // 4:32 to market close
+  const [countdown, setCountdown] = useState<number>(272); // 4:32
+  const [countdownFrozen, setCountdownFrozen] = useState<boolean>(false);
+  const [showSlam, setShowSlam] = useState<boolean>(false);
+  const [agentThoughts, setAgentThoughts] = useState<AgentThought[]>([]);
+  const [traceActive, setTraceActive] = useState<boolean>(false);
+  const [demoStartedAt, setDemoStartedAt] = useState<number | null>(null);
+  const [resolvedElapsed, setResolvedElapsed] = useState<number>(0);
 
   const esRef = useRef<EventSource | null>(null);
 
-  // Countdown ticks once we're past idle (UI element only)
+  // Countdown ticks until containment freezes the wire
   useEffect(() => {
-    if (phase === "idle" || phase === "done") return;
+    if (phase === "idle" || phase === "done" || countdownFrozen) return;
     const id = setInterval(
       () => setCountdown((c) => Math.max(0, c - 1)),
       1000,
     );
     return () => clearInterval(id);
-  }, [phase]);
+  }, [phase, countdownFrozen]);
 
-  // Cleanup any open SSE on unmount
+  // Stop ambient on unmount
   useEffect(() => {
     return () => {
       esRef.current?.close();
+      stopAmbientPulse();
     };
   }, []);
+
+  // Trigger slam when verdict turns SYNTHETIC
+  useEffect(() => {
+    if (verdict === "SYNTHETIC") {
+      playDeepfakeAlarm();
+      setShowSlam(true);
+    }
+  }, [verdict]);
 
   function startDemo() {
     setPhase("detection");
@@ -56,6 +86,14 @@ export default function IncidentPage() {
     setCommsDrafts({});
     setWire(null);
     setCountdown(272);
+    setCountdownFrozen(false);
+    setShowSlam(false);
+    setAgentThoughts([]);
+    setTraceActive(false);
+    setDemoStartedAt(Date.now());
+
+    playPhoneRing();
+    setTimeout(() => startAmbientPulse(), 800);
 
     const es = new EventSource("/api/incident/start");
     esRef.current = es;
@@ -77,20 +115,55 @@ export default function IncidentPage() {
     };
   }
 
-  function approveStrategy() {
+  async function approveStrategy() {
     setPhase("executing");
+    setTraceActive(true);
+
+    // Stream the agent trace from the cached chain-of-thought
+    try {
+      const r = await fetch("/cache/agent-trace.json");
+      const thoughts: AgentThought[] = await r.json();
+      for (const t of thoughts) {
+        setAgentThoughts((prev) => [...prev, t]);
+        if (t.pause_ms) {
+          await new Promise((res) => setTimeout(res, t.pause_ms));
+        }
+      }
+      setTraceActive(false);
+    } catch {
+      setTraceActive(false);
+    }
+
+    // Now fire the actual SSE for containment + comms
     const es = new EventSource("/api/incident/approve");
     esRef.current = es;
     es.onmessage = (m) => {
       const e: SSEEvent = JSON.parse(m.data);
       if (e.agent === "containment" && e.type === "stdout") {
         setContainmentLines((prev) => [...prev, e.data.line]);
+        // If this is the freeze_wire line, lock the countdown
+        if (
+          e.data.line.includes('"action":"freeze_wire"') &&
+          e.data.line.includes('"status":"FROZEN"')
+        ) {
+          setCountdownFrozen(true);
+        }
       } else if (e.agent === "comms" && e.type === "draft") {
         setCommsDrafts((prev) => ({ ...prev, [e.data.kind]: e.data.content }));
       } else if (e.agent === "orchestrator" && e.type === "wire_frozen") {
         setWire(e.data);
+        playFreezeSlam();
       } else if (e.agent === "orchestrator" && e.type === "done") {
-        setPhase("done");
+        // Open the signature ceremony before declaring DONE
+        setPhase("awaiting_signature");
+        setTimeout(() => {
+          setPhase("done");
+          stopAmbientPulse();
+          playResolvedChime();
+          setResolvedElapsed(
+            demoStartedAt ? Math.round((Date.now() - demoStartedAt) / 1000) : 60,
+          );
+        }, 3200);
         es.close();
       }
     };
@@ -101,7 +174,18 @@ export default function IncidentPage() {
   const callPlaying = phase === "detection";
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 p-6 flex flex-col">
+    <main className="min-h-screen bg-slate-950 text-slate-100 p-6 flex flex-col relative">
+      <DeepfakeSlamOverlay
+        show={showSlam}
+        confidence={confidence ?? 0.94}
+        onDone={() => setShowSlam(false)}
+      />
+      <SignatureCeremony
+        show={phase === "awaiting_signature"}
+        draftPreview={commsDrafts.item_1_05_draft ?? null}
+      />
+      <EndCardResolved show={phase === "done"} elapsedSec={resolvedElapsed} />
+
       <header className="flex items-center justify-between mb-4 font-mono text-[11px] tracking-wide">
         <div className="text-slate-500 uppercase">
           INTERLOCK · INCIDENT #2026-05-23-01
@@ -109,10 +193,20 @@ export default function IncidentPage() {
         <div className="text-slate-400 tabular-nums">
           <span className="text-slate-500">MKT_CLOSE_UTC:</span>{" "}
           <span className="text-slate-200">20:00:00</span>{" "}
-          <span className="text-amber-300">
-            [T-{m.toString().padStart(2, "0")}m:
+          <span
+            className={
+              countdownFrozen ? "text-emerald-400 font-bold" : "text-amber-300"
+            }
+          >
+            [{countdownFrozen ? "STOPPED · " : "T-"}
+            {m.toString().padStart(2, "0")}m:
             {s.toString().padStart(2, "0")}s]
           </span>
+          {countdownFrozen && (
+            <span className="ml-3 text-[10px] uppercase tracking-widest text-emerald-300 bg-emerald-950/40 border border-emerald-500/40 px-2 py-0.5 rounded">
+              WIRE CONTAINED · TIMER STOPPED
+            </span>
+          )}
         </div>
       </header>
 
@@ -131,7 +225,7 @@ export default function IncidentPage() {
             Start Demo
           </button>
           <p className="text-xs text-slate-500 mt-6 max-w-md text-center">
-            Simulated incident scenario: deepfake video call from "CEO"
+            Simulated incident scenario: deepfake video call from &quot;CEO&quot;
             requesting $50M wire transfer, 5 minutes before market close.
           </p>
         </div>
@@ -140,14 +234,13 @@ export default function IncidentPage() {
       {phase !== "idle" && (
         <div className="grid grid-cols-12 gap-4 flex-1">
           <div className="col-span-4 space-y-4">
-            <IncomingCallCard playing={callPlaying} />
+            <IncomingCallCard playing={callPlaying} activeEvidence={evidence} />
             <WireStatusBank wire={wire} />
             {verdict === "SYNTHETIC" && (
               <div className="border-2 border-rose-500 bg-rose-950/30 rounded-lg p-4">
                 <div className="text-rose-300 text-sm font-bold tracking-wide">
                   ⚠ DEEPFAKE DETECTED —{" "}
                   {confidence !== null ? (confidence * 100).toFixed(0) : "—"}%
-                  confidence
                 </div>
                 {phase === "awaiting_approval" && (
                   <>
@@ -157,7 +250,7 @@ export default function IncidentPage() {
                     <ol className="text-xs list-decimal list-inside text-slate-200 mt-1 space-y-0.5">
                       <li>Freeze wire W-7821</li>
                       <li>Lock CEO accounts</li>
-                      <li>Draft Item 1.05 disclosure (for officer review)</li>
+                      <li>Draft Item 1.05 disclosure (officer review)</li>
                     </ol>
                     <button
                       onClick={approveStrategy}
@@ -166,13 +259,13 @@ export default function IncidentPage() {
                       Approve Strategy
                     </button>
                     <div className="text-[10px] text-slate-500 mt-2 leading-snug">
-                      One-click batch approval. Per-action step-through
-                      available in settings — designed for Spark-era async
-                      agents (Antigravity 2.0 narrative).
+                      One-click batch. Step-through per-action available.
                     </div>
                   </>
                 )}
-                {phase === "done" && (
+                {(phase === "executing" ||
+                  phase === "awaiting_signature" ||
+                  phase === "done") && (
                   <div className="mt-3 text-xs text-emerald-300">
                     ✓ Strategy executed. Wire frozen. Disclosure drafted for
                     officer signature.
@@ -194,6 +287,10 @@ export default function IncidentPage() {
                     : "running"
               }
             >
+              <ForensicsHeader verdict={verdict} confidence={confidence} />
+              <div className="text-[10px] text-slate-500 mb-1 uppercase tracking-widest">
+                Gemini-explainer commentary
+              </div>
               {evidence.map((ev, i) => (
                 <div key={i}>
                   <span className="text-slate-500">
@@ -204,25 +301,6 @@ export default function IncidentPage() {
                   {ev.observation}
                 </div>
               ))}
-              {verdict && (
-                <div className="mt-2 pt-2 border-t border-slate-800">
-                  <span className="text-slate-500">VERDICT:</span>{" "}
-                  <span
-                    className={
-                      verdict === "SYNTHETIC"
-                        ? "text-rose-400 font-bold"
-                        : "text-emerald-400"
-                    }
-                  >
-                    {verdict}
-                  </span>{" "}
-                  {confidence !== null && (
-                    <span className="text-slate-400">
-                      — {(confidence * 100).toFixed(0)}% confidence
-                    </span>
-                  )}
-                </div>
-              )}
             </AgentPanel>
 
             <AgentPanel
@@ -232,15 +310,25 @@ export default function IncidentPage() {
                 phase === "executing" && containmentLines.length === 0
                   ? "running"
                   : containmentLines.length
-                    ? phase === "done"
+                    ? phase === "done" ||
+                      phase === "awaiting_signature"
                       ? "done"
                       : "running"
                     : "idle"
               }
             >
-              {containmentLines.length === 0 && phase === "executing" && (
-                <div className="text-slate-500">
-                  Spawning isolated Linux sandbox via Gemini API…
+              <AgentTrace thoughts={agentThoughts} active={traceActive} />
+              {containmentLines.length === 0 &&
+                phase === "executing" &&
+                agentThoughts.length === 0 && (
+                  <div className="text-slate-500 mt-2">
+                    Spawning isolated Linux sandbox via Gemini Interactions
+                    API…
+                  </div>
+                )}
+              {containmentLines.length > 0 && (
+                <div className="mt-2 text-[10px] text-slate-500 uppercase tracking-widest">
+                  Sandbox stdout
                 </div>
               )}
               {containmentLines.map((l, i) => (
@@ -255,7 +343,9 @@ export default function IncidentPage() {
               subtitle="Gemini 3.5 Flash + Search grounding"
               status={
                 Object.keys(commsDrafts).length === 3
-                  ? "done"
+                  ? phase === "done" || phase === "awaiting_signature"
+                    ? "done"
+                    : "running"
                   : Object.keys(commsDrafts).length
                     ? "running"
                     : phase === "executing"
@@ -264,12 +354,12 @@ export default function IncidentPage() {
               }
             >
               {commsDrafts.item_1_05_draft && (
-                <details className="border border-slate-800 rounded p-2 mb-2 bg-slate-950/50">
+                <details className="border border-slate-800 rounded p-2 mb-2 bg-slate-950/50" open>
                   <summary className="cursor-pointer text-slate-200">
-                    📄 SEC Form 8-K · Item 1.05 disclosure (DRAFT — for
-                    officer review & filing)
+                    📄 SEC Form 8-K · Item 1.05 disclosure (DRAFT — officer
+                    review &amp; filing)
                   </summary>
-                  <pre className="whitespace-pre-wrap mt-2 text-[10px] text-slate-400 leading-relaxed">
+                  <pre className="whitespace-pre-wrap mt-2 text-[10px] text-slate-400 leading-relaxed max-h-40 overflow-y-auto">
                     {commsDrafts.item_1_05_draft}
                   </pre>
                 </details>

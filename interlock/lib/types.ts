@@ -15,6 +15,15 @@ export type ForensicsEvidence = {
   frame_number: number;
   observation: string;
   severity: "low" | "medium" | "high";
+  /** Optional bounding box on the video frame, percentage units [0..1]. */
+  bbox?: { x: number; y: number; w: number; h: number };
+};
+
+export type AgentThought = {
+  thought: string;
+  rule_id?: string;
+  /** ms delay before the next thought to give a "thinking" cadence */
+  pause_ms?: number;
 };
 
 export type ForensicsResult = {
