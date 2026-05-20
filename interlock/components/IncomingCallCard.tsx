@@ -64,6 +64,17 @@ export default function IncomingCallCard({
         autoPlay
         preload="auto"
         className="w-full h-full object-cover"
+        style={{ objectPosition: "center 35%" }}
+      />
+      {/* Bottom gradient — masks the source clip's watermark and acts as
+          a name-tag fade like real Meet participant tiles */}
+      <div
+        className="absolute bottom-0 left-0 right-0 pointer-events-none"
+        style={{
+          height: "20%",
+          background:
+            "linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0) 100%)",
+        }}
       />
 
       {/* Subtle scanning grid (always when playing) */}

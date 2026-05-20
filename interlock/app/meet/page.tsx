@@ -25,6 +25,8 @@ import {
   playResolvedChime,
   startAmbientPulse,
   stopAmbientPulse,
+  toggleAudioMute,
+  isAudioMuted,
 } from "@/lib/audio";
 
 type Phase =
@@ -60,6 +62,8 @@ export default function MeetIncidentPage() {
   const [demoStartedAt, setDemoStartedAt] = useState<number | null>(null);
   const [resolvedElapsed, setResolvedElapsed] = useState<number>(0);
   const [detectorMode, setDetectorMode] = useState<DetectorMode>("cached");
+  const [audioMuted, setAudioMuted] = useState(false);
+  const [muteToast, setMuteToast] = useState(0);
 
   const esRef = useRef<EventSource | null>(null);
 
@@ -85,6 +89,27 @@ export default function MeetIncidentPage() {
       setShowSlam(true);
     }
   }, [verdict]);
+
+  // Hotkey: M toggles all Web Audio (venue PA safety)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "m" || e.key === "M") {
+        const target = e.target as HTMLElement | null;
+        if (
+          target &&
+          (target.tagName === "INPUT" ||
+            target.tagName === "TEXTAREA" ||
+            target.isContentEditable)
+        )
+          return;
+        const next = toggleAudioMute();
+        setAudioMuted(next);
+        setMuteToast(Date.now());
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   function startDemo() {
     setPhase("detection");
@@ -468,6 +493,7 @@ export default function MeetIncidentPage() {
         draftPreview={commsDrafts.item_1_05_draft ?? null}
       />
       <EndCardResolved show={phase === "done"} elapsedSec={resolvedElapsed} />
+      <MuteToast key={muteToast} show={muteToast > 0} muted={audioMuted} />
       <MeetShell
         call={call}
         rightPanel={sidebar}
@@ -478,6 +504,36 @@ export default function MeetIncidentPage() {
     </>
   );
 }
+
+function MuteToast({ show, muted }: { show: boolean; muted: boolean }) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    if (!show) return;
+    setVisible(true);
+    const t = setTimeout(() => setVisible(false), 1600);
+    return () => clearTimeout(t);
+  }, [show]);
+  if (!show || !visible) return null;
+  return (
+    <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[60] pointer-events-none">
+      <div
+        className="px-4 py-2 rounded-full text-[12px] font-medium tracking-wide"
+        style={{
+          background: muted
+            ? "rgba(234,67,53,0.85)"
+            : "rgba(52,168,83,0.85)",
+          color: "white",
+          backdropFilter: "blur(8px)",
+          boxShadow: "0 4px 18px rgba(0,0,0,0.4)",
+        }}
+      >
+        {muted ? "🔇 Audio muted (M to toggle)" : "🔊 Audio unmuted"}
+      </div>
+    </div>
+  );
+}
+// Silence unused import warning when audio is not yet referenced via state
+void isAudioMuted;
 
 type Status = "idle" | "running" | "done";
 

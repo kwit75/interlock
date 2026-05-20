@@ -4,8 +4,11 @@
  */
 
 let cachedCtx: AudioContext | null = null;
+let muted = false;
+
 function ctx(): AudioContext | null {
   if (typeof window === "undefined") return null;
+  if (muted) return null;
   if (cachedCtx) return cachedCtx;
   try {
     const AC =
@@ -17,6 +20,32 @@ function ctx(): AudioContext | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Hard-mute all Web Audio output. Returns the new muted state.
+ * Bound to the `M` key in /meet so a noisy venue PA can be silenced fast.
+ */
+export function toggleAudioMute(): boolean {
+  muted = !muted;
+  if (muted) {
+    try {
+      cachedCtx?.suspend();
+    } catch {
+      /* ignore */
+    }
+  } else {
+    try {
+      cachedCtx?.resume();
+    } catch {
+      /* ignore */
+    }
+  }
+  return muted;
+}
+
+export function isAudioMuted(): boolean {
+  return muted;
 }
 
 function tone(
