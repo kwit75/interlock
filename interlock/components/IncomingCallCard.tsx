@@ -66,14 +66,14 @@ export default function IncomingCallCard({
         className="w-full h-full object-cover"
         style={{ objectPosition: "center 35%" }}
       />
-      {/* Bottom gradient — masks the source clip's watermark and acts as
-          a name-tag fade like real Meet participant tiles */}
+      {/* Bottom mask — fully opaque strip absorbs the source clip's
+          watermark, then fades smoothly upward like Meet's name-tag area */}
       <div
         className="absolute bottom-0 left-0 right-0 pointer-events-none"
         style={{
-          height: "20%",
+          height: "26%",
           background:
-            "linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 60%, rgba(0,0,0,0) 100%)",
+            "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 45%, rgba(0,0,0,0.7) 70%, rgba(0,0,0,0) 100%)",
         }}
       />
 
