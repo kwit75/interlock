@@ -102,14 +102,16 @@ export default function IncidentPage() {
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100 p-6 flex flex-col">
-      <header className="flex items-center justify-between mb-4">
-        <div className="text-[10px] tracking-widest text-slate-500 uppercase">
+      <header className="flex items-center justify-between mb-4 font-mono text-[11px] tracking-wide">
+        <div className="text-slate-500 uppercase">
           INTERLOCK · INCIDENT #2026-05-23-01
         </div>
-        <div className="font-mono text-2xl text-rose-400 tabular-nums">
-          {m.toString().padStart(2, "0")}:{s.toString().padStart(2, "0")}
-          <span className="text-[10px] text-slate-500 ml-2">
-            to market close
+        <div className="text-slate-400 tabular-nums">
+          <span className="text-slate-500">MKT_CLOSE_UTC:</span>{" "}
+          <span className="text-slate-200">20:00:00</span>{" "}
+          <span className="text-amber-300">
+            [T-{m.toString().padStart(2, "0")}m:
+            {s.toString().padStart(2, "0")}s]
           </span>
         </div>
       </header>

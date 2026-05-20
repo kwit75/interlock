@@ -15,11 +15,15 @@ A live deepfake-CEO financial-fraud command center. A CFO gets a video call from
 
 ## 2. Opening pitch (memorize verbatim)
 
-> "Managed Agents shipped Tuesday. Here's what Day 4 looks like.
+> "4:55 PM Friday. Your CFO gets a video call from the CEO. Face clear, voice clear, authorizing a $50 million wire. But the CEO is asleep in Singapore. You have five minutes to stop it.
 >
-> It's 4:55 PM Friday. EOD market close in 5 minutes. Your CFO just got a video call from the CEO — face clear, voice clear — authorizing a $50 million wire to a new vendor. There's one problem: the CEO is asleep in Singapore. This is a deepfake. You don't have 5 minutes.
+> We built INTERLOCK to kill these attacks automatically — using the Managed Agents API that Google dropped exactly four days ago.
 >
-> INTERLOCK detects it, freezes the wire by executing Python in a Linux sandbox spawned by a single Gemini API call, and **drafts the Item 1.05 cybersecurity-incident disclosure** for an authorized officer to file — all approved with one click."
+> INTERLOCK detects the deepfake, freezes the wire by executing Python in an isolated Linux sandbox spawned by a single Gemini API call, and **drafts the SEC Form 8-K Item 1.05 disclosure** for an authorized officer to file. One click."
+
+**Resemble AI / Content-Detection-API framing (after Forensics evidence streams, before Approve):**
+
+> "Note: for stage reliability we're streaming a cached detector trace today — Resemble AI's production pattern. The architecture is already mapped to hot-swap to **Google's AI Content Detection API** announced at yesterday's keynote, the minute partner keys go live."
 
 ## 3. Architecture
 
