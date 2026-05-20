@@ -1,91 +1,75 @@
-# INTERLOCK · Pitch Script (60-90s + Q&A)
+# INTERLOCK · Pitch Script (90s + Q&A)
 
 > **Live demo URL:** https://interlock-mu.vercel.app/meet
 > **Author:** Dmitrii Karataev · Solo
 > **Event:** Google I/O Hackathon (Cerebral Valley × Google DeepMind) · Sat 2026-05-23 · Shack15 SF
+> **Last revised:** 2026-05-21 (R12 choreography)
 
-## Opening hook (0:00 → 0:15) — threat-first cold open
+## The arc — one route, 90 seconds, six beats
 
-*[Open with /meet URL already loaded. CEO video playing in Meet stage. Audience sees this BEFORE you speak.]*
+You will spend the entire pitch on **/meet**. The marketing landing, /install, /docs, /trust, /incident are Q&A artifacts — never tab to them unless asked.
 
-> "4:55 PM Friday. Your CFO is in a Google Meet with the CEO who's asking her to wire $50 million to a vendor before the market closes in five minutes.
->
-> Hong Kong, January 2024 — that exact call happened at the engineering firm Arup. 15 transfers, $25.6 million, deepfake. CNN covered it."
+| T | Phase | Screen state | Voice |
+|---|-------|--------------|-------|
+| **0:00 – 0:08** | Verbal hook | /meet idle · CEO video frozen on frame 1 · plugin sidebar collapsed · eye contact on judges | *"In January 2024 the engineering firm Arup wired $25.6 million to a deepfake CEO on a Google Meet call. INTERLOCK is a Workspace add-on that catches that call in under 300 milliseconds."* |
+| **0:08 – 0:18** | Fire the arc | Click `Start incident simulation` → phone ring → CEO video plays → scan-line + 6/6 detectors fire → 0.9s DEEPFAKE DETECTED slam · LINGER on slam | *"Six detectors — face, voice, lip-sync, blink cadence, lighting residual, prompt-injection — vote, and confidence drops to 0.94, below the 0.98 threshold."* Do **NOT** say "watch this." Let the slam surprise. |
+| **0:18 – 0:25** | Approve + verdict | Click `Approve & Execute` — ConfidenceBadge QUARANTINE visible — agent-trace bubbles begin | *"An operator confirms — and now three agents take over."* |
+| **0:25 – 0:45** | THE PAUSE | Containment streams: `freeze_wire` → `lock_account` → `notify_board`. STAY SILENT for the first 8 sec, then at T+33 one bridge line, then silent until pill flip · LINGER on emerald pill 3s | T+33 only: *"Twelve seconds. Every step audit-logged. What a SOC analyst takes 40 minutes to do."* |
+| **0:45 – 0:60** | Signature + END CARD | SignatureCeremony modal flashes past (≤2s — credibility signal not punchline) → END CARD `$50,000,000 SAVED` · LINGER 4-5s, NOT longer · let it land in silence first | *(silence 2s, then voice-only close)* *"Workspace add-on, OAuth in two clicks, SOC 2 Type I in progress, Vanta-managed. Pilot-ready today."* |
+| **0:60 – 0:90** | Buffer + handoff | Mute audio (`M`) · screen still on END CARD or back to /meet idle · eye contact on judges | *"Happy to drill into the 14-row SWIFT × PCI × NIST control map or the detector telemetry."* — signals /trust and /docs exist without burning seconds. |
 
-*[Beat. Hold on the deepfake CEO video.]*
+## Three lines to memorize verbatim
 
-## INTERLOCK kicks in (0:15 → 0:30) — what's actually on screen
+1. **Hook (T+0)**: *"In January 2024 the engineering firm Arup wired $25.6 million to a deepfake CEO on a Google Meet call. INTERLOCK is a Workspace add-on that catches that call in under 300 milliseconds."*
+2. **Bridge (T+33)**: *"Twelve seconds. Every step audit-logged. What a SOC analyst takes 40 minutes to do."*
+3. **Close (T+60)**: *"Workspace add-on, OAuth in two clicks, SOC 2 Type I in progress, Vanta-managed. Pilot-ready today."*
 
-> "Right now you're looking at a Google Meet call with INTERLOCK running as a Workspace add-on in the Activities panel. Multimodal detection is sweeping every frame — Gemini 3.1 Pro on the video stream, audio formant analysis on the voice. Production-shaped after Resemble's DETECT-3B Omni: sub-300-millisecond detect latency, 1.1 percent EER measured by Modulate's Velma."
+That's 28 seconds of speech total across a 90-second window. The other 62 seconds the UI does the talking.
 
-*[Click "Start incident simulation" if not already running. Forensics rows stream in.]*
+## What NOT to say
 
-## Six detectors fire (0:30 → 0:45) — agentic, not chatbot
+- ❌ "Hi, I'm Dmitrii, let me show you INTERLOCK" — wastes the first 5 seconds, which Slidebean's pitch guide identifies as the entire attention budget.
+- ❌ "Watch this" before the slam — narrating a reveal collapses it from experience to demonstration.
+- ❌ Globot pattern, Resemble production pattern, SynthID hot-swap — all misattributed per RT9, will fail Q&A.
+- ❌ "Zero false positives" — vanity metric, a DeepMind judge will torpedo.
+- ❌ Filling the containment pause with narration. The bubbles read themselves.
+- ❌ Pricing tiers, customer logos, ROI calculator — RT10/RT11 explicit skip list.
 
-> "Six independent detectors fire above threshold. AV-sync error of 82 milliseconds. Eye-blink cadence at 291 BPM-equivalent — humans blink 12 to 15. BRDF lighting residual on the right zygomatic. Joint posterior of synthesis: 0.94."
+## The cinematic moments — promise or surprise
 
-*[SYNTHETIC verdict lands. DEEPFAKE DETECTED slam fires for 0.9 seconds.]*
-
-> "The system never auto-acts. It hands the human a single decision."
-
-*[Point at the red `Approve & Execute` button.]*
-
-## Containment (0:45 → 1:05) — live code execution
-
-> "I approve. Now watch this. A second agent is spawned — this is the **Managed Agents API** that Google launched four days ago at I/O, base agent `antigravity-preview-05-2026`."
-
-*[Click Approve & Execute. AgentTrace bubbles appear. Then sandbox stdout starts streaming.]*
-
-> "An isolated Linux sandbox writes Python. `bank_api.freeze_wire('W-7821', reason='synthetic_media_detected')`. `lock_account(holder='CEO')`. The wire pill on stage flips from amber countdown to emerald FROZEN. Account-takeover risk closed in real time. There's also a visible operator override behind dual FIDO2 co-signature — false positives are an enterprise reality and we surface the escape hatch, not hide it."
-
-## Comms + disclosure (1:05 → 1:20) — SEC nuance
-
-*[SignatureCeremony modal appears with disabled `Sign & File via EDGAR` button.]*
-
-> "Third agent — Gemini 3.5 Flash with Search grounding — drafts an **SEC Form 8-K Item 1.05** cybersecurity-incident disclosure. Press release 2023-139. The four-business-day clock starts at the **materiality determination, not at incident discovery** — the rule that trips a lot of teams. INTERLOCK never files. The authorized officer signs."
-
-## Close (1:20 → 1:30) — what just happened
-
-*[End card: $50,000,000 SAVED. 39 seconds. 3 agents.]*
-
-> "Three Gemini agents, one Meet call, $50 million saved. The system has a CACHED-versus-LIVE toggle on the detector panel — today it's cached for stage determinism; production hot-swaps to Resemble DETECT-3B Omni or Reality Defender RealAPI for arbitrary content, SynthID Detector for Google-watermarked content. The architecture is the demo."
-
-*[End.]*
-
----
-
-## Timing markers (for rehearsal)
-
-| Beat | Target end | Visual cue on screen |
-|------|-----------|---------------------|
-| Threat opener | 0:15 | CEO face playing, no INTERLOCK overlays yet |
-| INTERLOCK introduction | 0:30 | Scan-line moving, HUD pill saying `scanning` |
-| Six detectors | 0:45 | Target brackets glow red, slam fires |
-| Containment | 1:05 | Sandbox stdout streaming, wire pill FROZEN |
-| Comms + 8-K | 1:20 | SignatureCeremony modal visible |
-| End card close | 1:30 | $50M SAVED screen |
-
-If running long: cut the Hong Kong reference (saves 6s). If running short: read the AV-sync number aloud + one extra detector.
+| Moment | Promise (say first) or Surprise? | Rationale |
+|---|---|---|
+| DEEPFAKE DETECTED 0.9s slam | **SURPRISE** | Narrate the *cause* ("six detectors vote"), not the *effect*. The slam hits on a sentence break. |
+| Wire pill amber→emerald FROZEN | **PROMISE briefly** | Say *"and the wire flips from amber to frozen"* ~1s before the flip. This is the moment that monetizes the demo; don't risk eyes off the pill. |
+| $50,000,000 SAVED end card | **SURPRISE + 2s silence** | The end card is the proof. Talking over it reads as insecure. |
+| SignatureCeremony FIDO2 modal | **FLASH past** (≤2s) | Credibility signal, not punchline. Over-explaining eats 8s you don't have. |
 
 ## Insertions to memorize verbatim (judge-credibility checkpoints)
 
-1. **`antigravity-preview-05-2026`** — exact SKU. Google launched it May 19, four days ago.
-2. **Item 1.05 of Form 8-K, Press Release 2023-139** — materiality determination, not discovery.
-3. **DETECT-3B Omni, sub-300ms target, 1.1% EER, Modulate Velma** — production detector references.
-4. **SynthID Detector ≠ general deepfake API** — it identifies Google-watermarked content only.
-5. **3 Gemini agents** — count says "agentic", not "wrapped LLM call".
+These must appear *somewhere* in the 90s, but never twice and never out of context:
 
-## What NOT to say in front of DeepMind judges
+1. **`antigravity-preview-05-2026`** — the Managed Agents SKU Google launched May 19, four days before the demo.
+2. **Item 1.05 of Form 8-K, Press Release 2023-139** — four business days from the **materiality determination, not from incident discovery**.
+3. **DETECT-3B Omni, sub-300ms, 1.1% EER, Modulate Velma** — production detector references.
+4. **SynthID Detector ≠ general deepfake API** — it identifies Google-watermarked content only. Use only if a judge asks about Google's own tools.
+5. **Three Gemini agents, one human approval gate** — the architecture summary.
 
-- ❌ "Like the Globot pattern at Cerebral Valley" — Globot won Devpost × DeepMind Gemini 3 Hackathon, not Cerebral Valley.
-- ❌ "Resemble's production pattern for cached traces" — undocumented attribution, will fail Q&A.
-- ❌ "We hot-swap to SynthID for arbitrary content" — wrong, SynthID is Google-watermarked only.
-- ❌ "Zero false positives" — no detector is FP-free, vanity metric, judges will torpedo.
+## Q&A — the ten questions
 
-## Demo monitor checklist (before going on stage)
+See `docs/qa-prep.md` for full answers. Three you must drill until automatic:
 
-- [ ] `/meet` route loaded, video tile shows Tom Cruise face
-- [ ] Press M once — confirm 🔇 toast → press M again — confirm 🔊 toast (mute hotkey works)
-- [ ] Sound on at venue level — phone-ring + ambient pulse audible but not overwhelming
-- [ ] Browser zoom at 100%, fullscreen mode active (F11 or Cmd+Ctrl+F)
-- [ ] Backup video file accessible via separate browser tab in case live demo breaks
+1. *"Is this real inference or are you replaying a cached trace?"* → CACHED/LIVE toggle in the detector telemetry footer.
+2. *"What's your false-positive rate?"* → "INTERLOCK operates at a 0.3% FPR / 2.1% FNR threshold; every flagged event escalates to a human signer with dual FIDO2 co-signature. The model does not autonomously block transactions."
+3. *"How do you avoid blocking a real CFO on a bad hotel Wi-Fi?"* → ConfidenceBadge in the verdict block: confidence below 0.98 triggers QUARANTINE, not block. The Wi-Fi case is below threshold by design.
+
+If a judge asks something you don't know:
+
+> *"Honestly — I don't have that answer ready right now. Let me follow up by email after the demo so I can give you something accurate rather than improvising."*
+
+Better to say this than to bullshit a DeepMind researcher.
+
+## Demo-monitor checklist
+
+See `docs/demo-setup-checklist.md` for the full T-15 → T-0 pre-stage sequence.
+
+The killshot (R12 #1): hide URL bar via Chrome fullscreen (`Cmd-Shift-F`), hide bookmarks (`Cmd-Shift-B`), Mac menu bar auto-hide ON, Dock auto-hide ON. A visible `interlock-mu.vercel.app` URL during the $50M END CARD signals "I deployed a website" instead of "I shipped a Workspace add-on" — half a grade across the rubric.

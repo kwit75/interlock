@@ -13,15 +13,32 @@ export default function IncomingCallCard({
 }) {
   const vref = useRef<HTMLVideoElement>(null);
 
+  // Force the first visible frame to be Tom Cruise face (skip dark intro).
+  // R12 demo choreography: idle state must show a frozen, paused frame —
+  // not a looping autoplay that gives away the gimmick before the pitch hook.
   useEffect(() => {
     const v = vref.current;
     if (!v) return;
-    const onMeta = () => {
-      if (v.currentTime < 0.5) v.currentTime = 1.5;
+    const seekToFace = () => {
+      if (v.currentTime < 0.5) {
+        v.currentTime = 1.5;
+      }
+      // Some Chromium builds won't paint a paused frame until a play() tick.
+      // Briefly play+pause to force the first paint, then snap back to t=1.5.
+      v.play()
+        .then(() => {
+          requestAnimationFrame(() => {
+            v.pause();
+            v.currentTime = 1.5;
+          });
+        })
+        .catch(() => {
+          // play() rejected (autoplay policy) — frame may still render on its own
+        });
     };
-    v.addEventListener("loadedmetadata", onMeta);
-    if (v.readyState >= 1) onMeta();
-    return () => v.removeEventListener("loadedmetadata", onMeta);
+    if (v.readyState >= 1) seekToFace();
+    v.addEventListener("loadedmetadata", seekToFace);
+    return () => v.removeEventListener("loadedmetadata", seekToFace);
   }, []);
 
   useEffect(() => {
@@ -61,7 +78,6 @@ export default function IncomingCallCard({
         muted
         playsInline
         loop
-        autoPlay
         preload="auto"
         className="w-full h-full object-cover"
         style={{ objectPosition: "center 35%" }}
