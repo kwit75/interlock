@@ -8,11 +8,9 @@ import DetectorTelemetry, {
   DetectorMode,
 } from "@/components/DetectorTelemetry";
 import DraftRow from "@/components/DraftRow";
-import WireStatusBank from "@/components/WireStatusBank";
 import DeepfakeSlamOverlay from "@/components/DeepfakeSlamOverlay";
 import EndCardResolved from "@/components/EndCardResolved";
 import SignatureCeremony from "@/components/SignatureCeremony";
-import ForensicsHeader from "@/components/ForensicsHeader";
 import type {
   SSEEvent,
   ForensicsEvidence,
@@ -167,55 +165,37 @@ export default function MeetIncidentPage() {
   const m = Math.floor(countdown / 60);
   const s = countdown % 60;
   const callPlaying = phase === "detection";
+  const wireFrozen = wire?.status === "FROZEN" || countdownFrozen;
 
-  // === Sidebar: INTERLOCK plugin pane ===
+  // === SIDEBAR ===
   const sidebar =
     phase === "idle" ? (
       <SidebarIdle onStart={startDemo} />
     ) : (
-      <div className="space-y-3">
-        {/* Countdown / status row */}
-        <div className="flex items-center justify-between text-[11px]">
-          <div className="text-slate-400">
-            Wire <span className="font-mono text-slate-200">W-7821</span>
-          </div>
-          <div
-            className={`tabular-nums font-mono text-[11px] px-2 py-0.5 rounded ${
-              countdownFrozen
-                ? "bg-emerald-950/50 text-emerald-300 border border-emerald-500/30"
-                : "bg-amber-950/30 text-amber-200 border border-amber-500/30"
-            }`}
-          >
-            {countdownFrozen
-              ? "FROZEN"
-              : `T-${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`}
-          </div>
-        </div>
-
-        {/* Verdict + Approve — the hero surface */}
+      <>
+        {/* Verdict — hero surface, shown only when SYNTHETIC */}
         {verdict === "SYNTHETIC" && (
-          <div className="rounded-lg border-2 border-rose-500/70 bg-rose-950/30 p-3 shadow-[0_0_30px_rgba(244,63,94,0.25)]">
+          <div className="rounded-lg border-2 border-rose-500/70 bg-rose-950/30 p-2.5 shadow-[0_0_24px_rgba(244,63,94,0.25)]">
             <div className="flex items-baseline justify-between">
-              <div className="text-rose-300 text-sm font-semibold">
+              <div className="text-rose-200 text-[13px] font-semibold leading-tight">
                 Deepfake detected
               </div>
               <div className="text-[11px] text-rose-400 font-mono tabular-nums">
                 {confidence !== null ? (confidence * 100).toFixed(0) : "—"}%
-                conf.
               </div>
             </div>
             {phase === "awaiting_approval" && (
               <>
-                <div className="mt-2 text-[13px] text-slate-200 leading-snug">
+                <div className="mt-1.5 text-[12px] text-slate-200 leading-snug">
                   Recommend:{" "}
                   <span className="text-white font-medium">
                     freeze wire W-7821
-                  </span>{" "}
-                  &amp; draft 8-K disclosure.
+                  </span>
+                  .
                 </div>
                 <button
                   onClick={approveStrategy}
-                  className="mt-2.5 w-full py-2.5 bg-rose-600 hover:bg-rose-500 rounded-md font-semibold text-sm shadow-[0_0_24px_rgba(244,63,94,0.55)] transition"
+                  className="mt-2 w-full py-2 bg-rose-600 hover:bg-rose-500 rounded-md font-semibold text-[13px] shadow-[0_0_20px_rgba(244,63,94,0.55)] transition"
                 >
                   Approve &amp; Execute
                 </button>
@@ -224,8 +204,8 @@ export default function MeetIncidentPage() {
             {(phase === "executing" ||
               phase === "awaiting_signature" ||
               phase === "done") && (
-              <div className="mt-2 text-[11px] text-emerald-300">
-                ✓ Wire frozen. Disclosure drafted for officer signature.
+              <div className="mt-1.5 text-[11px] text-emerald-300">
+                ✓ Wire frozen · 8-K drafted
               </div>
             )}
           </div>
@@ -234,123 +214,128 @@ export default function MeetIncidentPage() {
         {/* FORENSICS */}
         <SidebarSection
           title="Forensics"
-          subtitle="gemini-3.1-pro-preview · multimodal"
+          subtitle="gemini-3.1-pro · multimodal"
           status={evidence.length === 0 ? "idle" : verdict ? "done" : "running"}
+          collapsedOk={phase === "executing" || phase === "done" || phase === "awaiting_signature"}
         >
-          <ForensicsHeader verdict={verdict} confidence={confidence} />
-          {evidence.length > 0 && (
-            <div className="text-[10px] text-slate-500 mt-2 mb-1 uppercase tracking-widest">
-              Detector commentary
-            </div>
-          )}
-          <div className="text-[10px] font-mono leading-relaxed space-y-0.5">
-            {evidence.slice(-6).map((ev, i) => (
+          <div className="font-mono text-[10px] leading-snug space-y-0.5 max-h-[110px] overflow-y-auto">
+            {evidence.slice(-4).map((ev, i) => (
               <div key={i}>
                 <span className="text-slate-500">
-                  [f{ev.frame_number.toString().padStart(3, "0")}]
+                  f{ev.frame_number.toString().padStart(3, "0")}
                 </span>{" "}
                 <span className="text-amber-300">{ev.category}</span>{" "}
                 <span className="text-slate-400">{ev.observation}</span>
               </div>
             ))}
           </div>
+          {verdict && (
+            <div className="mt-1.5 text-[10px] text-slate-500">
+              EER 0.087 · audio EER 0.021 · verdict{" "}
+              <span className="text-rose-300 font-medium">{verdict}</span> ·
+              conf{" "}
+              <span className="text-rose-300 font-mono">
+                {confidence?.toFixed(2)}
+              </span>
+            </div>
+          )}
         </SidebarSection>
 
         {/* CONTAINMENT */}
-        <SidebarSection
-          title="Containment"
-          subtitle="managed-agents · antigravity-preview-05-2026"
-          status={
-            phase === "executing" && containmentLines.length === 0
-              ? "running"
-              : containmentLines.length
+        {(phase === "executing" ||
+          phase === "awaiting_signature" ||
+          phase === "done") && (
+          <SidebarSection
+            title="Containment"
+            subtitle="managed-agents · antigravity"
+            status={
+              containmentLines.length
                 ? phase === "done" || phase === "awaiting_signature"
                   ? "done"
                   : "running"
-                : "idle"
-          }
-        >
-          <AgentTrace thoughts={agentThoughts} active={traceActive} />
-          {containmentLines.length === 0 &&
-            phase === "executing" &&
-            agentThoughts.length === 0 && (
-              <div className="text-slate-500 text-[11px] mt-1">
-                Spawning isolated Linux sandbox…
+                : "running"
+            }
+            collapsedOk={phase === "done" || phase === "awaiting_signature"}
+          >
+            <div className="max-h-[100px] overflow-y-auto">
+              <AgentTrace thoughts={agentThoughts} active={traceActive} />
+            </div>
+            {containmentLines.length > 0 && (
+              <div className="font-mono text-[10px] leading-snug text-emerald-300 mt-1.5 max-h-[60px] overflow-y-auto">
+                {containmentLines.map((l, i) => (
+                  <div key={i} className="truncate">$ {l}</div>
+                ))}
               </div>
             )}
-          {containmentLines.length > 0 && (
-            <div className="text-[10px] text-slate-500 mt-2 mb-1 uppercase tracking-widest">
-              Sandbox stdout
-            </div>
-          )}
-          <div className="font-mono text-[10px] leading-relaxed text-emerald-300 space-y-0.5">
-            {containmentLines.map((l, i) => (
-              <div key={i}>$ {l}</div>
-            ))}
-          </div>
-          <OverrideEscapeHatch
-            visible={
-              containmentLines.some((l) => l.includes("lock_account")) &&
-              (phase === "executing" ||
-                phase === "awaiting_signature" ||
-                phase === "done")
-            }
-          />
-        </SidebarSection>
+            <OverrideEscapeHatch
+              visible={
+                containmentLines.some((l) => l.includes("lock_account")) &&
+                (phase === "executing" ||
+                  phase === "awaiting_signature" ||
+                  phase === "done")
+              }
+            />
+          </SidebarSection>
+        )}
 
         {/* COMMS */}
-        <SidebarSection
-          title="Comms"
-          subtitle="gemini-3.5-flash · search grounding"
-          status={
-            Object.keys(commsDrafts).length === 3
-              ? phase === "done" || phase === "awaiting_signature"
-                ? "done"
-                : "running"
-              : Object.keys(commsDrafts).length
-                ? "running"
-                : phase === "executing"
+        {(phase === "executing" ||
+          phase === "awaiting_signature" ||
+          phase === "done") && (
+          <SidebarSection
+            title="Comms"
+            subtitle="gemini-3.5-flash · search grounding"
+            status={
+              Object.keys(commsDrafts).length === 3
+                ? phase === "done" || phase === "awaiting_signature"
+                  ? "done"
+                  : "running"
+                : Object.keys(commsDrafts).length
                   ? "running"
-                  : "idle"
-          }
-        >
-          {Object.keys(commsDrafts).length === 0 ? (
-            <div className="text-slate-500 text-[11px]">
-              Awaiting containment confirmation…
-            </div>
-          ) : (
-            <div className="space-y-1.5">
-              {commsDrafts.item_1_05_draft && (
-                <DraftRow
-                  label="SEC Form 8-K · Item 1.05"
-                  body={commsDrafts.item_1_05_draft}
-                  primary
-                />
-              )}
-              {commsDrafts.board_alert && (
-                <DraftRow label="Board alert" body={commsDrafts.board_alert} />
-              )}
-              {commsDrafts.customer_comms && (
-                <DraftRow
-                  label="Customer communications"
-                  body={commsDrafts.customer_comms}
-                />
-              )}
-            </div>
-          )}
-        </SidebarSection>
+                  : "running"
+            }
+          >
+            {Object.keys(commsDrafts).length === 0 ? (
+              <div className="text-slate-500 text-[11px]">
+                Awaiting containment…
+              </div>
+            ) : (
+              <div className="space-y-1">
+                {commsDrafts.item_1_05_draft && (
+                  <DraftRow
+                    label="SEC Form 8-K · Item 1.05"
+                    body={commsDrafts.item_1_05_draft}
+                    primary
+                  />
+                )}
+                {commsDrafts.board_alert && (
+                  <DraftRow
+                    label="Board alert"
+                    body={commsDrafts.board_alert}
+                  />
+                )}
+                {commsDrafts.customer_comms && (
+                  <DraftRow
+                    label="Customer communications"
+                    body={commsDrafts.customer_comms}
+                  />
+                )}
+              </div>
+            )}
+          </SidebarSection>
+        )}
 
-        {/* DETECTOR — collapsed by default, expand-on-click */}
-        <div>
+        {/* TELEMETRY badge */}
+        <div className="pt-1">
           <button
             onClick={() => setShowTelemetry((v) => !v)}
-            className="w-full flex items-center justify-between px-3 py-1.5 rounded border border-slate-800 bg-slate-950/40 hover:border-slate-700 transition text-[11px]"
+            className="w-full flex items-center justify-between px-2.5 py-1.5 rounded border border-slate-800 bg-slate-950/40 hover:border-slate-700 transition text-[11px]"
           >
             <span className="flex items-center gap-2">
               <span className="text-slate-500">◆</span>
-              <span className="text-slate-300">detector telemetry</span>
+              <span className="text-slate-300">detector</span>
               <span className="text-slate-500 font-mono">
-                · 1.1% EER · cached
+                1.1% EER · cached
               </span>
             </span>
             <span className="text-slate-500">{showTelemetry ? "−" : "+"}</span>
@@ -365,24 +350,42 @@ export default function MeetIncidentPage() {
             </div>
           )}
         </div>
-      </div>
+      </>
     );
 
-  // === Center call area ===
-  const call = (
-    <>
-      <IncomingCallCard playing={callPlaying} activeEvidence={evidence} />
-    </>
-  );
+  // === CENTER STAGE ===
+  const call = <IncomingCallCard playing={callPlaying} activeEvidence={evidence} />;
 
-  // === Below-the-call strip (wire status) ===
-  const belowCall = (
-    <div className="grid grid-cols-12 gap-3">
-      <div className="col-span-12">
-        <WireStatusBank wire={wire} />
+  // === FLOATING WIRE STATUS PILL (above bottom control bar) ===
+  const wireChip =
+    phase !== "idle" ? (
+      <div className="flex justify-center">
+        <div
+          className={`pointer-events-auto rounded-full backdrop-blur-md border shadow-[0_4px_20px_rgba(0,0,0,0.4)] flex items-center gap-3 px-3 py-1.5 transition-all duration-300 ${
+            wireFrozen
+              ? "bg-emerald-950/85 border-emerald-500/60"
+              : "bg-amber-950/80 border-amber-500/50"
+          }`}
+        >
+          <div className="text-[11px] text-slate-400 font-mono">
+            wire W-7821
+          </div>
+          <div className="text-[13px] font-semibold text-white tabular-nums">
+            $50,000,000
+          </div>
+          <div className="w-px h-4 bg-white/15" />
+          <div
+            className={`text-[11px] font-mono uppercase tracking-widest ${
+              wireFrozen ? "text-emerald-300" : "text-amber-300"
+            }`}
+          >
+            {wireFrozen
+              ? "● Frozen"
+              : `T-${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`}
+          </div>
+        </div>
       </div>
-    </div>
-  );
+    ) : null;
 
   return (
     <>
@@ -396,8 +399,12 @@ export default function MeetIncidentPage() {
         draftPreview={commsDrafts.item_1_05_draft ?? null}
       />
       <EndCardResolved show={phase === "done"} elapsedSec={resolvedElapsed} />
-      <MeetShell call={call} rightPanel={sidebar}>
-        {belowCall}
+      <MeetShell
+        call={call}
+        rightPanel={sidebar}
+        callStartedAt={demoStartedAt}
+      >
+        {wireChip}
       </MeetShell>
     </>
   );
@@ -405,24 +412,24 @@ export default function MeetIncidentPage() {
 
 function SidebarIdle({ onStart }: { onStart: () => void }) {
   return (
-    <div className="space-y-3">
-      <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-3">
+    <div className="space-y-2.5">
+      <div className="rounded-lg border border-slate-800 bg-slate-950/40 p-2.5">
         <div className="text-[11px] text-slate-400 leading-relaxed">
           INTERLOCK monitors live video calls for synthetic-media indicators on
-          every frame. When a deepfake is detected on a wire-authorizing
-          conversation, the wire is frozen automatically and a Form 8-K Item
-          1.05 disclosure is drafted for the authorized officer.
+          every frame. On a detected deepfake of a wire-authorizing call, the
+          wire is frozen automatically and an SEC Form 8-K Item 1.05 disclosure
+          is drafted for the authorized officer.
         </div>
       </div>
       <button
         onClick={onStart}
-        className="w-full py-3 bg-blue-500 hover:bg-blue-400 rounded-md font-medium text-sm transition shadow-[0_0_20px_rgba(59,130,246,0.4)]"
+        className="w-full py-2.5 bg-blue-500 hover:bg-blue-400 rounded-md font-medium text-[13px] transition shadow-[0_0_20px_rgba(59,130,246,0.4)]"
       >
         Start incident simulation
       </button>
       <div className="text-[10px] text-slate-500 leading-relaxed">
-        Simulated scenario: deepfake video call from &quot;CEO&quot; requesting
-        $50M wire transfer, 4:32 before market close.
+        Simulated: deepfake video call from &quot;CEO&quot; requesting $50M
+        wire transfer, 4:32 before market close.
       </div>
     </div>
   );
@@ -433,12 +440,18 @@ function SidebarSection({
   subtitle,
   status,
   children,
+  collapsedOk,
 }: {
   title: string;
   subtitle: string;
   status: "idle" | "running" | "done";
   children: React.ReactNode;
+  collapsedOk?: boolean;
 }) {
+  const [collapsed, setCollapsed] = useState(collapsedOk);
+  useEffect(() => {
+    setCollapsed(!!collapsedOk);
+  }, [collapsedOk]);
   const dot =
     status === "done"
       ? "bg-emerald-400"
@@ -447,16 +460,26 @@ function SidebarSection({
         : "bg-slate-700";
   return (
     <section className="rounded-lg border border-slate-800 bg-slate-950/40">
-      <header className="px-3 py-2 flex items-center justify-between border-b border-slate-900">
+      <header
+        onClick={() => setCollapsed((v) => !v)}
+        className="px-2.5 py-1.5 flex items-center justify-between border-b border-slate-900 cursor-pointer"
+      >
         <div className="flex items-center gap-2">
           <span className={`w-1.5 h-1.5 rounded-full ${dot}`} />
           <span className="text-[12px] text-slate-100 font-medium">
             {title}
           </span>
         </div>
-        <span className="text-[10px] text-slate-500 font-mono">{subtitle}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-[9px] text-slate-500 font-mono">
+            {subtitle}
+          </span>
+          <span className="text-slate-500 text-[10px]">
+            {collapsed ? "+" : "−"}
+          </span>
+        </div>
       </header>
-      <div className="px-3 py-2">{children}</div>
+      {!collapsed && <div className="px-2.5 py-2">{children}</div>}
     </section>
   );
 }
