@@ -86,6 +86,14 @@ export default function MeetIncidentPage() {
   // presses SPACE on the $50M end-card. Reset on Cmd+Shift+R / startDemo.
   const [showCredits, setShowCredits] = useState(false);
 
+  // Judge-typed CEO identity (deep-research 2026-05-22 top-leverage add).
+  // Defaults to Mark Read/WPP — the live presenter (or a judge) can swap
+  // to any of the suggested public CEOs and the Reverse Provenance + Regulatory
+  // Precedent sub-agents will hunt against THAT identity via Google Search
+  // grounding. Converts the scripted demo into a participatory live moment.
+  const [ceoName, setCeoName] = useState("Mark Read");
+  const [ticker, setTicker] = useState("WPP");
+
   // Council mode override: ?mode=cached forces deterministic SSE replay
   // (no Gemini API calls). For venue Wi-Fi worst-case demo robustness.
   // ?mode=live forces live Gemini even if env DEMO_MODE says otherwise.
@@ -532,6 +540,12 @@ export default function MeetIncidentPage() {
           if (s.kind === "live") setLiveStream(s.stream);
           else setLiveStream(null);
         }}
+        ceoName={ceoName}
+        ticker={ticker}
+        onCeoChange={(n, t) => {
+          setCeoName(n);
+          setTicker(t);
+        }}
       />
     ) : (
       <div className="flex flex-col">
@@ -834,6 +848,8 @@ export default function MeetIncidentPage() {
         active={phase === "detection"}
         onVerdict={handleCouncilVerdict}
         mode={councilMode}
+        ceoName={ceoName}
+        ticker={ticker}
       />
       <DeepfakeSlamOverlay
         show={showSlam}
@@ -899,12 +915,27 @@ void isAudioMuted;
 
 type Status = "idle" | "running" | "done";
 
+const CEO_SUGGESTIONS: { name: string; ticker: string }[] = [
+  { name: "Mark Read", ticker: "WPP" },
+  { name: "Tim Cook", ticker: "AAPL" },
+  { name: "Jensen Huang", ticker: "NVDA" },
+  { name: "Satya Nadella", ticker: "MSFT" },
+  { name: "Brian Chesky", ticker: "ABNB" },
+  { name: "Sundar Pichai", ticker: "GOOGL" },
+];
+
 function SidebarIdle({
   onStart,
   onSourceChange,
+  ceoName,
+  ticker,
+  onCeoChange,
 }: {
   onStart: () => void;
   onSourceChange: (s: VideoSource) => void;
+  ceoName: string;
+  ticker: string;
+  onCeoChange: (name: string, ticker: string) => void;
 }) {
   return (
     <div className="px-4 py-4 space-y-3">
@@ -915,6 +946,64 @@ function SidebarIdle({
         Meet — anything).
       </div>
       <SourcePicker onSourceChange={onSourceChange} />
+
+      <div className="pt-2">
+        <div className="text-[10px] tracking-[0.25em] uppercase mb-1.5 font-medium" style={{ color: C.textDim }}>
+          ◆ Defend who? · live Search-grounded
+        </div>
+        <div className="flex gap-1.5">
+          <input
+            type="text"
+            value={ceoName}
+            onChange={(e) => onCeoChange(e.target.value, ticker)}
+            placeholder="CEO name"
+            className="flex-1 px-2 py-1.5 rounded text-[12px] font-mono outline-none"
+            style={{
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.10)",
+              color: C.text,
+            }}
+          />
+          <input
+            type="text"
+            value={ticker}
+            onChange={(e) => onCeoChange(ceoName, e.target.value.toUpperCase())}
+            placeholder="TKR"
+            maxLength={6}
+            className="w-16 px-2 py-1.5 rounded text-[12px] font-mono outline-none"
+            style={{
+              background: "rgba(255,255,255,0.05)",
+              border: "1px solid rgba(255,255,255,0.10)",
+              color: C.text,
+            }}
+          />
+        </div>
+        <div className="flex flex-wrap gap-1 mt-1.5">
+          {CEO_SUGGESTIONS.map((s) => {
+            const active = s.name === ceoName;
+            return (
+              <button
+                key={s.name}
+                onClick={() => onCeoChange(s.name, s.ticker)}
+                className="text-[10px] px-1.5 py-0.5 rounded font-mono transition"
+                style={{
+                  background: active ? "rgba(168,85,247,0.20)" : "rgba(255,255,255,0.04)",
+                  color: active ? "#c4b5fd" : C.textDim,
+                  border: active
+                    ? "1px solid rgba(168,85,247,0.45)"
+                    : "1px solid rgba(255,255,255,0.06)",
+                }}
+              >
+                {s.ticker}
+              </button>
+            );
+          })}
+        </div>
+        <div className="text-[10px] mt-1.5" style={{ color: C.textMuted }}>
+          The Reverse Provenance sub-agent will hunt this exact identity on Google Search live.
+        </div>
+      </div>
+
       <button
         onClick={onStart}
         className="w-full py-3 rounded-md transition"

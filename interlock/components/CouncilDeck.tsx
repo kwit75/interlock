@@ -16,12 +16,19 @@ import { WORKER_IDS, WORKER_META, type CouncilEvent, type WorkerId, type WorkerS
 type WorkerState = {
   status: WorkerStatus;
   tokens: string;
+  startedAt: number | null;
+  charCount: number;
   verdict?: WorkerVerdict;
   confidence?: number;
   finding?: string;
 };
 
-const INIT_STATE: WorkerState = { status: "pending", tokens: "" };
+const INIT_STATE: WorkerState = {
+  status: "pending",
+  tokens: "",
+  startedAt: null,
+  charCount: 0,
+};
 
 const STATUS_COLOR: Record<WorkerStatus, string> = {
   pending: "#52525b",
@@ -43,10 +50,14 @@ export default function CouncilDeck({
   active,
   onVerdict,
   mode = "auto",
+  ceoName,
+  ticker,
 }: {
   active: boolean;
   onVerdict: (verdict: WorkerVerdict, confidence: number) => void;
   mode?: "auto" | "live" | "cached";
+  ceoName?: string;
+  ticker?: string;
 }) {
   const [workers, setWorkers] = useState<Record<WorkerId, WorkerState>>(() => {
     const r = {} as Record<WorkerId, WorkerState>;
@@ -80,11 +91,14 @@ export default function CouncilDeck({
     }
 
     const t0 = Date.now();
-    const ticker = setInterval(() => {
+    const tickerId = setInterval(() => {
       setSecondsCounter(Math.floor((Date.now() - t0) / 100) / 10);
     }, 100);
 
-    const es = new EventSource(`/api/council?mode=${mode}`);
+    const params = new URLSearchParams({ mode });
+    if (ceoName) params.set("ceoName", ceoName);
+    if (ticker) params.set("companyTicker", ticker);
+    const es = new EventSource(`/api/council?${params.toString()}`);
     esRef.current = es;
     es.onmessage = (msg) => {
       try {
@@ -92,7 +106,13 @@ export default function CouncilDeck({
         if (e.kind === "worker_started") {
           setWorkers((prev) => ({
             ...prev,
-            [e.workerId]: { ...prev[e.workerId], status: "streaming", tokens: "" },
+            [e.workerId]: {
+              ...prev[e.workerId],
+              status: "streaming",
+              tokens: "",
+              startedAt: Date.now(),
+              charCount: 0,
+            },
           }));
         } else if (e.kind === "worker_token") {
           setWorkers((prev) => ({
@@ -100,6 +120,7 @@ export default function CouncilDeck({
             [e.workerId]: {
               ...prev[e.workerId],
               tokens: prev[e.workerId].tokens + e.text,
+              charCount: prev[e.workerId].charCount + e.text.length,
             },
           }));
         } else if (e.kind === "worker_complete") {
@@ -139,7 +160,7 @@ export default function CouncilDeck({
     };
 
     return () => {
-      clearInterval(ticker);
+      clearInterval(tickerId);
       es.close();
       esRef.current = null;
     };
@@ -149,6 +170,12 @@ export default function CouncilDeck({
   if (!active) return null;
 
   const anyStreaming = WORKER_IDS.some((id) => workers[id].status === "streaming");
+  // 7 total gemini-3.5-flash calls per detection: 1 orchestrator + 5 workers + 1 verdict aggregator.
+  // Orchestrator fires when any worker has started; verdict counts when verdict_ready event arrived.
+  const workersComplete = WORKER_IDS.filter((id) => workers[id].status === "complete").length;
+  const orchestratorFired = WORKER_IDS.some((id) => workers[id].startedAt !== null);
+  const flashCallsDone =
+    (orchestratorFired ? 1 : 0) + workersComplete + (verdict ? 1 : 0);
 
   return (
     <div
@@ -173,12 +200,34 @@ export default function CouncilDeck({
             Seven parallel <span style={{ color: "#a855f7" }}>3.5 Flash</span> reasoning streams →{" "}
             one verdict.
           </div>
-          <div className="text-[12px] text-white/60 mt-1">
-            Orchestrator · 5 forensic workers · Verdict aggregator · all{" "}
-            <span className="font-mono">gemini-3.5-flash</span>
-          </div>
+          {ceoName && (
+            <div className="text-[12px] mt-1.5 flex items-center gap-2">
+              <span className="text-white/45">Defending:</span>
+              <span className="font-semibold text-white">{ceoName}</span>
+              {ticker && (
+                <span
+                  className="font-mono px-1.5 py-0.5 rounded text-[10px]"
+                  style={{
+                    background: "rgba(168,85,247,0.15)",
+                    color: "#c4b5fd",
+                    border: "1px solid rgba(168,85,247,0.35)",
+                  }}
+                >
+                  ${ticker}
+                </span>
+              )}
+              <span className="text-white/40 text-[10px]">
+                · Reverse Provenance + Regulatory Precedent hunt live on Google Search
+              </span>
+            </div>
+          )}
         </div>
         <div className="text-right font-mono text-[11px] text-white/60 leading-tight">
+          <div className="mb-1">
+            <span style={{ color: "#a855f7" }}>gemini-3.5-flash calls:</span>{" "}
+            <span className="text-white text-base tabular-nums">{flashCallsDone}</span>
+            <span className="text-white/40">/7</span>
+          </div>
           <div>
             t = <span className="text-white text-base tabular-nums">{secondsCounter.toFixed(1)}s</span>
           </div>
@@ -226,6 +275,16 @@ function WorkerPanel({ id, state }: { id: WorkerId; state: WorkerState }) {
 
   const c = STATUS_COLOR[state.status];
 
+  // Approximate token rate from char count (≈4 chars/token in English prose).
+  // Displayed in the pill row so judges can see the model actually streaming.
+  const tokRate = (() => {
+    if (!state.startedAt || state.charCount === 0) return null;
+    const elapsedSec = (Date.now() - state.startedAt) / 1000;
+    if (elapsedSec < 0.2) return null;
+    const tokens = state.charCount / 4;
+    return Math.round(tokens / elapsedSec);
+  })();
+
   return (
     <div
       className="flex flex-col min-h-0 rounded-lg overflow-hidden"
@@ -252,20 +311,23 @@ function WorkerPanel({ id, state }: { id: WorkerId; state: WorkerState }) {
           </div>
         </div>
         <div className="text-[10px] text-white/45 mt-0.5">{meta.tagline}</div>
-        <div className="flex gap-1 mt-1">
-          <Pill>3.5 Flash</Pill>
-          <Pill>
-            thinking:{" "}
-            {id === "frame_forensics" ||
-            id === "voice_print" ||
-            id === "reverse_provenance" ||
-            id === "counter_strategy" ||
-            id === "regulatory_precedent"
-              ? "low"
-              : "medium"}
-          </Pill>
+        <div className="flex gap-1 mt-1 flex-wrap">
+          <Pill>gemini-3.5-flash</Pill>
+          <Pill>thinking: low</Pill>
           {meta.searchGrounded && <Pill>+Search</Pill>}
           {meta.multimodal && <Pill>multimodal</Pill>}
+          {tokRate !== null && (
+            <span
+              className="text-[8.5px] px-1.5 py-0.5 rounded font-mono tracking-tight tabular-nums"
+              style={{
+                background: "rgba(16,185,129,0.10)",
+                color: "#6ee7b7",
+                border: "1px solid rgba(16,185,129,0.30)",
+              }}
+            >
+              {tokRate} tok/s
+            </span>
+          )}
         </div>
       </div>
 
