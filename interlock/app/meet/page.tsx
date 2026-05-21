@@ -551,6 +551,21 @@ export default function MeetIncidentPage() {
               )}
             </>
           )}
+          <SandboxReplay
+            active={
+              verdict === "SYNTHETIC" &&
+              (phase === "awaiting_approval" ||
+                phase === "executing" ||
+                phase === "awaiting_signature" ||
+                phase === "done")
+            }
+            celebrityMatch={
+              evidence
+                .map((e) => /Tom Cruise/i.exec(e.observation)?.[0] ?? null)
+                .find((m): m is string => !!m) ?? null
+            }
+            confidence={confidence}
+          />
         </SidebarItem>
 
         {(phase === "executing" ||
