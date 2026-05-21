@@ -9,6 +9,7 @@ import DetectorTelemetry, {
 } from "@/components/DetectorTelemetry";
 import DraftRow from "@/components/DraftRow";
 import SettingsPanel from "@/components/SettingsPanel";
+import DemoUploader from "@/components/DemoUploader";
 import DeepfakeSlamOverlay from "@/components/DeepfakeSlamOverlay";
 import EndCardResolved from "@/components/EndCardResolved";
 import SignatureCeremony from "@/components/SignatureCeremony";
@@ -92,26 +93,29 @@ export default function MeetIncidentPage() {
     }
   }, [verdict]);
 
-  // Hotkey: M toggles all Web Audio (venue PA safety)
+  // Hotkeys: M toggles audio, D fires the demo silently (no visible button)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      )
+        return;
       if (e.key === "m" || e.key === "M") {
-        const target = e.target as HTMLElement | null;
-        if (
-          target &&
-          (target.tagName === "INPUT" ||
-            target.tagName === "TEXTAREA" ||
-            target.isContentEditable)
-        )
-          return;
         const next = toggleAudioMute();
         setAudioMuted(next);
         setMuteToast(Date.now());
+      } else if (e.key === "d" || e.key === "D") {
+        if (phase === "idle") startDemo();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   function startDemo() {
     setPhase("detection");
@@ -565,16 +569,16 @@ type Status = "idle" | "running" | "done";
 
 function SidebarIdle({ onStart }: { onStart: () => void }) {
   return (
-    <div className="px-4 py-4">
+    <div className="px-4 py-4 space-y-3">
       <div className="text-[13px] leading-relaxed" style={{ color: C.textSubtle }}>
-        INTERLOCK monitors live video calls for synthetic-media indicators
-        every frame. On a detected deepfake of a wire-authorizing call, the
-        wire is frozen automatically and an SEC Form 8-K Item 1.05 disclosure
-        is drafted for the authorized officer.
+        Monitoring this Meet conference for synthetic media on every video
+        frame. On detection of a deepfake wire-authorizing call, the wire is
+        frozen automatically and an SEC Form 8-K Item 1.05 disclosure is
+        drafted for the authorized officer.
       </div>
       <button
         onClick={onStart}
-        className="mt-4 w-full py-3 rounded-md transition"
+        className="w-full py-3 rounded-md transition"
         style={{
           background: C.accent,
           color: "#202124",
@@ -583,11 +587,12 @@ function SidebarIdle({ onStart }: { onStart: () => void }) {
           boxShadow: "0 0 20px rgba(138,180,248,0.4)",
         }}
       >
-        Start incident simulation
+        Run detection
       </button>
-      <div className="mt-3 text-[11px]" style={{ color: C.textMuted }}>
-        Simulated scenario: deepfake video call from &quot;CEO&quot; requesting
-        $50M wire transfer, 4:32 before market close.
+      <DemoUploader />
+      <div className="text-[10.5px]" style={{ color: C.textMuted }}>
+        Hotkey <kbd className="px-1 py-0.5 rounded bg-slate-800/60 text-[10px] font-mono">D</kbd> to
+        fire silently · <kbd className="px-1 py-0.5 rounded bg-slate-800/60 text-[10px] font-mono">M</kbd> mutes audio.
       </div>
     </div>
   );

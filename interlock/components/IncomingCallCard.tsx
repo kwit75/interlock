@@ -1,6 +1,7 @@
 "use client";
-import { useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ForensicsEvidence } from "@/lib/types";
+import { getDemoVideoUrl } from "@/lib/video-storage";
 
 export default function IncomingCallCard({
   playing,
@@ -12,35 +13,48 @@ export default function IncomingCallCard({
   verdict?: string | null;
 }) {
   const vref = useRef<HTMLVideoElement>(null);
+  const [videoSrc, setVideoSrc] = useState<string>("/clips/deepfake.mp4");
+  const [usingUploaded, setUsingUploaded] = useState(false);
 
-  // Force the first visible frame to be Tom Cruise face (skip dark intro).
-  // R12 demo choreography: idle state must show a frozen, paused frame —
-  // not a looping autoplay that gives away the gimmick before the pitch hook.
+  // Load the pre-uploaded demo video from IndexedDB if one exists.
+  useEffect(() => {
+    let revokeOnUnmount: string | null = null;
+    (async () => {
+      const url = await getDemoVideoUrl();
+      if (url) {
+        revokeOnUnmount = url;
+        setVideoSrc(url);
+        setUsingUploaded(true);
+      }
+    })();
+    return () => {
+      if (revokeOnUnmount) URL.revokeObjectURL(revokeOnUnmount);
+    };
+  }, []);
+
+  // Seek past any black intro frames so the still poster is a visible face.
   useEffect(() => {
     const v = vref.current;
     if (!v) return;
     const seekToFace = () => {
       if (v.currentTime < 0.5) {
-        v.currentTime = 1.5;
+        v.currentTime = usingUploaded ? 0.05 : 1.5;
       }
-      // Some Chromium builds won't paint a paused frame until a play() tick.
-      // Briefly play+pause to force the first paint, then snap back to t=1.5.
       v.play()
         .then(() => {
           requestAnimationFrame(() => {
             v.pause();
-            v.currentTime = 1.5;
+            v.currentTime = usingUploaded ? 0.05 : 1.5;
           });
         })
-        .catch(() => {
-          // play() rejected (autoplay policy) — frame may still render on its own
-        });
+        .catch(() => {});
     };
     if (v.readyState >= 1) seekToFace();
     v.addEventListener("loadedmetadata", seekToFace);
     return () => v.removeEventListener("loadedmetadata", seekToFace);
-  }, []);
+  }, [videoSrc, usingUploaded]);
 
+  // Respond to play/pause from parent with retry-on-gesture fallback.
   useEffect(() => {
     const v = vref.current;
     if (!v) return;
@@ -64,7 +78,6 @@ export default function IncomingCallCard({
     };
   }, [playing]);
 
-  // Scanning is "on" while forensics is sweeping (playing && verdict==null)
   const scanning = playing && !verdict;
   const detected = verdict === "SYNTHETIC";
   const evidenceCount = activeEvidence.length;
@@ -73,27 +86,30 @@ export default function IncomingCallCard({
   return (
     <div className="relative w-full h-full bg-black">
       <video
+        key={videoSrc}
         ref={vref}
-        src="/clips/deepfake.mp4"
+        src={videoSrc}
         muted
         playsInline
         loop
         preload="auto"
         className="w-full h-full object-cover"
-        style={{ objectPosition: "center 35%" }}
-      />
-      {/* Bottom mask — fully opaque strip absorbs the source clip's
-          watermark, then fades smoothly upward like Meet's name-tag area */}
-      <div
-        className="absolute bottom-0 left-0 right-0 pointer-events-none"
-        style={{
-          height: "26%",
-          background:
-            "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 45%, rgba(0,0,0,0.7) 70%, rgba(0,0,0,0) 100%)",
-        }}
+        style={{ objectPosition: usingUploaded ? "center" : "center 35%" }}
       />
 
-      {/* Subtle scanning grid (always when playing) */}
+      {/* Bottom mask absorbs source-clip watermarks; acts as Meet name-tag fade */}
+      {!usingUploaded && (
+        <div
+          className="absolute bottom-0 left-0 right-0 pointer-events-none"
+          style={{
+            height: "26%",
+            background:
+              "linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 45%, rgba(0,0,0,0.7) 70%, rgba(0,0,0,0) 100%)",
+          }}
+        />
+      )}
+
+      {/* Subtle scanning grid while playing */}
       {playing && (
         <div
           className="absolute inset-0 pointer-events-none mix-blend-overlay opacity-60"
@@ -104,7 +120,6 @@ export default function IncomingCallCard({
         />
       )}
 
-      {/* Animated horizontal scan-line while forensics analyses */}
       {scanning && (
         <div
           className="absolute left-0 right-0 pointer-events-none"
@@ -118,18 +133,10 @@ export default function IncomingCallCard({
         />
       )}
 
-      {/* Target-acquired corner brackets, centered on face */}
       {(scanning || detected) && (
         <div
-          className={`absolute pointer-events-none transition-all duration-500 ${
-            detected ? "" : "opacity-50"
-          }`}
-          style={{
-            left: "32%",
-            top: "30%",
-            width: "32%",
-            height: "55%",
-          }}
+          className={`absolute pointer-events-none transition-all duration-500 ${detected ? "" : "opacity-50"}`}
+          style={{ left: "32%", top: "30%", width: "32%", height: "55%" }}
         >
           <Corner pos="tl" detected={detected} />
           <Corner pos="tr" detected={detected} />
@@ -148,7 +155,6 @@ export default function IncomingCallCard({
         </div>
       )}
 
-      {/* Live detector overlay (bottom-right of stage) — what INTERLOCK is currently inspecting */}
       {(scanning || detected) && (
         <div
           className="absolute top-3 left-3 px-2.5 py-1.5 rounded-md pointer-events-none"
@@ -226,9 +232,7 @@ function Corner({
     <div
       style={{
         ...styles[pos],
-        filter: detected
-          ? "drop-shadow(0 0 6px rgba(239,68,68,0.85))"
-          : undefined,
+        filter: detected ? "drop-shadow(0 0 6px rgba(239,68,68,0.85))" : undefined,
         transition: "all 300ms ease",
       }}
     />

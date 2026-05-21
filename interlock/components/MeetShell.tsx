@@ -42,8 +42,12 @@ export default function MeetShell({
 
   return (
     <div
-      className="h-screen w-screen overflow-hidden flex font-sans"
-      style={{ background: MEET_BG, color: MEET_TEXT }}
+      className="h-screen w-screen overflow-hidden flex"
+      style={{
+        background: MEET_BG,
+        color: MEET_TEXT,
+        fontFamily: "var(--font-roboto), Roboto, system-ui, sans-serif",
+      }}
     >
       {/* MAIN STAGE */}
       <main className="flex-1 relative flex flex-col min-w-0">
@@ -84,8 +88,8 @@ export default function MeetShell({
         <div className="flex-1 min-h-0 flex p-3 pb-20">
           <div className="relative w-full h-full">
             <div
-              className="absolute inset-0 rounded-xl overflow-hidden"
-              style={{ background: "#000", border: `1px solid ${MEET_BORDER}` }}
+              className="absolute inset-0 rounded-lg overflow-hidden"
+              style={{ background: "#000" }}
             >
               {call}
               {/* Caller pill, bottom-left */}
@@ -134,24 +138,23 @@ export default function MeetShell({
             <CtrlBtn icon={<MoreIcon />} label="More options" />
             <div className="w-px h-6 bg-white/10 mx-0.5" />
             <button
-              className="h-9 px-4 rounded-full flex items-center gap-1.5 transition"
+              className="h-11 px-5 rounded-full flex items-center gap-2 transition hover:brightness-110"
               style={{
                 background: "#ea4335",
                 color: "white",
-                fontSize: 13,
+                fontSize: 14,
                 fontWeight: 500,
               }}
               aria-label="Leave call"
             >
               <PhoneEndIcon />
-              <span>Leave</span>
             </button>
             <div className="w-px h-6 bg-white/10 mx-0.5" />
             <CtrlBtn icon={<InfoIcon />} label="Meeting details" />
             <CtrlBtn icon={<PeopleIcon />} label="People" />
             <CtrlBtn icon={<ChatIcon />} label="Chat with everyone" />
             <button
-              className="w-9 h-9 rounded-full flex items-center justify-center transition"
+              className="w-11 h-11 rounded-full flex items-center justify-center transition"
               style={{
                 background: "rgba(138,180,248,0.18)",
                 color: "#8ab4f8",
@@ -354,7 +357,7 @@ function CtrlBtn({ label, icon }: { label: string; icon: React.ReactNode }) {
     <button
       aria-label={label}
       title={label}
-      className="w-9 h-9 rounded-full flex items-center justify-center transition hover:bg-white/10"
+      className="w-11 h-11 rounded-full flex items-center justify-center transition hover:bg-white/10"
       style={{ color: MEET_TEXT }}
     >
       {icon}
