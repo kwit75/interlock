@@ -109,9 +109,9 @@ export default function HowItConnectsPage() {
                 note="Capture path implemented as content script; backend WS endpoint mocked. Demo uses cached forensics trace instead."
               />
               <StatusRow
-                surface="Detector chain (Gemini 3.1 Pro + DETECT-3B)"
-                status="cached"
-                note="CACHED↔LIVE toggle in plugin footer flips to a production-shaped 'would call' preview against api.resemble.ai"
+                surface="Council · 7-call gemini-3.5-flash fan-out"
+                status="live"
+                note="/api/council SSE endpoint. Orchestrator + 5 parallel forensic workers (Frame Forensics multimodal, Voice-Print, Reverse Provenance Search-grounded, Counter-Strategy, Regulatory Precedent Search-grounded) + verdict aggregator (thinkingLevel: high). Auto mode falls back to deterministic cached streams on per-worker 12s timeout."
               />
               <StatusRow
                 surface="Managed Agents containment sandbox"
@@ -510,12 +510,16 @@ function SequenceDiagram() {
       "Frames flow over WebSocket: wss://stream.interlock.ai/v1/frames/ten_arup",
     ],
     [
-      "T+1.0s … T+25s",
-      "Detector samples at 12fps, runs DETECT-3B Omni in parallel with Gemini 3.1 Pro multimodal forensics",
+      "T+1.0s … T+1.5s",
+      "Council orchestrator (gemini-3.5-flash, thinkingLevel: medium) fans out to 5 parallel sub-agents — Frame Forensics (multimodal), Voice-Print, Reverse Provenance (+Search grounding), Counter-Strategy, Regulatory Precedent (+Search grounding). All gemini-3.5-flash · thinkingLevel: low. Per-worker 12s AbortController.",
     ],
     [
-      "T+25.3s",
-      "Verdict synthetic, confidence 0.94. Server emits SSE event detection.verdict to the sidePanel iframe",
+      "T+1.5s … T+7s",
+      "Each sub-agent streams its chain-of-thought to /api/council SSE; CouncilDeck overlay renders 5 token-by-token panels + a radial agent graph in real time.",
+    ],
+    [
+      "T+7.2s",
+      "Verdict aggregator (gemini-3.5-flash, thinkingLevel: high, structured-output JSON) gates on 3-of-5 worker consensus. Verdict synthetic, confidence 0.94.",
     ],
     [
       "T+25.4s",
