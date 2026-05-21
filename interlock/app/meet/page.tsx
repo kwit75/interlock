@@ -110,6 +110,31 @@ export default function MeetIncidentPage() {
         setMuteToast(Date.now());
       } else if (e.key === "d" || e.key === "D") {
         if (phase === "idle") startDemo();
+      } else if (
+        (e.key === "r" || e.key === "R") &&
+        (e.metaKey || e.shiftKey)
+      ) {
+        // Cmd+Shift+R / Shift+R resets state for a clean repeat demo
+        // (real reload is too slow — this just snaps back to idle)
+        if (e.shiftKey) {
+          e.preventDefault();
+          esRef.current?.close();
+          stopAmbientPulse();
+          setPhase("idle");
+          setEvidence([]);
+          setVerdict(null);
+          setConfidence(null);
+          setContainmentLines([]);
+          setCommsDrafts({});
+          setWire(null);
+          setCountdown(272);
+          setCountdownFrozen(false);
+          setShowSlam(false);
+          setAgentThoughts([]);
+          setTraceActive(false);
+          setDemoStartedAt(null);
+          setResolvedElapsed(0);
+        }
       }
     };
     window.addEventListener("keydown", onKey);
@@ -592,7 +617,7 @@ function SidebarIdle({ onStart }: { onStart: () => void }) {
       <DemoUploader />
       <div className="text-[10.5px]" style={{ color: C.textMuted }}>
         Hotkey <kbd className="px-1 py-0.5 rounded bg-slate-800/60 text-[10px] font-mono">D</kbd> to
-        fire silently · <kbd className="px-1 py-0.5 rounded bg-slate-800/60 text-[10px] font-mono">M</kbd> mutes audio.
+        fire silently · <kbd className="px-1 py-0.5 rounded bg-slate-800/60 text-[10px] font-mono">M</kbd> mutes audio · <kbd className="px-1 py-0.5 rounded bg-slate-800/60 text-[10px] font-mono">⇧R</kbd> resets.
       </div>
     </div>
   );
