@@ -73,17 +73,15 @@ function tone(
   osc.stop(c.currentTime + durMs / 1000 + 0.05);
 }
 
+/**
+ * Per user feedback (2026-05-21): keep only the deepfake siren on the
+ * detection moment. Phone ring, ambient pulse, freeze slam, and resolved
+ * chime are stubbed to no-ops so the cinematic isn't cluttered with
+ * clicks/grunts/thuds. Lyria-generated tracks (anxious + triumphant)
+ * carry the emotional arc.
+ */
 export function playPhoneRing() {
-  const c = ctx();
-  if (!c) return;
-  // Classic phone double-pulse (UK style: 400/450Hz alternating, 1s on)
-  const pattern = [0, 100, 200, 300];
-  pattern.forEach((delay) => {
-    setTimeout(() => {
-      tone(440, 100, { type: "sine", gain: 0.12 });
-      tone(480, 100, { type: "sine", gain: 0.10 });
-    }, delay);
-  });
+  /* silent — see comment above */
 }
 
 export function playDeepfakeAlarm() {
@@ -99,61 +97,22 @@ export function playDeepfakeAlarm() {
 }
 
 export function playFreezeSlam() {
-  const c = ctx();
-  if (!c) return;
-  // Deep impact: 60Hz square + 120Hz sine + brief noise burst
-  tone(60, 350, { type: "square", gain: 0.34, attack: 0.005, release: 0.15 });
-  tone(120, 350, { type: "sine", gain: 0.22, attack: 0.005, release: 0.15 });
-  // Noise burst
-  try {
-    const buf = c.createBuffer(1, c.sampleRate * 0.15, c.sampleRate);
-    const ch = buf.getChannelData(0);
-    for (let i = 0; i < ch.length; i++) {
-      ch[i] = (Math.random() * 2 - 1) * (1 - i / ch.length) * 0.18;
-    }
-    const src = c.createBufferSource();
-    src.buffer = buf;
-    src.connect(c.destination);
-    src.start();
-  } catch {
-    /* ignore */
-  }
+  /* silent — Lyria triumphant track lands on END CARD instead */
 }
 
 export function playResolvedChime() {
-  const c = ctx();
-  if (!c) return;
-  // Major ascending triad: C5 E5 G5
-  [523.25, 659.25, 783.99].forEach((f, i) => {
-    setTimeout(() => tone(f, 320, { type: "sine", gain: 0.15 }), i * 110);
-  });
+  /* silent — Lyria triumphant track lands on END CARD instead */
 }
 
 let ambientPlaying = false;
 let ambientStop: (() => void) | null = null;
 
 export function startAmbientPulse() {
-  if (ambientPlaying) return;
-  const c = ctx();
-  if (!c) return;
-  ambientPlaying = true;
-  let interval: ReturnType<typeof setInterval> | null = null;
-  // Slow low-frequency pulse every 1.4s
-  const pulse = () => {
-    if (!ambientPlaying) return;
-    tone(110, 220, { type: "sine", gain: 0.04, attack: 0.05, release: 0.1 });
-  };
-  pulse();
-  interval = setInterval(pulse, 1400);
-  ambientStop = () => {
-    ambientPlaying = false;
-    if (interval) clearInterval(interval);
-  };
+  /* silent — Lyria opening track carries the under-detection tension */
 }
 
 export function stopAmbientPulse() {
-  if (ambientStop) ambientStop();
-  ambientStop = null;
+  /* no-op */
 }
 
 /**

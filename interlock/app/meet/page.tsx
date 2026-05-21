@@ -87,6 +87,12 @@ export default function MeetIncidentPage() {
   const liveStatusRef = useRef<"idle" | "connecting" | "open" | "error">("idle");
   const frameTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const verdictHitRef = useRef<boolean>(false);
+  const detectionStartedAtRef = useRef<number>(0);
+  const pendingVerdictTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Minimum on-screen analysis time before firing the SYNTHETIC slam.
+  // The Gemini multimodal call returns in ~1s but the presenter needs the
+  // judge to see the scan-line + accumulating evidence build tension first.
+  const MIN_DETECTION_MS = 11_500;
   const [liveStatus, setLiveStatus] = useState<
     "idle" | "connecting" | "open" | "error"
   >("idle");
@@ -140,11 +146,7 @@ export default function MeetIncidentPage() {
             (v.verdict === "SYNTHETIC" || v.celebrity_match) &&
             v.confidence >= 0.6
           ) {
-            verdictHitRef.current = true;
-            setVerdict("SYNTHETIC");
-            setConfidence(v.confidence);
-            setPhase("awaiting_approval");
-            stopFrameStream();
+            scheduleVerdictReveal(v);
           }
         },
       });
@@ -186,6 +188,30 @@ export default function MeetIncidentPage() {
     if (frameTimerRef.current) {
       clearInterval(frameTimerRef.current);
       frameTimerRef.current = null;
+    }
+  }
+
+  /**
+   * Holds the SYNTHETIC verdict until MIN_DETECTION_MS has elapsed since
+   * detection began, so judges see ≥10s of scanning + evidence build-up
+   * even when Gemini returns in ~1 second. The first qualifying verdict
+   * is buffered; further verdicts after the timer fires are ignored.
+   */
+  function scheduleVerdictReveal(v: LiveVerdict) {
+    if (verdictHitRef.current) return;
+    verdictHitRef.current = true;
+    const elapsed = Date.now() - (detectionStartedAtRef.current || Date.now());
+    const wait = Math.max(0, MIN_DETECTION_MS - elapsed);
+    const fire = () => {
+      setVerdict("SYNTHETIC");
+      setConfidence(v.confidence);
+      setPhase("awaiting_approval");
+      stopFrameStream();
+    };
+    if (wait <= 0) {
+      fire();
+    } else {
+      pendingVerdictTimerRef.current = setTimeout(fire, wait);
     }
   }
 
@@ -252,11 +278,7 @@ export default function MeetIncidentPage() {
           (v.verdict === "SYNTHETIC" || v.celebrity_match) &&
           v.confidence >= 0.6
         ) {
-          verdictHitRef.current = true;
-          setVerdict("SYNTHETIC");
-          setConfidence(v.confidence);
-          setPhase("awaiting_approval");
-          stopFrameStream();
+          scheduleVerdictReveal(v);
         }
       } catch (e) {
         console.warn("[detect] http error:", e);
@@ -287,11 +309,20 @@ export default function MeetIncidentPage() {
       if (e.agent === "forensics" && e.type === "evidence") {
         setEvidence((prev) => [...prev, e.data]);
       } else if (e.agent === "forensics" && e.type === "verdict") {
-        verdictHitRef.current = true;
-        setVerdict(e.data.verdict);
-        setConfidence(e.data.confidence);
+        // gate cached SSE verdict on min detection time too
+        if (!verdictHitRef.current) {
+          verdictHitRef.current = true;
+          const elapsed = Date.now() - (detectionStartedAtRef.current || Date.now());
+          const wait = Math.max(0, MIN_DETECTION_MS - elapsed);
+          setTimeout(() => {
+            setVerdict(e.data.verdict);
+            setConfidence(e.data.confidence);
+          }, wait);
+        }
       } else if (e.agent === "orchestrator" && e.type === "strategy_ready") {
-        setPhase("awaiting_approval");
+        const elapsed = Date.now() - (detectionStartedAtRef.current || Date.now());
+        const wait = Math.max(0, MIN_DETECTION_MS - elapsed);
+        setTimeout(() => setPhase("awaiting_approval"), wait);
       } else if (e.agent === "orchestrator" && e.type === "done") {
         es.close();
       }
@@ -369,7 +400,12 @@ export default function MeetIncidentPage() {
     setAgentThoughts([]);
     setTraceActive(false);
     setDemoStartedAt(Date.now());
+    detectionStartedAtRef.current = Date.now();
     verdictHitRef.current = false;
+    if (pendingVerdictTimerRef.current) {
+      clearTimeout(pendingVerdictTimerRef.current);
+      pendingVerdictTimerRef.current = null;
+    }
 
     playPhoneRing();
     setTimeout(() => startAmbientPulse(), 800);

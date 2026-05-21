@@ -37,32 +37,31 @@ export default function OpeningHook({
     }
     setPhase("in");
 
-    // Try playing the Lyria-generated anxious track first (deeper sound design,
-    // organic build-up). If autoplay is blocked or file fails to load, fall
-    // back to the Web Audio synthesized drone so the hook always has music.
+    // Loop the Lyria-generated anxious track for as long as the presenter
+    // is reading the threat narration. We don't auto-advance — the user
+    // controls the pacing via Space.
     if (!isAudioMuted()) {
       const el = new Audio("/music/anxious.wav");
       el.preload = "auto";
+      el.loop = true;
       el.volume = 0.55;
       el.play()
         .then(() => {
           audioElRef.current = el;
         })
         .catch(() => {
-          // Autoplay blocked OR file not available — fall back to synth
-          stopAudioRef.current = playAnxiousDrone(11_000);
+          stopAudioRef.current = playAnxiousDrone(90_000);
         });
     }
 
     const revealTimers: ReturnType<typeof setTimeout>[] = [
       setTimeout(() => setRevealed(1), 600),
-      setTimeout(() => setRevealed(2), 2200),
-      setTimeout(() => setRevealed(3), 4400),
-      setTimeout(() => setRevealed(4), 6800),
-      setTimeout(() => setRevealed(5), 9200),
+      setTimeout(() => setRevealed(2), 2400),
+      setTimeout(() => setRevealed(3), 5200),
+      setTimeout(() => setRevealed(4), 8400),
+      setTimeout(() => setRevealed(5), 11000),
     ];
     const fadeAndStop = () => {
-      // Smooth audio fade-out over 700ms
       const el = audioElRef.current;
       if (el) {
         const startVol = el.volume;
@@ -83,32 +82,24 @@ export default function OpeningHook({
       stopAudioRef.current = null;
     };
 
-    const advance = setTimeout(() => {
-      setPhase("out");
-      fadeAndStop();
-      setTimeout(() => {
-        doneRef.current();
-      }, 700);
-    }, 11_500);
-
-    const skip = (e: KeyboardEvent) => {
-      if (e.key === "Escape" || e.key === "Enter" || e.key === " ") {
+    // No auto-advance. Presenter narrates the threat at their own pace and
+    // presses Space when ready to drop into the demo. Music loops underneath.
+    const advance = (e: KeyboardEvent) => {
+      if (e.key === " " || e.key === "Enter" || e.key === "Escape") {
         e.preventDefault();
-        clearTimeout(advance);
         revealTimers.forEach(clearTimeout);
         setPhase("out");
         fadeAndStop();
         setTimeout(() => {
           doneRef.current();
-        }, 350);
+        }, 700);
       }
     };
-    window.addEventListener("keydown", skip);
+    window.addEventListener("keydown", advance);
 
     return () => {
       revealTimers.forEach(clearTimeout);
-      clearTimeout(advance);
-      window.removeEventListener("keydown", skip);
+      window.removeEventListener("keydown", advance);
       stopAudioRef.current?.();
       stopAudioRef.current = null;
       audioElRef.current?.pause();
@@ -222,10 +213,20 @@ export default function OpeningHook({
 
         <Line on={revealed >= 5}>
           <div
-            className="mt-12 text-[12px] tracking-[0.3em] uppercase text-center animate-pulse"
+            className="mt-14 flex items-center justify-center gap-3 text-[13px] tracking-[0.3em] uppercase animate-pulse"
             style={{ color: "#fca5a5" }}
           >
-            ◆ press space to continue · click anywhere to skip ◆
+            <span>◆</span>
+            <span
+              className="px-4 py-2 rounded"
+              style={{
+                background: "rgba(244,63,94,0.10)",
+                border: "1px solid rgba(244,63,94,0.40)",
+              }}
+            >
+              Press <kbd className="px-1.5 py-0.5 mx-1 rounded font-mono text-[11px]" style={{ background: "rgba(255,255,255,0.10)" }}>SPACE</kbd> to begin
+            </span>
+            <span>◆</span>
           </div>
         </Line>
       </div>
