@@ -9,7 +9,7 @@ import DetectorTelemetry, {
 } from "@/components/DetectorTelemetry";
 import DraftRow from "@/components/DraftRow";
 import SettingsPanel from "@/components/SettingsPanel";
-import DemoUploader from "@/components/DemoUploader";
+import SourcePicker, { type VideoSource } from "@/components/SourcePicker";
 import { LiveDetector, type LiveVerdict } from "@/lib/live-detect";
 import { sampleFrameAsDataUrl, detectFrame } from "@/lib/frame-sampler";
 import DeepfakeSlamOverlay from "@/components/DeepfakeSlamOverlay";
@@ -69,6 +69,7 @@ export default function MeetIncidentPage() {
   const [audioMuted, setAudioMuted] = useState(false);
   const [muteToast, setMuteToast] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
+  const [liveStream, setLiveStream] = useState<MediaStream | null>(null);
 
   const esRef = useRef<EventSource | null>(null);
   const liveRef = useRef<LiveDetector | null>(null);
@@ -448,7 +449,13 @@ export default function MeetIncidentPage() {
   // === SIDEBAR ===
   const sidebar =
     phase === "idle" ? (
-      <SidebarIdle onStart={startDemo} />
+      <SidebarIdle
+        onStart={startDemo}
+        onSourceChange={(s: VideoSource) => {
+          if (s.kind === "live") setLiveStream(s.stream);
+          else setLiveStream(null);
+        }}
+      />
     ) : (
       <div className="flex flex-col">
         {/* Verdict — Material notification banner */}
@@ -671,7 +678,7 @@ export default function MeetIncidentPage() {
   // === CENTER STAGE ===
   // Keep the scan-line + target brackets active across detection + approval +
   // execution, so the visual narrative continues. Verdict prop drives the
-  // target-acquired transition.
+  // target-acquired transition. liveStream prop overrides file source.
   const stageActive =
     phase === "detection" ||
     phase === "awaiting_approval" ||
@@ -679,9 +686,10 @@ export default function MeetIncidentPage() {
     phase === "awaiting_signature";
   const call = (
     <IncomingCallCard
-      playing={stageActive}
+      playing={stageActive || !!liveStream}
       activeEvidence={evidence}
       verdict={verdict}
+      liveStream={liveStream}
     />
   );
 
@@ -788,15 +796,22 @@ void isAudioMuted;
 
 type Status = "idle" | "running" | "done";
 
-function SidebarIdle({ onStart }: { onStart: () => void }) {
+function SidebarIdle({
+  onStart,
+  onSourceChange,
+}: {
+  onStart: () => void;
+  onSourceChange: (s: VideoSource) => void;
+}) {
   return (
     <div className="px-4 py-4 space-y-3">
       <div className="text-[13px] leading-relaxed" style={{ color: C.textSubtle }}>
-        Monitoring this Meet conference for synthetic media on every video
-        frame. On detection of a deepfake wire-authorizing call, the wire is
-        frozen automatically and an SEC Form 8-K Item 1.05 disclosure is
-        drafted for the authorized officer.
+        Real-time synthetic-media detection on every frame of a live call.
+        Choose a source: the default DeepTomCruise sample, a pre-uploaded
+        recording, or live screen-capture of any window (Zoom, Teams, real
+        Meet — anything).
       </div>
+      <SourcePicker onSourceChange={onSourceChange} />
       <button
         onClick={onStart}
         className="w-full py-3 rounded-md transition"
@@ -810,7 +825,6 @@ function SidebarIdle({ onStart }: { onStart: () => void }) {
       >
         Run detection
       </button>
-      <DemoUploader />
       <div className="text-[10.5px]" style={{ color: C.textMuted }}>
         Hotkey <kbd className="px-1 py-0.5 rounded bg-slate-800/60 text-[10px] font-mono">D</kbd> to
         fire silently · <kbd className="px-1 py-0.5 rounded bg-slate-800/60 text-[10px] font-mono">M</kbd> mutes audio · <kbd className="px-1 py-0.5 rounded bg-slate-800/60 text-[10px] font-mono">⇧R</kbd> resets.

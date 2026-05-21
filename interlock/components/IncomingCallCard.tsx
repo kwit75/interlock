@@ -7,17 +7,21 @@ export default function IncomingCallCard({
   playing,
   activeEvidence,
   verdict,
+  liveStream,
 }: {
   playing: boolean;
   activeEvidence: ForensicsEvidence[];
   verdict?: string | null;
+  liveStream?: MediaStream | null;
 }) {
   const vref = useRef<HTMLVideoElement>(null);
   const [videoSrc, setVideoSrc] = useState<string>("/clips/deepfake.mp4");
   const [usingUploaded, setUsingUploaded] = useState(false);
+  const usingLive = !!liveStream;
 
-  // Load the pre-uploaded demo video from IndexedDB if one exists.
+  // Load the pre-uploaded demo video from IndexedDB if no live stream.
   useEffect(() => {
+    if (liveStream) return;
     let revokeOnUnmount: string | null = null;
     (async () => {
       const url = await getDemoVideoUrl();
@@ -30,10 +34,25 @@ export default function IncomingCallCard({
     return () => {
       if (revokeOnUnmount) URL.revokeObjectURL(revokeOnUnmount);
     };
-  }, []);
+  }, [liveStream]);
+
+  // Bind / unbind the live screen-capture MediaStream to the video element.
+  useEffect(() => {
+    const v = vref.current;
+    if (!v) return;
+    if (liveStream) {
+      v.srcObject = liveStream;
+      v.muted = true;
+      v.play().catch(() => {});
+    } else if (v.srcObject) {
+      v.srcObject = null;
+    }
+  }, [liveStream]);
 
   // Seek past any black intro frames so the still poster is a visible face.
+  // Skip when live-streaming (no file metadata to seek on).
   useEffect(() => {
+    if (usingLive) return;
     const v = vref.current;
     if (!v) return;
     const seekToFace = () => {
@@ -52,10 +71,12 @@ export default function IncomingCallCard({
     if (v.readyState >= 1) seekToFace();
     v.addEventListener("loadedmetadata", seekToFace);
     return () => v.removeEventListener("loadedmetadata", seekToFace);
-  }, [videoSrc, usingUploaded]);
+  }, [videoSrc, usingUploaded, usingLive]);
 
   // Respond to play/pause from parent with retry-on-gesture fallback.
+  // Live streams auto-play continuously and ignore the playing flag.
   useEffect(() => {
+    if (usingLive) return;
     const v = vref.current;
     if (!v) return;
     let cancelled = false;
@@ -76,7 +97,7 @@ export default function IncomingCallCard({
     return () => {
       cancelled = true;
     };
-  }, [playing]);
+  }, [playing, usingLive]);
 
   const scanning = playing && !verdict;
   const detected = verdict === "SYNTHETIC";
@@ -86,27 +107,25 @@ export default function IncomingCallCard({
   return (
     <div className="relative w-full h-full bg-black">
       <video
-        key={videoSrc}
+        key={usingLive ? "live-stream" : videoSrc}
         ref={vref}
-        src={videoSrc}
+        src={usingLive ? undefined : videoSrc}
         muted
         playsInline
-        loop
+        loop={!usingLive}
         preload="auto"
         className="w-full h-full object-cover"
         style={{
-          objectPosition: usingUploaded ? "center" : "center 35%",
-          // The default DeepTomCruise clip has the subject in a tight central
-          // column with beige outdoor background on either side, which reads
-          // as 'portrait'. Zoom in so the face fills a normal Meet landscape
-          // tile and the beige bars crop off. No effect on uploaded files.
-          transform: usingUploaded ? "none" : "scale(1.55)",
+          objectPosition:
+            usingLive || usingUploaded ? "center" : "center 35%",
+          transform:
+            usingLive || usingUploaded ? "none" : "scale(1.55)",
           transformOrigin: "center 38%",
         }}
       />
 
-      {/* Bottom mask absorbs source-clip watermarks; acts as Meet name-tag fade */}
-      {!usingUploaded && (
+      {/* Bottom mask absorbs source-clip watermarks; only for the default clip */}
+      {!usingLive && !usingUploaded && (
         <div
           className="absolute bottom-0 left-0 right-0 pointer-events-none"
           style={{
