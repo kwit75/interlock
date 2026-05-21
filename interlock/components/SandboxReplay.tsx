@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * Managed Agents sandbox replay panel — visible during DETECTION phase
@@ -23,13 +23,17 @@ export default function SandboxReplay({
 }) {
   const [lines, setLines] = useState<string[]>([]);
   const [done, setDone] = useState(false);
+  const startedRef = useRef(false);
 
   useEffect(() => {
     if (!active) {
       setLines([]);
       setDone(false);
+      startedRef.current = false;
       return;
     }
+    if (startedRef.current) return; // dedupe StrictMode double-fire
+    startedRef.current = true;
     const script = [
       "$ ag spawn --base antigravity-preview-05-2026 --tenant ten_arup",
       "→ sandbox session_id=as_01HXY2VG7H8K3 · region us-central1 · vcpu=2",
