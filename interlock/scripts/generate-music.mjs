@@ -149,18 +149,18 @@ async function captureTrack({ filename, prompts, durationS, config }) {
 (async () => {
   await captureTrack({
     filename: "anxious.wav",
-    durationS: 14,
+    durationS: 28,
     prompts: [
       { text: "dark cinematic underscore tension", weight: 1.5 },
-      { text: "low drone bass pad", weight: 1.3 },
-      { text: "heartbeat thud", weight: 1.0 },
+      { text: "ambient low drone bass pad sustained", weight: 1.4 },
+      { text: "ethereal swelling pad", weight: 1.0 },
       { text: "dissonant high whine", weight: 0.7 },
     ],
     config: {
       temperature: 1.1,
       guidance: 4.0,
-      bpm: 70,
-      density: 0.4,
+      bpm: 40,
+      density: 0.22,
       brightness: 0.25,
     },
   });

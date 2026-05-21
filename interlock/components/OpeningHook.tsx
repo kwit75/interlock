@@ -37,21 +37,13 @@ export default function OpeningHook({
     }
     setPhase("in");
 
-    // Loop the Lyria-generated anxious track for as long as the presenter
-    // is reading the threat narration. We don't auto-advance — the user
-    // controls the pacing via Space.
+    // Per user feedback (2026-05-21): the Lyria anxious.wav was generated
+    // with a "heartbeat thud" prompt that produced a boom-boom rhythm when
+    // looped. We now use the synth drone (drone + dissonant whine, no
+    // rhythm). Plays continuously for 2 minutes — presenter narrates over
+    // a non-rhythmic atmospheric bed and presses SPACE when ready.
     if (!isAudioMuted()) {
-      const el = new Audio("/music/anxious.wav");
-      el.preload = "auto";
-      el.loop = true;
-      el.volume = 0.55;
-      el.play()
-        .then(() => {
-          audioElRef.current = el;
-        })
-        .catch(() => {
-          stopAudioRef.current = playAnxiousDrone(90_000);
-        });
+      stopAudioRef.current = playAnxiousDrone(120_000);
     }
 
     const revealTimers: ReturnType<typeof setTimeout>[] = [
