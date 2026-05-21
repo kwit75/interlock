@@ -1,8 +1,8 @@
 import type { SSEEvent } from "@/lib/types";
 
-export function sseStream(): {
+export function sseStream<T = SSEEvent>(): {
   stream: ReadableStream<Uint8Array>;
-  send: (e: SSEEvent) => void;
+  send: (e: T) => void;
   close: () => void;
 } {
   let controller!: ReadableStreamDefaultController<Uint8Array>;
@@ -15,7 +15,7 @@ export function sseStream(): {
     },
   });
   const encoder = new TextEncoder();
-  const send = (e: SSEEvent) => {
+  const send = (e: T) => {
     const payload = `data: ${JSON.stringify(e)}\n\n`;
     try {
       controller.enqueue(encoder.encode(payload));

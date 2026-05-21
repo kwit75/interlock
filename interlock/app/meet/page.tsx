@@ -13,6 +13,7 @@ import SourcePicker, { type VideoSource } from "@/components/SourcePicker";
 import SandboxReplay from "@/components/SandboxReplay";
 import OpeningHook from "@/components/OpeningHook";
 import GoogleStackCredits from "@/components/GoogleStackCredits";
+import CouncilDeck from "@/components/CouncilDeck";
 import { LiveDetector, type LiveVerdict } from "@/lib/live-detect";
 import { sampleFrameAsDataUrl, detectFrame } from "@/lib/frame-sampler";
 import DeepfakeSlamOverlay from "@/components/DeepfakeSlamOverlay";
@@ -412,19 +413,33 @@ export default function MeetIncidentPage() {
       pendingVerdictTimerRef.current = null;
     }
 
-    playPhoneRing();
-    setTimeout(() => startAmbientPulse(), 800);
+    // INTERLOCK Council (refactored 2026-05-21): the detection phase is now
+    // driven by /api/council — orchestrator + 5 parallel gemini-3.5-flash
+    // workers + verdict aggregator. CouncilDeck overlays during phase ===
+    // 'detection' and fires onCouncilVerdict when the aggregator returns.
+    // The legacy frame-stream / http-detect / cached-SSE paths remain in the
+    // file (kept callable) but are no longer kicked off by startDemo.
+  }
 
-    // Primary path: real-time Gemini Live API on captured frames (WebSocket).
-    // Fallback 1: HTTP polling against /api/detect (still real Gemini).
-    // Fallback 2: cached SSE forensics (deterministic stage safety net).
-    if (liveStatusRef.current === "open") {
-      console.info("[detect] using WebSocket Live API");
-      startFrameStream();
-    } else {
-      console.info("[detect] WS not open — using HTTP /api/detect");
-      startHttpDetect();
+  function handleCouncilVerdict(verdict: "synthetic" | "authentic" | "inconclusive", confidence: number) {
+    if (verdictHitRef.current) return;
+    if (verdict !== "synthetic") {
+      // Authentic / inconclusive: don't fire containment.
+      // For the demo this should never trigger — but keep the path safe.
+      console.info("[council] non-synthetic verdict:", verdict);
+      return;
     }
+    verdictHitRef.current = true;
+    setVerdict("SYNTHETIC");
+    setConfidence(confidence);
+    playDeepfakeAlarm();
+    setShowSlam(true);
+    // Brief slam, then move to awaiting_approval so the user can press
+    // Approve and fire the existing containment + comms flow.
+    setTimeout(() => {
+      setShowSlam(false);
+      setPhase("awaiting_approval");
+    }, 1400);
   }
 
   async function approveStrategy() {
@@ -805,6 +820,10 @@ export default function MeetIncidentPage() {
 
   return (
     <>
+      <CouncilDeck
+        active={phase === "detection"}
+        onVerdict={handleCouncilVerdict}
+      />
       <DeepfakeSlamOverlay
         show={showSlam}
         confidence={confidence ?? 0.94}
