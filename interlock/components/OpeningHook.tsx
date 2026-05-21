@@ -1,21 +1,14 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { isAudioMuted } from "@/lib/audio";
 
 /**
- * Act 1 — the threat-briefing screen that lands before the demo.
+ * Act 1 — the threat-briefing screen.
  *
- * Two-stage choreography (the gating exists for Chrome's autoplay policy):
- *
- *   Stage 0 (unarmed): tiny centered "PRESS SPACE TO BEGIN THE BRIEFING"
- *   splash. Audio cannot autoplay until a real user gesture happens, so we
- *   wait. The first SPACE/Enter/click counts as that gesture.
- *
- *   Stage 1 (armed): full hook overlays. anxious.wav starts (looped), text
- *   reveals at 0.6 / 2.4 / 5.2 / 8.4 / 11s. Presenter narrates over the
- *   atmospheric bed. Second SPACE/Enter/click advances out to the demo.
- *
- * Stops audio gracefully on advance.
+ * Per user feedback (2026-05-21): NO audio anywhere in the demo except the
+ * deepfake-detected siren. So this is purely visual: text reveals at
+ * 0.6 / 2.4 / 5.2 / 8.4 / 11.0s, presenter narrates the threat at their
+ * own pace, then presses SPACE / Enter / Escape / clicks anywhere to
+ * advance into the live demo. No auto-advance.
  */
 export default function OpeningHook({
   show,
@@ -25,92 +18,31 @@ export default function OpeningHook({
   onDone: () => void;
 }) {
   const [phase, setPhase] = useState<"hidden" | "in" | "out">("hidden");
-  const [armed, setArmed] = useState(false);
   const [revealed, setRevealed] = useState(0);
-  const audioElRef = useRef<HTMLAudioElement | null>(null);
   const doneRef = useRef(onDone);
   doneRef.current = onDone;
 
   useEffect(() => {
     if (!show) {
       setPhase("hidden");
-      setArmed(false);
       setRevealed(0);
-      audioElRef.current?.pause();
-      audioElRef.current = null;
       return;
     }
     setPhase("in");
-  }, [show]);
-
-  // Stage 0 — wait for first user gesture, then arm
-  useEffect(() => {
-    if (!show || armed || phase !== "in") return;
-    const arm = (e: KeyboardEvent | MouseEvent) => {
-      if (e instanceof KeyboardEvent) {
-        if (e.key !== " " && e.key !== "Enter") return;
-        e.preventDefault();
-      }
-      setArmed(true);
-    };
-    window.addEventListener("keydown", arm);
-    window.addEventListener("click", arm);
-    return () => {
-      window.removeEventListener("keydown", arm);
-      window.removeEventListener("click", arm);
-    };
-  }, [show, armed, phase]);
-
-  // Stage 1 — armed: start music, run reveals, listen for advance
-  useEffect(() => {
-    if (!armed) return;
-
-    if (!isAudioMuted()) {
-      const el = new Audio("/music/anxious.wav");
-      el.preload = "auto";
-      el.loop = true;
-      el.volume = 0.55;
-      el.play()
-        .then(() => {
-          audioElRef.current = el;
-        })
-        .catch(() => {
-          /* even with armed gesture, some browsers may still block; silent fallback */
-        });
-    }
 
     const revealTimers: ReturnType<typeof setTimeout>[] = [
-      setTimeout(() => setRevealed(1), 200),
-      setTimeout(() => setRevealed(2), 1800),
-      setTimeout(() => setRevealed(3), 4400),
-      setTimeout(() => setRevealed(4), 7600),
-      setTimeout(() => setRevealed(5), 10400),
+      setTimeout(() => setRevealed(1), 600),
+      setTimeout(() => setRevealed(2), 2400),
+      setTimeout(() => setRevealed(3), 5200),
+      setTimeout(() => setRevealed(4), 8400),
+      setTimeout(() => setRevealed(5), 11000),
     ];
-
-    const fadeAndStop = () => {
-      const el = audioElRef.current;
-      if (!el) return;
-      const startVol = el.volume;
-      const t0 = performance.now();
-      const fid = setInterval(() => {
-        const t = (performance.now() - t0) / 700;
-        if (t >= 1) {
-          el.pause();
-          el.currentTime = 0;
-          audioElRef.current = null;
-          clearInterval(fid);
-        } else {
-          el.volume = startVol * (1 - t);
-        }
-      }, 50);
-    };
 
     const advance = (e: KeyboardEvent) => {
       if (e.key === " " || e.key === "Enter" || e.key === "Escape") {
         e.preventDefault();
         revealTimers.forEach(clearTimeout);
         setPhase("out");
-        fadeAndStop();
         setTimeout(() => doneRef.current(), 700);
       }
     };
@@ -120,74 +52,11 @@ export default function OpeningHook({
       revealTimers.forEach(clearTimeout);
       window.removeEventListener("keydown", advance);
     };
-  }, [armed]);
+  }, [show]);
 
   if (phase === "hidden") return null;
   const opacity = phase === "in" ? "opacity-100" : "opacity-0";
 
-  // Stage 0 — minimal splash, captures the gesture
-  if (!armed) {
-    return (
-      <div
-        className={`fixed inset-0 z-[70] cursor-pointer select-none transition-opacity duration-700 ${opacity} flex items-center justify-center`}
-        style={{
-          background:
-            "radial-gradient(ellipse at center, #1a0a0c 0%, #050203 80%)",
-          color: "#e8eaed",
-          fontFamily: "var(--font-roboto), system-ui, sans-serif",
-        }}
-      >
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(ellipse at center, rgba(239,68,68,0) 35%, rgba(239,68,68,0.08) 70%, rgba(0,0,0,0.55) 100%)",
-            animation: "ilk-vignette 1.6s ease-in-out infinite",
-          }}
-        />
-        <div className="relative text-center">
-          <div
-            className="text-[11px] tracking-[0.5em] uppercase font-medium mb-6"
-            style={{ color: "#fca5a5" }}
-          >
-            ⚠ Synthetic media · enterprise threat briefing
-          </div>
-          <div
-            className="flex items-center justify-center gap-3 text-[13px] tracking-[0.3em] uppercase animate-pulse"
-            style={{ color: "#fca5a5" }}
-          >
-            <span>◆</span>
-            <span
-              className="px-5 py-3 rounded"
-              style={{
-                background: "rgba(244,63,94,0.10)",
-                border: "1px solid rgba(244,63,94,0.40)",
-                fontSize: "16px",
-              }}
-            >
-              Press{" "}
-              <kbd
-                className="px-1.5 py-0.5 mx-1 rounded font-mono"
-                style={{ background: "rgba(255,255,255,0.10)" }}
-              >
-                SPACE
-              </kbd>{" "}
-              to begin the briefing
-            </span>
-            <span>◆</span>
-          </div>
-        </div>
-        <style>{`
-          @keyframes ilk-vignette {
-            0%, 100% { opacity: 0.55; }
-            50% { opacity: 0.85; }
-          }
-        `}</style>
-      </div>
-    );
-  }
-
-  // Stage 1 — armed, full briefing
   return (
     <div
       className={`fixed inset-0 z-[70] cursor-pointer select-none transition-opacity duration-700 ${opacity}`}
@@ -196,6 +65,10 @@ export default function OpeningHook({
           "radial-gradient(ellipse at center, #1a0a0c 0%, #050203 80%)",
         color: "#e8eaed",
         fontFamily: "var(--font-roboto), system-ui, sans-serif",
+      }}
+      onClick={() => {
+        setPhase("out");
+        setTimeout(() => doneRef.current(), 350);
       }}
     >
       <div

@@ -1,16 +1,14 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { isAudioMuted } from "@/lib/audio";
+import { useEffect, useState } from "react";
 
 /**
  * Resolution screen — $50,000,000 saved.
  *
- * Per user feedback (2026-05-21):
- *   - Triumphant Lyria track must START HERE (not on the credits screen),
- *     loop until the demo resets. So the music is continuous across the
- *     end-card → stack-credits transition rather than fading in 5s late.
- *   - The next screen (GoogleStackCredits) is gated behind SPACE — judges
- *     get to read the $50M number first, presenter presses space to advance.
+ * Per user feedback (2026-05-21): the only audio that should fire in the
+ * demo is the deepfake-detected siren. No music here, no music on credits,
+ * no music on opening. Just the verdict alarm.
+ *
+ * SPACE / Enter advances to the GoogleStackCredits screen via onAdvance.
  */
 export default function EndCardResolved({
   show,
@@ -22,32 +20,14 @@ export default function EndCardResolved({
   onAdvance?: () => void;
 }) {
   const [visible, setVisible] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (!show) {
       setVisible(false);
-      audioRef.current?.pause();
-      audioRef.current = null;
       return;
     }
     const t = setTimeout(() => setVisible(true), 600);
-    if (!isAudioMuted()) {
-      const el = new Audio("/music/triumphant.wav");
-      el.preload = "auto";
-      el.loop = true;
-      el.volume = 0.55;
-      el.play()
-        .then(() => {
-          audioRef.current = el;
-        })
-        .catch(() => {
-          /* autoplay blocked — caller should fire a click before this */
-        });
-    }
-    return () => {
-      clearTimeout(t);
-    };
+    return () => clearTimeout(t);
   }, [show]);
 
   useEffect(() => {
