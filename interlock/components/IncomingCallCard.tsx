@@ -94,7 +94,15 @@ export default function IncomingCallCard({
         loop
         preload="auto"
         className="w-full h-full object-cover"
-        style={{ objectPosition: usingUploaded ? "center" : "center 35%" }}
+        style={{
+          objectPosition: usingUploaded ? "center" : "center 35%",
+          // The default DeepTomCruise clip has the subject in a tight central
+          // column with beige outdoor background on either side, which reads
+          // as 'portrait'. Zoom in so the face fills a normal Meet landscape
+          // tile and the beige bars crop off. No effect on uploaded files.
+          transform: usingUploaded ? "none" : "scale(1.55)",
+          transformOrigin: "center 38%",
+        }}
       />
 
       {/* Bottom mask absorbs source-clip watermarks; acts as Meet name-tag fade */}
