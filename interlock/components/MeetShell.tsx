@@ -207,7 +207,7 @@ export default function MeetShell({
               INTERLOCK
             </div>
             <div className="text-[11px]" style={{ color: "#9aa0a6" }}>
-              CFO Wire-Fraud Defense
+              Wire-Fraud Kill-Switch
             </div>
           </div>
           <div className="ml-auto flex items-center gap-1 text-[11px] text-emerald-400">

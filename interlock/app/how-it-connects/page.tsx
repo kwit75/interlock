@@ -297,7 +297,7 @@ function WorkspacePath() {
         <PathProperty k="Frame access" v="NO (metadata only)" />
         <PathProperty k="Deployment" v="Apps Script + Marketplace listing" />
         <PathProperty k="OAuth" v="meetings.space.readonly · meetings.events.readonly" />
-        <PathProperty k="Listed on" v="Marketplace as 'INTERLOCK · CFO Wire-Fraud Defense'" />
+        <PathProperty k="Listed on" v="Marketplace as 'INTERLOCK · Wire-Fraud Kill-Switch'" />
       </div>
       <Para>The sidePanel attaches with two API calls:</Para>
       <CodeBlock

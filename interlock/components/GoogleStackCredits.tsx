@@ -100,9 +100,9 @@ export default function GoogleStackCredits({
         </h1>
 
         <div className="mt-6 text-[14px] text-center max-w-3xl" style={{ color: "#bdc1c6" }}>
-          Three Gemini agents in series · parallel forensic detectors ·
-          Managed Agents sandbox for containment · Search-grounded compliance
-          drafting. All on the I/O 2026 stack.
+          One orchestrator · five forensic workers in parallel · one verdict
+          aggregator · Managed Agents sandbox for containment · Search-grounded
+          compliance drafting. All on the I/O 2026 stack.
         </div>
 
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-6 w-full max-w-6xl">

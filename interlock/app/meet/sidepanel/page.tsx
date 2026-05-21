@@ -170,7 +170,7 @@ export default function SidePanelView() {
         <div className="flex flex-col leading-tight min-w-0">
           <div className="text-[14px] font-medium">INTERLOCK</div>
           <div className="text-[11px]" style={{ color: C.textDim }}>
-            CFO Wire-Fraud Defense
+            Wire-Fraud Kill-Switch
           </div>
         </div>
         <div className="ml-auto flex items-center gap-1 text-[11px] text-emerald-400">

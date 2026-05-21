@@ -18,40 +18,25 @@ export default function OpeningHook({
   onDone: () => void;
 }) {
   const [phase, setPhase] = useState<"hidden" | "in" | "out">("hidden");
-  const [revealed, setRevealed] = useState(0);
   const doneRef = useRef(onDone);
   doneRef.current = onDone;
 
   useEffect(() => {
     if (!show) {
       setPhase("hidden");
-      setRevealed(0);
       return;
     }
     setPhase("in");
 
-    const revealTimers: ReturnType<typeof setTimeout>[] = [
-      setTimeout(() => setRevealed(1), 600),
-      setTimeout(() => setRevealed(2), 2400),
-      setTimeout(() => setRevealed(3), 5200),
-      setTimeout(() => setRevealed(4), 8400),
-      setTimeout(() => setRevealed(5), 11000),
-    ];
-
     const advance = (e: KeyboardEvent) => {
       if (e.key === " " || e.key === "Enter" || e.key === "Escape") {
         e.preventDefault();
-        revealTimers.forEach(clearTimeout);
         setPhase("out");
         setTimeout(() => doneRef.current(), 700);
       }
     };
     window.addEventListener("keydown", advance);
-
-    return () => {
-      revealTimers.forEach(clearTimeout);
-      window.removeEventListener("keydown", advance);
-    };
+    return () => window.removeEventListener("keydown", advance);
   }, [show]);
 
   if (phase === "hidden") return null;
@@ -90,7 +75,7 @@ export default function OpeningHook({
       />
 
       <div className="h-full flex flex-col items-center justify-center px-12 lg:px-24 max-w-6xl mx-auto relative">
-        <Line on={revealed >= 1}>
+        <Line on={true}>
           <div
             className="text-[11px] tracking-[0.5em] uppercase font-medium"
             style={{ color: "#fca5a5" }}
@@ -99,7 +84,7 @@ export default function OpeningHook({
           </div>
         </Line>
 
-        <Line on={revealed >= 2}>
+        <Line on={true}>
           <div
             className="mt-8 text-[clamp(38px,5vw,68px)] font-semibold tracking-tight leading-[1.05] text-center"
             style={{ color: "#fda4af" }}
@@ -113,7 +98,7 @@ export default function OpeningHook({
           </div>
         </Line>
 
-        <Line on={revealed >= 3}>
+        <Line on={true}>
           <div
             className="mt-7 text-[16px] leading-relaxed text-center max-w-3xl"
             style={{ color: "#bdc1c6" }}
@@ -125,7 +110,7 @@ export default function OpeningHook({
           </div>
         </Line>
 
-        <Line on={revealed >= 4}>
+        <Line on={true}>
           <div className="mt-12 grid grid-cols-3 gap-x-12 gap-y-2 text-center max-w-4xl">
             <Counter big="$25.6M" sub="Arup · single incident · 2024" />
             <Counter
@@ -136,7 +121,7 @@ export default function OpeningHook({
           </div>
         </Line>
 
-        <Line on={revealed >= 5}>
+        <Line on={true}>
           <div
             className="mt-14 flex items-center justify-center gap-3 text-[13px] tracking-[0.3em] uppercase animate-pulse"
             style={{ color: "#fca5a5" }}

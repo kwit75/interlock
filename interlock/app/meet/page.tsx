@@ -597,8 +597,8 @@ export default function MeetIncidentPage() {
 
         {/* Agents — Material list, no card chrome */}
         <SidebarItem
-          title="Forensics"
-          subtitle="Gemini 3.1 Pro · multimodal"
+          title="Council"
+          subtitle="gemini-3.5-flash × 7 · orchestrator + 5 workers + verdict"
           status={forensicsStatus}
         >
           {evidence.length === 0 ? (
@@ -930,7 +930,7 @@ function SidebarIdle({
       </button>
       <div className="text-[10.5px]" style={{ color: C.textMuted }}>
         Hotkey <kbd className="px-1 py-0.5 rounded bg-slate-800/60 text-[10px] font-mono">D</kbd> to
-        fire silently · <kbd className="px-1 py-0.5 rounded bg-slate-800/60 text-[10px] font-mono">M</kbd> mutes audio · <kbd className="px-1 py-0.5 rounded bg-slate-800/60 text-[10px] font-mono">⇧R</kbd> resets.
+        fire the Council · <kbd className="px-1 py-0.5 rounded bg-slate-800/60 text-[10px] font-mono">⇧R</kbd> resets.
       </div>
     </div>
   );
