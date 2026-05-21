@@ -10,6 +10,8 @@ import DetectorTelemetry, {
 import DraftRow from "@/components/DraftRow";
 import SettingsPanel from "@/components/SettingsPanel";
 import DemoUploader from "@/components/DemoUploader";
+import { LiveDetector, type LiveVerdict } from "@/lib/live-detect";
+import { sampleFrameAsDataUrl } from "@/lib/frame-sampler";
 import DeepfakeSlamOverlay from "@/components/DeepfakeSlamOverlay";
 import EndCardResolved from "@/components/EndCardResolved";
 import SignatureCeremony from "@/components/SignatureCeremony";
@@ -69,6 +71,13 @@ export default function MeetIncidentPage() {
   const [showSettings, setShowSettings] = useState(false);
 
   const esRef = useRef<EventSource | null>(null);
+  const liveRef = useRef<LiveDetector | null>(null);
+  const liveStatusRef = useRef<"idle" | "connecting" | "open" | "error">("idle");
+  const frameTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const verdictHitRef = useRef<boolean>(false);
+  const [liveStatus, setLiveStatus] = useState<
+    "idle" | "connecting" | "open" | "error"
+  >("idle");
 
   useEffect(() => {
     if (phase === "idle" || phase === "done" || countdownFrozen) return;
@@ -82,9 +91,140 @@ export default function MeetIncidentPage() {
   useEffect(() => {
     return () => {
       esRef.current?.close();
+      if (frameTimerRef.current) clearInterval(frameTimerRef.current);
+      liveRef.current?.close();
       stopAmbientPulse();
     };
   }, []);
+
+  // Pre-warm the Live API WebSocket the moment the page mounts so the first
+  // frame doesn't pay the TLS+handshake+model-init tax. R13 explicit fix #1.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLiveStatus("connecting");
+      liveStatusRef.current = "connecting";
+      const det = new LiveDetector({
+        onOpen: () => {
+          if (cancelled) return;
+          setLiveStatus("open");
+          liveStatusRef.current = "open";
+        },
+        onError: (err) => {
+          console.warn("[live] error:", err.message);
+          if (cancelled) return;
+          setLiveStatus("error");
+          liveStatusRef.current = "error";
+        },
+        onClose: () => {
+          if (cancelled) return;
+          setLiveStatus("idle");
+          liveStatusRef.current = "idle";
+        },
+        onVerdict: (v) => {
+          if (cancelled || verdictHitRef.current) return;
+          appendVerdictAsEvidence(v);
+          if (
+            (v.verdict === "SYNTHETIC" || v.celebrity_match) &&
+            v.confidence >= 0.6
+          ) {
+            verdictHitRef.current = true;
+            setVerdict("SYNTHETIC");
+            setConfidence(v.confidence);
+            setPhase("awaiting_approval");
+            stopFrameStream();
+          }
+        },
+      });
+      try {
+        await det.connect();
+        if (!cancelled) liveRef.current = det;
+      } catch (e) {
+        if (!cancelled) {
+          setLiveStatus("error");
+          liveStatusRef.current = "error";
+          console.warn("[live] connect failed:", e);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function appendVerdictAsEvidence(v: LiveVerdict) {
+    const sig =
+      v.celebrity_match && v.celebrity_match.length > 0
+        ? `celebrity_match=${v.celebrity_match} (corporate context = impersonation)`
+        : v.synthesis_artifacts.slice(0, 2).join("; ") ||
+          "synthetic media indicators detected";
+    const ev: ForensicsEvidence = {
+      frame_number: v.frame_number ?? evidence.length + 1,
+      category: v.celebrity_match ? "other" : "facial_geometry",
+      observation: `${sig} · conf=${v.confidence.toFixed(2)} · ${
+        v.verdict
+      } · live`,
+      severity: v.confidence >= 0.7 ? "high" : "medium",
+    };
+    setEvidence((prev) => [...prev, ev]);
+  }
+
+  function stopFrameStream() {
+    if (frameTimerRef.current) {
+      clearInterval(frameTimerRef.current);
+      frameTimerRef.current = null;
+    }
+  }
+
+  function startFrameStream() {
+    stopFrameStream();
+    let frame = 0;
+    const tick = () => {
+      const det = liveRef.current;
+      if (!det || !det.isOpen || verdictHitRef.current) return;
+      const video = document.querySelector("video");
+      if (!video) return;
+      const url = sampleFrameAsDataUrl(video, 320);
+      if (!url) return;
+      frame += 1;
+      det.sendFrame(url);
+      // After 3 frames, nudge the model to render a verdict now.
+      if (frame === 3) det.requestVerdict();
+    };
+    tick();
+    frameTimerRef.current = setInterval(tick, 1500);
+
+    // Safety net: if Live API didn't fire a verdict in 9 s, fall back to the
+    // cached SSE path so the cinematic still lands on stage.
+    setTimeout(() => {
+      if (!verdictHitRef.current) {
+        console.warn("[live] no verdict in 9s — falling back to SSE");
+        stopFrameStream();
+        startFallbackSSE();
+      }
+    }, 9000);
+  }
+
+  function startFallbackSSE() {
+    const es = new EventSource("/api/incident/start");
+    esRef.current = es;
+    es.onmessage = (m) => {
+      const e: SSEEvent = JSON.parse(m.data);
+      if (e.agent === "forensics" && e.type === "evidence") {
+        setEvidence((prev) => [...prev, e.data]);
+      } else if (e.agent === "forensics" && e.type === "verdict") {
+        verdictHitRef.current = true;
+        setVerdict(e.data.verdict);
+        setConfidence(e.data.confidence);
+      } else if (e.agent === "orchestrator" && e.type === "strategy_ready") {
+        setPhase("awaiting_approval");
+      } else if (e.agent === "orchestrator" && e.type === "done") {
+        es.close();
+      }
+    };
+    es.onerror = () => es.close();
+  }
 
   useEffect(() => {
     if (verdict === "SYNTHETIC") {
@@ -156,26 +296,19 @@ export default function MeetIncidentPage() {
     setAgentThoughts([]);
     setTraceActive(false);
     setDemoStartedAt(Date.now());
+    verdictHitRef.current = false;
 
     playPhoneRing();
     setTimeout(() => startAmbientPulse(), 800);
 
-    const es = new EventSource("/api/incident/start");
-    esRef.current = es;
-    es.onmessage = (m) => {
-      const e: SSEEvent = JSON.parse(m.data);
-      if (e.agent === "forensics" && e.type === "evidence") {
-        setEvidence((prev) => [...prev, e.data]);
-      } else if (e.agent === "forensics" && e.type === "verdict") {
-        setVerdict(e.data.verdict);
-        setConfidence(e.data.confidence);
-      } else if (e.agent === "orchestrator" && e.type === "strategy_ready") {
-        setPhase("awaiting_approval");
-      } else if (e.agent === "orchestrator" && e.type === "done") {
-        es.close();
-      }
-    };
-    es.onerror = () => es.close();
+    // Primary path: real-time Gemini Live API on captured frames.
+    if (liveStatusRef.current === "open") {
+      startFrameStream();
+    } else {
+      // Fallback if WebSocket never opened — cached SSE path
+      console.warn("[live] WS not open — using fallback SSE");
+      startFallbackSSE();
+    }
   }
 
   async function approveStrategy() {
