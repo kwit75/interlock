@@ -11,7 +11,7 @@ import DraftRow from "@/components/DraftRow";
 import SettingsPanel from "@/components/SettingsPanel";
 import DemoUploader from "@/components/DemoUploader";
 import { LiveDetector, type LiveVerdict } from "@/lib/live-detect";
-import { sampleFrameAsDataUrl } from "@/lib/frame-sampler";
+import { sampleFrameAsDataUrl, detectFrame } from "@/lib/frame-sampler";
 import DeepfakeSlamOverlay from "@/components/DeepfakeSlamOverlay";
 import EndCardResolved from "@/components/EndCardResolved";
 import SignatureCeremony from "@/components/SignatureCeremony";
@@ -195,15 +195,76 @@ export default function MeetIncidentPage() {
     tick();
     frameTimerRef.current = setInterval(tick, 1500);
 
-    // Safety net: if Live API didn't fire a verdict in 9 s, fall back to the
-    // cached SSE path so the cinematic still lands on stage.
+    // Safety net: if Live API didn't fire a verdict in 9 s, switch to HTTP
+    // polling against /api/detect (still real Gemini, no WebSocket needed).
     setTimeout(() => {
       if (!verdictHitRef.current) {
-        console.warn("[live] no verdict in 9s — falling back to SSE");
+        console.warn("[live] no verdict in 9s — switching to HTTP /api/detect");
+        stopFrameStream();
+        startHttpDetect();
+      }
+    }, 9000);
+  }
+
+  /**
+   * HTTP frame-sampling loop. Real Gemini multimodal verdicts via the
+   * /api/detect endpoint — used when the WebSocket Live API isn't available.
+   * This is still REAL detection on actual captured frames, just over HTTP.
+   */
+  function startHttpDetect() {
+    stopFrameStream();
+    let frame = 0;
+    let inflight = 0;
+    const tick = async () => {
+      if (verdictHitRef.current) return;
+      if (inflight >= 2) return; // cap concurrency
+      const video = document.querySelector("video");
+      if (!video) return;
+      const url = sampleFrameAsDataUrl(video, 320);
+      if (!url) return;
+      frame += 1;
+      inflight += 1;
+      try {
+        const res = await detectFrame(url);
+        const v: LiveVerdict = {
+          verdict: res.verdict,
+          confidence: res.confidence,
+          celebrity_match: res.celebrity_match,
+          synthesis_artifacts: res.synthesis_artifacts ?? [],
+          frame_number: frame,
+          received_at: Date.now(),
+        };
+        if (verdictHitRef.current) return;
+        appendVerdictAsEvidence(v);
+        if (
+          (v.verdict === "SYNTHETIC" || v.celebrity_match) &&
+          v.confidence >= 0.6
+        ) {
+          verdictHitRef.current = true;
+          setVerdict("SYNTHETIC");
+          setConfidence(v.confidence);
+          setPhase("awaiting_approval");
+          stopFrameStream();
+        }
+      } catch (e) {
+        console.warn("[detect] http error:", e);
+      } finally {
+        inflight -= 1;
+      }
+    };
+    tick();
+    frameTimerRef.current = setInterval(tick, 1500);
+
+    // Final fallback: if even HTTP /api/detect doesn't produce a verdict
+    // in 12 s (e.g., total Gemini outage), drop to the cached SSE so the
+    // demo cinematic still lands.
+    setTimeout(() => {
+      if (!verdictHitRef.current) {
+        console.warn("[detect] no verdict in 12s — falling back to cached SSE");
         stopFrameStream();
         startFallbackSSE();
       }
-    }, 9000);
+    }, 12000);
   }
 
   function startFallbackSSE() {
@@ -301,13 +362,15 @@ export default function MeetIncidentPage() {
     playPhoneRing();
     setTimeout(() => startAmbientPulse(), 800);
 
-    // Primary path: real-time Gemini Live API on captured frames.
+    // Primary path: real-time Gemini Live API on captured frames (WebSocket).
+    // Fallback 1: HTTP polling against /api/detect (still real Gemini).
+    // Fallback 2: cached SSE forensics (deterministic stage safety net).
     if (liveStatusRef.current === "open") {
+      console.info("[detect] using WebSocket Live API");
       startFrameStream();
     } else {
-      // Fallback if WebSocket never opened — cached SSE path
-      console.warn("[live] WS not open — using fallback SSE");
-      startFallbackSSE();
+      console.info("[detect] WS not open — using HTTP /api/detect");
+      startHttpDetect();
     }
   }
 
