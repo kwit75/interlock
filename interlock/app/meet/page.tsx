@@ -10,6 +10,7 @@ import DetectorTelemetry, {
 import DraftRow from "@/components/DraftRow";
 import SettingsPanel from "@/components/SettingsPanel";
 import SourcePicker, { type VideoSource } from "@/components/SourcePicker";
+import SandboxReplay from "@/components/SandboxReplay";
 import { LiveDetector, type LiveVerdict } from "@/lib/live-detect";
 import { sampleFrameAsDataUrl, detectFrame } from "@/lib/frame-sampler";
 import DeepfakeSlamOverlay from "@/components/DeepfakeSlamOverlay";
