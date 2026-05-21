@@ -455,8 +455,8 @@ function VerdictTile({
       <div className="flex-1 text-[13px] text-white/80 leading-relaxed">
         {rationale ??
           (streaming
-            ? "Aggregating 5 parallel forensic streams into a single consensus verdict…"
-            : "Verdict pending. Orchestrator will fan out to 5 Gemini 3.5 Flash workers, each thinking in parallel.")}
+            ? "Aggregating 6 parallel forensic streams into a single consensus verdict…"
+            : "Verdict pending. Orchestrator will fan out to 6 Gemini 3.5 Flash workers, each thinking in parallel.")}
       </div>
     </div>
   );
