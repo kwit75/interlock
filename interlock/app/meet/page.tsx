@@ -86,6 +86,16 @@ export default function MeetIncidentPage() {
   // presses SPACE on the $50M end-card. Reset on Cmd+Shift+R / startDemo.
   const [showCredits, setShowCredits] = useState(false);
 
+  // Council mode override: ?mode=cached forces deterministic SSE replay
+  // (no Gemini API calls). For venue Wi-Fi worst-case demo robustness.
+  // ?mode=live forces live Gemini even if env DEMO_MODE says otherwise.
+  const councilMode = (() => {
+    if (typeof window === "undefined") return "auto" as const;
+    const p = new URLSearchParams(window.location.search).get("mode");
+    if (p === "cached" || p === "live" || p === "auto") return p;
+    return "auto" as const;
+  })();
+
   const esRef = useRef<EventSource | null>(null);
   const liveRef = useRef<LiveDetector | null>(null);
   const liveStatusRef = useRef<"idle" | "connecting" | "open" | "error">("idle");
@@ -823,6 +833,7 @@ export default function MeetIncidentPage() {
       <CouncilDeck
         active={phase === "detection"}
         onVerdict={handleCouncilVerdict}
+        mode={councilMode}
       />
       <DeepfakeSlamOverlay
         show={showSlam}
