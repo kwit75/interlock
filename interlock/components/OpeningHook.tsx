@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { playAnxiousDrone } from "@/lib/audio";
+import { playAnxiousDrone, isAudioMuted } from "@/lib/audio";
 
 /**
  * Act 1 — the problem screen that lands before the demo.
@@ -21,6 +21,7 @@ export default function OpeningHook({
   const [phase, setPhase] = useState<"hidden" | "in" | "out">("hidden");
   const [revealed, setRevealed] = useState(0);
   const stopAudioRef = useRef<(() => void) | null>(null);
+  const audioElRef = useRef<HTMLAudioElement | null>(null);
   const doneRef = useRef(onDone);
   doneRef.current = onDone;
 
@@ -30,10 +31,28 @@ export default function OpeningHook({
       setRevealed(0);
       stopAudioRef.current?.();
       stopAudioRef.current = null;
+      audioElRef.current?.pause();
+      audioElRef.current = null;
       return;
     }
     setPhase("in");
-    stopAudioRef.current = playAnxiousDrone(11_000);
+
+    // Try playing the Lyria-generated anxious track first (deeper sound design,
+    // organic build-up). If autoplay is blocked or file fails to load, fall
+    // back to the Web Audio synthesized drone so the hook always has music.
+    if (!isAudioMuted()) {
+      const el = new Audio("/music/anxious.wav");
+      el.preload = "auto";
+      el.volume = 0.55;
+      el.play()
+        .then(() => {
+          audioElRef.current = el;
+        })
+        .catch(() => {
+          // Autoplay blocked OR file not available — fall back to synth
+          stopAudioRef.current = playAnxiousDrone(11_000);
+        });
+    }
 
     const revealTimers: ReturnType<typeof setTimeout>[] = [
       setTimeout(() => setRevealed(1), 600),
@@ -42,11 +61,32 @@ export default function OpeningHook({
       setTimeout(() => setRevealed(4), 6800),
       setTimeout(() => setRevealed(5), 9200),
     ];
+    const fadeAndStop = () => {
+      // Smooth audio fade-out over 700ms
+      const el = audioElRef.current;
+      if (el) {
+        const startVol = el.volume;
+        const startTime = performance.now();
+        const fadeId = setInterval(() => {
+          const t = (performance.now() - startTime) / 700;
+          if (t >= 1) {
+            el.pause();
+            el.currentTime = 0;
+            audioElRef.current = null;
+            clearInterval(fadeId);
+          } else {
+            el.volume = startVol * (1 - t);
+          }
+        }, 50);
+      }
+      stopAudioRef.current?.();
+      stopAudioRef.current = null;
+    };
+
     const advance = setTimeout(() => {
       setPhase("out");
+      fadeAndStop();
       setTimeout(() => {
-        stopAudioRef.current?.();
-        stopAudioRef.current = null;
         doneRef.current();
       }, 700);
     }, 11_500);
@@ -57,9 +97,8 @@ export default function OpeningHook({
         clearTimeout(advance);
         revealTimers.forEach(clearTimeout);
         setPhase("out");
+        fadeAndStop();
         setTimeout(() => {
-          stopAudioRef.current?.();
-          stopAudioRef.current = null;
           doneRef.current();
         }, 350);
       }
@@ -72,6 +111,8 @@ export default function OpeningHook({
       window.removeEventListener("keydown", skip);
       stopAudioRef.current?.();
       stopAudioRef.current = null;
+      audioElRef.current?.pause();
+      audioElRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show]);
@@ -90,9 +131,24 @@ export default function OpeningHook({
       }}
       onClick={() => {
         setPhase("out");
+        // smooth audio fade out
+        const el = audioElRef.current;
+        if (el) {
+          const startVol = el.volume;
+          const t0 = performance.now();
+          const fid = setInterval(() => {
+            const t = (performance.now() - t0) / 350;
+            if (t >= 1) {
+              el.pause();
+              el.currentTime = 0;
+              audioElRef.current = null;
+              clearInterval(fid);
+            } else el.volume = startVol * (1 - t);
+          }, 30);
+        }
+        stopAudioRef.current?.();
+        stopAudioRef.current = null;
         setTimeout(() => {
-          stopAudioRef.current?.();
-          stopAudioRef.current = null;
           doneRef.current();
         }, 350);
       }}

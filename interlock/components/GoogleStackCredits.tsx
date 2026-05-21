@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { isAudioMuted } from "@/lib/audio";
 
 /**
  * Act 3 — closing credit screen after the $50M END CARD lands.
@@ -47,15 +48,33 @@ export default function GoogleStackCredits({
 }) {
   const [visible, setVisible] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (!show) {
       setVisible(false);
       setDismissed(false);
+      audioRef.current?.pause();
+      audioRef.current = null;
       return;
     }
     // Land in silence first — wait 3.2s so the $50M headline owns the moment
-    const t = setTimeout(() => setVisible(true), 3200);
+    const t = setTimeout(() => {
+      setVisible(true);
+      // Play Lyria-generated triumphant resolution track when credits land
+      if (!isAudioMuted()) {
+        const el = new Audio("/music/triumphant.wav");
+        el.preload = "auto";
+        el.volume = 0.5;
+        el.play()
+          .then(() => {
+            audioRef.current = el;
+          })
+          .catch(() => {
+            /* autoplay may be blocked; silent fallback */
+          });
+      }
+    }, 3200);
     return () => clearTimeout(t);
   }, [show]);
 
