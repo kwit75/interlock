@@ -139,9 +139,9 @@ export default function Home() {
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
           <Step
             n={1}
-            title="Council · 7 parallel calls"
-            model="gemini-3.5-flash × 7"
-            body="Orchestrator (thinking: medium) fans out to 5 forensic workers in parallel — Frame Forensics (multimodal), Voice-Print, Reverse Provenance (Search-grounded), Counter-Strategy, Regulatory Precedent (Search-grounded). Each streams reasoning live. The verdict aggregator (thinking: high) returns structured JSON in ~7 seconds."
+            title="Council · 8 parallel calls"
+            model="gemini-3.5-flash × 8"
+            body="Orchestrator (thinking: medium) fans out to 6 forensic workers in parallel — Frame Forensics (multimodal), Voice-Print, Reverse Provenance (Search-grounded), Counter-Strategy, Regulatory Precedent (Search-grounded), Injection Guard (safety). Each streams reasoning live. The verdict aggregator (thinking: high) returns structured JSON in ~7 seconds."
           />
           <Step
             n={2}

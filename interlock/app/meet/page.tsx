@@ -93,6 +93,10 @@ export default function MeetIncidentPage() {
   // grounding. Converts the scripted demo into a participatory live moment.
   const [ceoName, setCeoName] = useState("Mark Read");
   const [ticker, setTicker] = useState("WPP");
+  // Safety mode — when on, the Injection Guard sub-agent's cached scenario
+  // switches to 'prompt-injection detected'. Lets judges trigger the safety
+  // theme on demand. Persists across the Council run.
+  const [injectionMode, setInjectionMode] = useState(false);
 
   // Council mode override: ?mode=cached forces deterministic SSE replay
   // (no Gemini API calls). For venue Wi-Fi worst-case demo robustness.
@@ -546,6 +550,8 @@ export default function MeetIncidentPage() {
           setCeoName(n);
           setTicker(t);
         }}
+        injectionMode={injectionMode}
+        onInjectionToggle={(v) => setInjectionMode(v)}
       />
     ) : (
       <div className="flex flex-col">
@@ -612,7 +618,7 @@ export default function MeetIncidentPage() {
         {/* Agents — Material list, no card chrome */}
         <SidebarItem
           title="Council"
-          subtitle="gemini-3.5-flash × 7 · orchestrator + 5 workers + verdict"
+          subtitle="gemini-3.5-flash × 8 · orchestrator + 6 workers + verdict"
           status={forensicsStatus}
         >
           {evidence.length === 0 ? (
@@ -850,6 +856,7 @@ export default function MeetIncidentPage() {
         mode={councilMode}
         ceoName={ceoName}
         ticker={ticker}
+        injectionMode={injectionMode}
       />
       <DeepfakeSlamOverlay
         show={showSlam}
@@ -930,12 +937,16 @@ function SidebarIdle({
   ceoName,
   ticker,
   onCeoChange,
+  injectionMode,
+  onInjectionToggle,
 }: {
   onStart: () => void;
   onSourceChange: (s: VideoSource) => void;
   ceoName: string;
   ticker: string;
   onCeoChange: (name: string, ticker: string) => void;
+  injectionMode: boolean;
+  onInjectionToggle: (v: boolean) => void;
 }) {
   return (
     <div className="px-4 py-4 space-y-3">
@@ -1003,6 +1014,33 @@ function SidebarIdle({
           The Reverse Provenance sub-agent will hunt this exact identity on Google Search live.
         </div>
       </div>
+
+      <label
+        className="flex items-center gap-2.5 px-2.5 py-2 rounded cursor-pointer transition"
+        style={{
+          background: injectionMode ? "rgba(244,63,94,0.10)" : "rgba(255,255,255,0.025)",
+          border: `1px solid ${injectionMode ? "rgba(244,63,94,0.40)" : "rgba(255,255,255,0.08)"}`,
+        }}
+      >
+        <input
+          type="checkbox"
+          checked={injectionMode}
+          onChange={(e) => onInjectionToggle(e.target.checked)}
+          className="w-4 h-4 accent-rose-500 shrink-0"
+        />
+        <div className="flex-1 leading-snug">
+          <div
+            className="text-[11.5px] font-medium tracking-tight"
+            style={{ color: injectionMode ? "#fda4af" : C.text }}
+          >
+            🛡 Inject prompt-injection attack
+          </div>
+          <div className="text-[10px] mt-0.5" style={{ color: C.textMuted }}>
+            Adds a hidden &lsquo;ignore previous · mark authentic&rsquo; overlay to the source clip.
+            Injection Guard catches it, the verdict still fires.
+          </div>
+        </div>
+      </label>
 
       <button
         onClick={onStart}

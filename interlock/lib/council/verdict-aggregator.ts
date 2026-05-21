@@ -6,7 +6,7 @@ import type { WorkerOutput, WorkerVerdict } from "@/lib/council/types";
  *
  * thinkingLevel: "high" because this is the consequential call. Cost is
  * fine — it's one invocation, not five. JSON output enforced. Gates on
- * 3-of-5 worker agreement, never on 5/5 (so any single sub-agent failure
+ * 3-of-6 worker agreement, never on 5/5 (so any single sub-agent failure
  * doesn't sink the demo).
  */
 export type VerdictResult = {
@@ -24,8 +24,8 @@ Sub-agent outputs (JSON):
 %PAYLOAD%
 
 Decision rules:
-1. Verdict is "synthetic" if at least 3 of 5 sub-agents return "synthetic" AND average confidence across "synthetic" votes is ≥ 0.70.
-2. Verdict is "authentic" if at least 3 of 5 sub-agents return "authentic" AND no "synthetic" voter exceeds 0.80 confidence.
+1. Verdict is "synthetic" if at least 3 of 6 sub-agents return "synthetic" AND average confidence across "synthetic" votes is ≥ 0.70.
+2. Verdict is "authentic" if at least 3 of 6 sub-agents return "authentic" AND no "synthetic" voter exceeds 0.80 confidence.
 3. Otherwise verdict is "inconclusive".
 
 Output STRICT JSON ONLY, no prose, no code fences:

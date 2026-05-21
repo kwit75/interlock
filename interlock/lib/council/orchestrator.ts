@@ -10,6 +10,7 @@ import * as voicePrint from "@/lib/council/workers/voice-print";
 import * as reverseProvenance from "@/lib/council/workers/reverse-provenance";
 import * as counterStrategy from "@/lib/council/workers/counter-strategy";
 import * as regulatoryPrecedent from "@/lib/council/workers/regulatory-precedent";
+import * as injectionGuard from "@/lib/council/workers/injection-guard";
 
 type Worker = {
   metadata: {
@@ -20,8 +21,10 @@ type Worker = {
   };
   buildPrompt: (inputs: CouncilInputs) => string;
   parseFinal: (text: string) => WorkerOutput;
-  cachedOutput: () => WorkerOutput;
-  cachedStream: () => string[];
+  // Injection Guard's cached output/stream both vary by inputs.injectionMode,
+  // so the signatures accept the boolean. Other workers ignore extra args.
+  cachedOutput: (injectionMode?: boolean) => WorkerOutput;
+  cachedStream: (injectionMode?: boolean) => string[];
 };
 
 const WORKERS: Worker[] = [
@@ -30,6 +33,7 @@ const WORKERS: Worker[] = [
   reverseProvenance,
   counterStrategy,
   regulatoryPrecedent,
+  injectionGuard,
 ];
 
 /**
@@ -46,13 +50,14 @@ export type RunMode = "auto" | "live" | "cached";
 async function streamCached(
   worker: Worker,
   send: (e: CouncilEvent) => void,
+  injectionMode = false,
 ): Promise<WorkerOutput> {
-  const tokens = worker.cachedStream();
+  const tokens = worker.cachedStream(injectionMode);
   for (const t of tokens) {
     send({ kind: "worker_token", workerId: worker.metadata.workerId, text: t });
     await new Promise((r) => setTimeout(r, CACHED_TOKEN_INTERVAL_MS));
   }
-  return worker.cachedOutput();
+  return worker.cachedOutput(injectionMode);
 }
 
 async function runLiveWorker(
@@ -97,7 +102,7 @@ async function runWorker(
   send({ kind: "worker_started", workerId: worker.metadata.workerId });
 
   if (mode === "cached") {
-    const out = await streamCached(worker, send);
+    const out = await streamCached(worker, send, inputs.injectionMode);
     send({ kind: "worker_complete", workerId: worker.metadata.workerId, output: out });
     return out;
   }
@@ -117,7 +122,7 @@ async function runWorker(
       return failed;
     }
     // auto: hot-swap to cached
-    const out = await streamCached(worker, send);
+    const out = await streamCached(worker, send, inputs.injectionMode);
     send({ kind: "worker_complete", workerId: worker.metadata.workerId, output: out });
     return out;
   }
@@ -128,8 +133,8 @@ export async function runCouncil(
   mode: RunMode,
   send: (e: CouncilEvent) => void,
 ): Promise<WorkerOutput[]> {
-  // Fan out all 5 workers in parallel. Promise.allSettled so a single
-  // crash doesn't stop the others — gate the verdict on 3-of-5 below.
+  // Fan out all 6 workers in parallel. Promise.allSettled so a single
+  // crash doesn't stop the others — verdict gates on 3-of-6 consensus.
   const settled = await Promise.allSettled(
     WORKERS.map((w) => runWorker(w, inputs, mode, send)),
   );

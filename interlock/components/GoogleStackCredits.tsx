@@ -100,7 +100,7 @@ export default function GoogleStackCredits({
         </h1>
 
         <div className="mt-6 text-[14px] text-center max-w-3xl" style={{ color: "#bdc1c6" }}>
-          One orchestrator · five forensic workers in parallel · one verdict
+          One orchestrator · six forensic workers in parallel · one verdict
           aggregator · Managed Agents sandbox for containment · Search-grounded
           compliance drafting. All on the I/O 2026 stack.
         </div>

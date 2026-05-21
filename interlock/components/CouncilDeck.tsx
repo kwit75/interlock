@@ -52,12 +52,14 @@ export default function CouncilDeck({
   mode = "auto",
   ceoName,
   ticker,
+  injectionMode = false,
 }: {
   active: boolean;
   onVerdict: (verdict: WorkerVerdict, confidence: number) => void;
   mode?: "auto" | "live" | "cached";
   ceoName?: string;
   ticker?: string;
+  injectionMode?: boolean;
 }) {
   const [workers, setWorkers] = useState<Record<WorkerId, WorkerState>>(() => {
     const r = {} as Record<WorkerId, WorkerState>;
@@ -98,6 +100,7 @@ export default function CouncilDeck({
     const params = new URLSearchParams({ mode });
     if (ceoName) params.set("ceoName", ceoName);
     if (ticker) params.set("companyTicker", ticker);
+    if (injectionMode) params.set("injection", "1");
     const es = new EventSource(`/api/council?${params.toString()}`);
     esRef.current = es;
     es.onmessage = (msg) => {
@@ -170,8 +173,9 @@ export default function CouncilDeck({
   if (!active) return null;
 
   const anyStreaming = WORKER_IDS.some((id) => workers[id].status === "streaming");
-  // 7 total gemini-3.5-flash calls per detection: 1 orchestrator + 5 workers + 1 verdict aggregator.
+  // 8 total gemini-3.5-flash calls per detection: 1 orchestrator + 6 workers + 1 verdict aggregator.
   // Orchestrator fires when any worker has started; verdict counts when verdict_ready event arrived.
+  const TOTAL_FLASH_CALLS = 1 + WORKER_IDS.length + 1; // = 8
   const workersComplete = WORKER_IDS.filter((id) => workers[id].status === "complete").length;
   const orchestratorFired = WORKER_IDS.some((id) => workers[id].startedAt !== null);
   const flashCallsDone =
@@ -197,7 +201,7 @@ export default function CouncilDeck({
             ◆ INTERLOCK COUNCIL · GEMINI 3.5 FLASH SUB-AGENT FAN-OUT
           </div>
           <div className="text-[26px] font-semibold tracking-tight leading-tight">
-            Seven parallel <span style={{ color: "#a855f7" }}>3.5 Flash</span> reasoning streams →{" "}
+            Eight parallel <span style={{ color: "#a855f7" }}>3.5 Flash</span> reasoning streams →{" "}
             one verdict.
           </div>
           {ceoName && (
@@ -226,8 +230,16 @@ export default function CouncilDeck({
           <div className="mb-1">
             <span style={{ color: "#a855f7" }}>gemini-3.5-flash calls:</span>{" "}
             <span className="text-white text-base tabular-nums">{flashCallsDone}</span>
-            <span className="text-white/40">/7</span>
+            <span className="text-white/40">/{TOTAL_FLASH_CALLS}</span>
           </div>
+          {injectionMode && (
+            <div
+              className="font-mono text-[10px] tracking-[0.2em] mb-1"
+              style={{ color: "#fca5a5" }}
+            >
+              🛡 INJECTION-PROBE MODE
+            </div>
+          )}
           <div>
             t = <span className="text-white text-base tabular-nums">{secondsCounter.toFixed(1)}s</span>
           </div>
@@ -245,7 +257,7 @@ export default function CouncilDeck({
       </div>
 
       {/* 5 worker panels */}
-      <div className="flex-1 px-8 pb-4 grid grid-cols-5 gap-4 min-h-0">
+      <div className="flex-1 px-8 pb-4 grid grid-cols-6 gap-3 min-h-0">
         {WORKER_IDS.map((id) => (
           <WorkerPanel key={id} id={id} state={workers[id]} />
         ))}
@@ -592,5 +604,6 @@ function labelShort(id: WorkerId): string {
     reverse_provenance: "PROVNC",
     counter_strategy: "CNTR",
     regulatory_precedent: "REG",
+    injection_guard: "GUARD",
   }[id];
 }

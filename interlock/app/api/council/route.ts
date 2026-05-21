@@ -22,6 +22,7 @@ export async function GET(req: NextRequest) {
     ceoName: params.get("ceoName") || DEFAULT_INPUTS.ceoName,
     companyTicker: params.get("companyTicker") || DEFAULT_INPUTS.companyTicker,
     amountUsd: Number(params.get("amountUsd")) || DEFAULT_INPUTS.amountUsd,
+    injectionMode: params.get("injection") === "1" || params.get("injectionMode") === "1",
   };
 
   const { stream, send, close } = sseStream<CouncilEvent>();

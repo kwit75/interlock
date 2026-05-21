@@ -172,20 +172,20 @@ function Title() {
           <span style={{ color: C.textDim }}>for synthetic-media calls.</span>
         </H1>
         <Sub>
-          Seven{" "}
+          Eight{" "}
           <span style={{ color: C.purple }} className="font-mono">
             gemini-3.5-flash
           </span>{" "}
           sub-agents fan out in parallel — frame forensics, voice-print,
-          reverse provenance, counter-strategy, regulatory precedent, verdict,
-          comms. INTERLOCK freezes the wire and drafts the SEC Form 8-K
-          Item&nbsp;1.05 inside an Antigravity Managed Agent. Browser-native,
-          enterprise, cross-platform.
+          reverse provenance, counter-strategy, regulatory precedent,
+          injection guard, verdict, comms. INTERLOCK freezes the wire and
+          drafts the SEC Form 8-K Item&nbsp;1.05 inside an Antigravity Managed
+          Agent. Browser-native, enterprise, cross-platform.
         </Sub>
         <div className="mt-12 flex items-center gap-6 text-[12px]" style={{ color: C.textMuted }}>
           <span>Built by Dmitrii Karataev · solo</span>
           <span style={{ color: C.purple }}>
-            ● 7 visible Gemini 3.5 Flash calls per detection
+            ● 8 visible Gemini 3.5 Flash calls per detection
           </span>
         </div>
       </div>
@@ -261,7 +261,7 @@ function CounterNarrative() {
       <div className="mt-10 grid grid-cols-2 gap-5 max-w-5xl flex-1">
         <Counter
           attack="“Just a wrapper around Gemini.”"
-          rebut="7 visible 3.5 Flash invocations per detection — orchestrator + 5 parallel workers + verdict aggregator. The pattern is Doshi's, the topology is ours."
+          rebut="8 visible 3.5 Flash invocations per detection — orchestrator + 6 parallel workers + verdict aggregator. The pattern is Doshi's, the topology is ours."
         />
         <Counter
           attack="“Mocked bank API — Wizard of Oz.”"
@@ -269,7 +269,7 @@ function CounterNarrative() {
         />
         <Counter
           attack="“Frame Forensics = image analyzer.”"
-          rebut="Frame Forensics is 1 of 5 votes, gated 3-of-5. The system never fires on Frame Forensics alone — by design, because deepfakes already defeat naive frame analysis. The differentiator is the consensus topology."
+          rebut="Frame Forensics is 1 of 5 votes, gated 3-of-6. The system never fires on Frame Forensics alone — by design, because deepfakes already defeat naive frame analysis. The differentiator is the consensus topology."
         />
         <Counter
           attack="“Why not 3.5 Pro?”"
@@ -316,8 +316,8 @@ function Stack() {
         <Agent
           n="1"
           title="Council"
-          model="gemini-3.5-flash × 7 (orchestrator + 5 workers + verdict)"
-          body="Orchestrator (thinking: medium) fans out to 5 parallel workers — Frame Forensics (multimodal), Voice-Print, Reverse Provenance (Search), Counter-Strategy, Regulatory Precedent (Search) — each thinking: low. Verdict aggregator (thinking: high) gates on 3-of-5 consensus."
+          model="gemini-3.5-flash × 8 (orchestrator + 6 workers + verdict)"
+          body="Orchestrator (thinking: medium) fans out to 6 parallel workers — Frame Forensics (multimodal), Voice-Print, Reverse Provenance (Search), Counter-Strategy, Regulatory Precedent (Search) — each thinking: low. Verdict aggregator (thinking: high) gates on 3-of-6 consensus."
           tone="rose"
         />
         <Agent

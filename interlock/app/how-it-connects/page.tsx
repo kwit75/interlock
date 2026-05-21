@@ -511,7 +511,7 @@ function SequenceDiagram() {
     ],
     [
       "T+1.0s … T+1.5s",
-      "Council orchestrator (gemini-3.5-flash, thinkingLevel: medium) fans out to 5 parallel sub-agents — Frame Forensics (multimodal), Voice-Print, Reverse Provenance (+Search grounding), Counter-Strategy, Regulatory Precedent (+Search grounding). All gemini-3.5-flash · thinkingLevel: low. Per-worker 12s AbortController.",
+      "Council orchestrator (gemini-3.5-flash, thinkingLevel: medium) fans out to 6 parallel sub-agents — Frame Forensics (multimodal), Voice-Print, Reverse Provenance (+Search grounding), Counter-Strategy, Regulatory Precedent (+Search grounding). All gemini-3.5-flash · thinkingLevel: low. Per-worker 12s AbortController.",
     ],
     [
       "T+1.5s … T+7s",
@@ -519,7 +519,7 @@ function SequenceDiagram() {
     ],
     [
       "T+7.2s",
-      "Verdict aggregator (gemini-3.5-flash, thinkingLevel: high, structured-output JSON) gates on 3-of-5 worker consensus. Verdict synthetic, confidence 0.94.",
+      "Verdict aggregator (gemini-3.5-flash, thinkingLevel: high, structured-output JSON) gates on 3-of-6 worker consensus. Verdict synthetic, confidence 0.94.",
     ],
     [
       "T+25.4s",
