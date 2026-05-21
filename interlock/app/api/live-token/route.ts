@@ -79,7 +79,11 @@ export async function GET() {
 
     for (const model of [MODEL, FALLBACK_MODEL]) {
       try {
-        const token = await (ai as unknown as { tokens: { create: (p: unknown) => Promise<{ name?: string }> } }).tokens.create({
+        const tokensApi =
+          (ai as unknown as { authTokens?: { create: (p: unknown) => Promise<{ name?: string }> } }).authTokens ??
+          (ai as unknown as { tokens?: { create: (p: unknown) => Promise<{ name?: string }> } }).tokens;
+        if (!tokensApi) throw new Error("SDK missing authTokens API");
+        const token = await tokensApi.create({
           config: {
             uses: 200, // ~200 frames at 2fps over 100 seconds
             expireTime: new Date(Date.now() + TTL_MS).toISOString(),
