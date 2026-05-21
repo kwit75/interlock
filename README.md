@@ -103,7 +103,7 @@ docs/                pitch-script.md (60-90s arc), qa-prep.md (10 judge Qs), dem
 
 ## Built with
 
-`@google/genai` 2.5 · Gemini 3.1 Pro Preview · Gemini 3.5 Flash · Managed Agents API · Google Search Grounding · Next.js 16 (App Router) · TypeScript · Tailwind 4 · Vercel · Web Audio API · IndexedDB · Chrome Manifest v3 · `chrome.tabCapture` · `chrome.sidePanel` · `chrome.offscreen` · Apps Script · Google Meet Add-ons SDK · Roboto.
+`@google/genai` 2.5 · Gemini 3.1 Pro Preview · Gemini 3.5 Flash · Gemini 3.1 Flash Lite Preview · Gemini 3.1 Flash Live Preview · Managed Agents API (`antigravity-preview-05-2026`) · Google Antigravity 2.0 · Google Lyria (`lyria-realtime-exp`) · Google Search Grounding · Next.js 16 (App Router) · TypeScript · Tailwind 4 · Vercel · Web Audio API · IndexedDB · Chrome Manifest v3 · `chrome.tabCapture` · `chrome.sidePanel` · `chrome.offscreen` · Apps Script · Google Meet Add-ons SDK · Roboto.
 
 ## Acknowledgements
 
