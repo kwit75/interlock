@@ -85,7 +85,7 @@ export async function GET() {
         if (!tokensApi) throw new Error("SDK missing authTokens API");
         const token = await tokensApi.create({
           config: {
-            uses: 200, // ~200 frames at 2fps over 100 seconds
+            uses: 200,
             expireTime: new Date(Date.now() + TTL_MS).toISOString(),
             liveConnectConstraints: {
               model,
@@ -95,7 +95,6 @@ export async function GET() {
                 tools: [VERDICT_TOOL],
               },
             },
-            lockAdditionalFields: [],
           },
         });
         const name = token?.name;
