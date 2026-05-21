@@ -83,7 +83,7 @@ export async function GET() {
           config: {
             uses: 200, // ~200 frames at 2fps over 100 seconds
             expireTime: new Date(Date.now() + TTL_MS).toISOString(),
-            liveEphemeralParameters: {
+            liveConnectConstraints: {
               model,
               config: {
                 responseModalities: ["TEXT"],
