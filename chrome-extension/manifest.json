@@ -36,7 +36,7 @@
   "content_scripts": [
     {
       "matches": ["https://meet.google.com/*"],
-      "js": ["src/content/meet-hook.js"],
+      "js": ["src/content/meet-hook.js", "src/content/cinematic.js"],
       "css": ["src/content/meet-overlay.css"],
       "run_at": "document_idle"
     }
