@@ -114,8 +114,8 @@ export default function OpeningHook({
           <div className="mt-12 grid grid-cols-3 gap-x-12 gap-y-2 text-center max-w-4xl">
             <Counter big="$25.6M" sub="Arup · single incident · 2024" />
             <Counter
-              big="$200B"
-              sub="projected deepfake fraud by 2027 · Deloitte"
+              big="$40B"
+              sub="gen-AI fraud losses by 2027 · Deloitte CFS"
             />
             <Counter big="zero" sub="time the CFO had to verify" warn />
           </div>

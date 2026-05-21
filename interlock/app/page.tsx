@@ -106,8 +106,8 @@ export default function Home() {
             small="Arup, January 2024. 15 transfers. Single deepfake video call. (CNN)"
           />
           <Stat
-            big="$200B"
-            small="Projected deepfake fraud losses by 2027 (Deloitte 2025)."
+            big="$40B"
+            small="Projected gen-AI-enabled fraud losses by 2027 (Deloitte Center for Financial Services, 2024 — up from $12.3B in 2023)."
           />
           <Stat
             big="4 days"

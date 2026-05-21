@@ -18,6 +18,7 @@ const slides = [
   "title",
   "threat",
   "math",
+  "counter",
   "stack",
   "doshi",
   "demo",
@@ -57,6 +58,7 @@ export default function Pitch() {
         {slide === "title" && <Title />}
         {slide === "threat" && <Threat />}
         {slide === "math" && <MathSlide />}
+        {slide === "counter" && <CounterNarrative />}
         {slide === "stack" && <Stack />}
         {slide === "doshi" && <DoshiQuote />}
         {slide === "demo" && <Demo />}
@@ -224,16 +226,79 @@ function MathSlide() {
     <Slide>
       <Label>The math</Label>
       <H1>
-        <span style={{ color: C.rose }}>$200B</span> projected deepfake-fraud
+        <span style={{ color: C.rose }}>$40B</span> in gen-AI-enabled fraud
         losses by 2027.
       </H1>
-      <Sub>Deloitte 2025. And the threat lives at the surface where the CFO is.</Sub>
+      <Sub>
+        Deloitte Center for Financial Services, 2024: gen AI is on track to
+        push US fraud losses from $12.3B in 2023 to $40B by 2027 — a 32% CAGR.
+        Signicat reports deepfake attacks already at 1-in-15 of all fraud
+        attempts they detect (Pinar Alpay, Signicat 2024).
+      </Sub>
       <div className="mt-12 grid grid-cols-3 gap-8 max-w-4xl">
-        <Stat n="$25.6M" lbl="Single Arup incident · Jan 2024" />
-        <Stat n="$200B" lbl="Annual deepfake fraud · projected 2027 (Deloitte)" />
-        <Stat n="4 days" lbl="SEC Form 8-K Item 1.05 filing window from materiality determination" />
+        <Stat n="$25.6M" lbl="Single Arup incident · Jan 2024 (CNN, May 16 2024)" />
+        <Stat n="$40B" lbl="Gen-AI-enabled US fraud · projected 2027 · 32% CAGR (Deloitte CFS)" />
+        <Stat n="4 days" lbl="SEC Form 8-K Item 1.05 filing window from materiality determination (PR 2023-139)" />
       </div>
     </Slide>
+  );
+}
+
+// 3.5 — Counter-narrative slide ("why this won't work — and why it does")
+// Pre-empts the 4 hardest judge attacks. Per 2026-05-22 deep-research,
+// every Cerebral Valley × Opus 4.6 winner opened with a counter-narrative
+// one-liner (CrossBeam: "California doesn't have a housing crisis. It has
+// a permit crisis."). This slide is INTERLOCK's equivalent.
+function CounterNarrative() {
+  return (
+    <Slide>
+      <Label>Why this won't work — and why it does</Label>
+      <H1>
+        Most enterprise AI demos
+        <br />
+        <span style={{ color: C.textDim }}>fail one of these four tests.</span>
+      </H1>
+      <div className="mt-10 grid grid-cols-2 gap-5 max-w-5xl flex-1">
+        <Counter
+          attack="“Just a wrapper around Gemini.”"
+          rebut="7 visible 3.5 Flash invocations per detection — orchestrator + 5 parallel workers + verdict aggregator. The pattern is Doshi's, the topology is ours."
+        />
+        <Counter
+          attack="“Mocked bank API — Wizard of Oz.”"
+          rebut="Containment runs on antigravity-preview-05-2026 end-to-end. The 8-K Item 1.05 draft is real, Search-grounded against EDGAR. Diff it against Clorox 2023-09-14 live."
+        />
+        <Counter
+          attack="“Frame Forensics = image analyzer.”"
+          rebut="Frame Forensics is 1 of 5 votes, gated 3-of-5. The system never fires on Frame Forensics alone — by design, because deepfakes already defeat naive frame analysis. The differentiator is the consensus topology."
+        />
+        <Counter
+          attack="“Why not 3.5 Pro?”"
+          rebut="Pichai, I/O 2026: Pro is internal-only until June. Doshi: Pro is orchestrator, Flash is the sub-agent. We use the model Google itself says is right for this job."
+        />
+      </div>
+    </Slide>
+  );
+}
+
+function Counter({ attack, rebut }: { attack: string; rebut: string }) {
+  return (
+    <div
+      className="rounded-lg p-5"
+      style={{
+        border: "1px solid rgba(255,255,255,0.08)",
+        background: "rgba(255,255,255,0.02)",
+      }}
+    >
+      <div
+        className="text-[13px] font-medium mb-2"
+        style={{ color: C.rose, fontFamily: "ui-serif, Georgia, serif" }}
+      >
+        {attack}
+      </div>
+      <div className="text-[13.5px] leading-relaxed" style={{ color: C.text }}>
+        {rebut}
+      </div>
+    </div>
   );
 }
 

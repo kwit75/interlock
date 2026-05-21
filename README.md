@@ -11,7 +11,7 @@
 
 In January 2024, the engineering firm Arup wired **$25.6 million** to a deepfake CEO over a Google Meet call. Fifteen transfers. Hong Kong. ([CNN coverage](https://www.cnn.com/2024/05/16/tech/arup-deepfake-scam-loss-hong-kong-intl-hnk)).
 
-Deloitte projects deepfake-driven fraud losses at **$200B by 2027**. The bottleneck is detection at the right surface — *the actual Meet call where the CFO is being asked to move money* — and the right response: not "block the wire" (the model could hallucinate) but **freeze the pending wire, hand the human a single decision, and draft the regulator disclosure in parallel**.
+Deloitte's Center for Financial Services projects gen-AI-enabled fraud losses to reach **$40 billion in the US by 2027**, up from $12.3 billion in 2023 — a 32% CAGR ([Deloitte Insights, 2024](https://www.deloitte.com/us/en/insights/industry/financial-services/deepfake-banking-fraud-risk-on-the-rise.html)). Signicat reports deepfake attacks at 1-in-15 of all fraud attempts (Pinar Alpay, Signicat 2024). The bottleneck is detection at the right surface — *the actual Meet call where the CFO is being asked to move money* — and the right response: not "block the wire" (the model could hallucinate) but **freeze the pending wire, hand the human a single decision, and draft the regulator disclosure in parallel**.
 
 ## The architecture
 
