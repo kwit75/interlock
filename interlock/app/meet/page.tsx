@@ -11,6 +11,8 @@ import DraftRow from "@/components/DraftRow";
 import SettingsPanel from "@/components/SettingsPanel";
 import SourcePicker, { type VideoSource } from "@/components/SourcePicker";
 import SandboxReplay from "@/components/SandboxReplay";
+import OpeningHook from "@/components/OpeningHook";
+import GoogleStackCredits from "@/components/GoogleStackCredits";
 import { LiveDetector, type LiveVerdict } from "@/lib/live-detect";
 import { sampleFrameAsDataUrl, detectFrame } from "@/lib/frame-sampler";
 import DeepfakeSlamOverlay from "@/components/DeepfakeSlamOverlay";
@@ -71,6 +73,14 @@ export default function MeetIncidentPage() {
   const [muteToast, setMuteToast] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
   const [liveStream, setLiveStream] = useState<MediaStream | null>(null);
+  // Three-act demo: opening hook (problem) → demo (idle + cinematic) → credits.
+  // The opening fires automatically on first mount; ?skipIntro=1 bypasses it.
+  const [showOpening, setShowOpening] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("skipIntro")) return false;
+    return true;
+  });
 
   const esRef = useRef<EventSource | null>(null);
   const liveRef = useRef<LiveDetector | null>(null);
@@ -764,6 +774,8 @@ export default function MeetIncidentPage() {
         draftPreview={commsDrafts.item_1_05_draft ?? null}
       />
       <EndCardResolved show={phase === "done"} elapsedSec={resolvedElapsed} />
+      <GoogleStackCredits show={phase === "done"} />
+      <OpeningHook show={showOpening} onDone={() => setShowOpening(false)} />
       <MuteToast key={muteToast} show={muteToast > 0} muted={audioMuted} />
       <SettingsPanel
         open={showSettings}
