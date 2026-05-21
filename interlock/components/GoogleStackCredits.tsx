@@ -1,25 +1,26 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { isAudioMuted } from "@/lib/audio";
 
 /**
- * Act 3 closing screen — full-screen takeover that replaces the END CARD.
+ * Act 3 closing screen — full-screen takeover, gated behind SPACE on the
+ * resolution end-card.
  *
- * Per user feedback (2026-05-21): this is the NEXT screen after $50M, not
- * a bottom panel below it. Fades in 5s after the END CARD lands (gives
- * the headline its silent moment first), then the END CARD opacity
- * goes to 0 underneath and these credits dominate the screen.
- *
- * Plays Lyria-generated triumphant.wav on entry. Dismissible on Space/
- * Enter/click. Stays up until explicitly dismissed so judges can read.
+ * Per user feedback (2026-05-21):
+ *   - No setTimeout — only shows when `show` is true (driven by SPACE on
+ *     the $50M screen).
+ *   - No dismissal — the screen STAYS UP for the rest of the demo /
+ *     until the demo resets.
+ *   - Headline shifts emphasis to Gemini 3.5 Flash (it's the hackathon's
+ *     problem-statement model). Models column reorders 3.5 Flash first.
+ *   - No own audio — triumphant.wav is started on the EndCardResolved
+ *     (looped) and keeps playing through this transition.
  */
 
 const STACK = [
   {
     tier: "Models",
     items: [
+      "Gemini 3.5 Flash · sub-agent deployment · GA May 19, 2026",
       "Gemini 3.1 Pro Preview · multimodal forensics",
-      "Gemini 3.5 Flash · comms drafting · GA May 19, 2026",
       "Gemini 3.1 Flash Lite Preview · sub-second verdicts",
       "Gemini 3.1 Flash Live Preview · streaming WebSocket",
       "Google Lyria · lyria-realtime-exp · cinematic soundtrack",
@@ -50,69 +51,18 @@ export default function GoogleStackCredits({
 }: {
   show: boolean;
 }) {
-  const [visible, setVisible] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  useEffect(() => {
-    if (!show) {
-      setVisible(false);
-      setDismissed(false);
-      audioRef.current?.pause();
-      audioRef.current = null;
-      return;
-    }
-    // Hold END CARD silent for 5s, then fade in this full-screen credit
-    const t = setTimeout(() => {
-      setVisible(true);
-      if (!isAudioMuted()) {
-        const el = new Audio("/music/triumphant.wav");
-        el.preload = "auto";
-        el.volume = 0.55;
-        el.play()
-          .then(() => {
-            audioRef.current = el;
-          })
-          .catch(() => {
-            /* autoplay blocked; silent fallback */
-          });
-      }
-    }, 5000);
-    return () => clearTimeout(t);
-  }, [show]);
-
-  useEffect(() => {
-    if (!visible) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === " " || e.key === "Enter" || e.key === "Escape") {
-        e.preventDefault();
-        setDismissed(true);
-      }
-    };
-    const onClick = () => setDismissed(true);
-    window.addEventListener("keydown", onKey);
-    window.addEventListener("click", onClick);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("click", onClick);
-    };
-  }, [visible]);
-
-  if (!show || !visible) return null;
+  if (!show) return null;
 
   return (
     <div
-      className="fixed inset-0 z-[55] flex flex-col font-sans transition-opacity duration-700"
+      className="fixed inset-0 z-[55] flex flex-col font-sans transition-opacity duration-700 opacity-100"
       style={{
         background:
           "radial-gradient(ellipse at center, #0b0d10 0%, #050608 80%)",
         color: "#e8eaed",
         fontFamily: "var(--font-roboto), system-ui, sans-serif",
-        opacity: dismissed ? 0 : 1,
-        pointerEvents: dismissed ? "none" : "auto",
       }}
     >
-      {/* Faint grid texture */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -122,7 +72,6 @@ export default function GoogleStackCredits({
       />
 
       <div className="flex-1 flex flex-col items-center justify-center px-12 lg:px-24 max-w-7xl mx-auto w-full">
-        {/* Brand header */}
         <div className="flex items-center gap-4 mb-4">
           <GoogleMark />
           <div className="leading-tight">
@@ -138,21 +87,25 @@ export default function GoogleStackCredits({
           </div>
         </div>
 
-        {/* Hero */}
         <h1
           className="text-[clamp(40px,5.6vw,80px)] font-semibold tracking-tight leading-[1.02] text-center mt-2"
           style={{ letterSpacing: "-0.01em" }}
         >
           Powered by{" "}
-          <span style={{ color: "#a855f7" }}>Antigravity 2.0</span>
+          <span style={{ color: "#a855f7" }}>Gemini 3.5 Flash</span>
           <br />
           <span style={{ color: "#bdc1c6" }}>
-            and the rest of the I/O 2026 stack.
+            sub-agent deployment at frontier speed.
           </span>
         </h1>
 
-        {/* Stack columns */}
-        <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-6 w-full max-w-6xl">
+        <div className="mt-6 text-[14px] text-center max-w-3xl" style={{ color: "#bdc1c6" }}>
+          Three Gemini agents in series · parallel forensic detectors ·
+          Managed Agents sandbox for containment · Search-grounded compliance
+          drafting. All on the I/O 2026 stack.
+        </div>
+
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-6 w-full max-w-6xl">
           {STACK.map((g) => (
             <div key={g.tier}>
               <div
@@ -183,22 +136,11 @@ export default function GoogleStackCredits({
           ))}
         </div>
 
-        {/* Bottom action */}
         <div
-          className="mt-16 flex items-center gap-3 text-[12.5px] tracking-[0.3em] uppercase animate-pulse"
-          style={{ color: "#c4b5fd" }}
+          className="mt-14 text-[11px] tracking-[0.3em] uppercase"
+          style={{ color: "#6b7280" }}
         >
-          <span>◆</span>
-          <span
-            className="px-4 py-2 rounded"
-            style={{
-              background: "rgba(168,85,247,0.10)",
-              border: "1px solid rgba(168,85,247,0.40)",
-            }}
-          >
-            Press <kbd className="px-1.5 py-0.5 mx-1 rounded font-mono text-[11px]" style={{ background: "rgba(255,255,255,0.10)" }}>SPACE</kbd> to dismiss
-          </span>
-          <span>◆</span>
+          INTERLOCK · Built for Google I/O Hackathon · Cerebral Valley × Google DeepMind · Shack15 SF · May 23 2026
         </div>
       </div>
     </div>

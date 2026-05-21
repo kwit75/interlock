@@ -81,6 +81,9 @@ export default function MeetIncidentPage() {
     if (params.has("skipIntro")) return false;
     return true;
   });
+  // Act 3 gating: GoogleStackCredits is shown only when the presenter
+  // presses SPACE on the $50M end-card. Reset on Cmd+Shift+R / startDemo.
+  const [showCredits, setShowCredits] = useState(false);
 
   const esRef = useRef<EventSource | null>(null);
   const liveRef = useRef<LiveDetector | null>(null);
@@ -378,6 +381,7 @@ export default function MeetIncidentPage() {
           setTraceActive(false);
           setDemoStartedAt(null);
           setResolvedElapsed(0);
+          setShowCredits(false);
         }
       }
     };
@@ -399,6 +403,7 @@ export default function MeetIncidentPage() {
     setShowSlam(false);
     setAgentThoughts([]);
     setTraceActive(false);
+    setShowCredits(false);
     setDemoStartedAt(Date.now());
     detectionStartedAtRef.current = Date.now();
     verdictHitRef.current = false;
@@ -809,8 +814,12 @@ export default function MeetIncidentPage() {
         show={phase === "awaiting_signature"}
         draftPreview={commsDrafts.item_1_05_draft ?? null}
       />
-      <EndCardResolved show={phase === "done"} elapsedSec={resolvedElapsed} />
-      <GoogleStackCredits show={phase === "done"} />
+      <EndCardResolved
+        show={phase === "done"}
+        elapsedSec={resolvedElapsed}
+        onAdvance={() => setShowCredits(true)}
+      />
+      <GoogleStackCredits show={showCredits} />
       <OpeningHook show={showOpening} onDone={() => setShowOpening(false)} />
       <MuteToast key={muteToast} show={muteToast > 0} muted={audioMuted} />
       <SettingsPanel

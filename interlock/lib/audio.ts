@@ -9,17 +9,26 @@ let muted = false;
 function ctx(): AudioContext | null {
   if (typeof window === "undefined") return null;
   if (muted) return null;
-  if (cachedCtx) return cachedCtx;
-  try {
-    const AC =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext })
-        .webkitAudioContext;
-    cachedCtx = new AC();
-    return cachedCtx;
-  } catch {
-    return null;
+  if (!cachedCtx) {
+    try {
+      const AC =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext })
+          .webkitAudioContext;
+      cachedCtx = new AC();
+    } catch {
+      return null;
+    }
   }
+  // Chrome / Safari may create the context in "suspended" state until a user
+  // gesture has happened. Resume on every call — by the time playAnxiousDrone
+  // or playDeepfakeAlarm fires, a keypress or click has already occurred.
+  if (cachedCtx.state === "suspended") {
+    cachedCtx.resume().catch(() => {
+      /* ignore */
+    });
+  }
+  return cachedCtx;
 }
 
 /**
