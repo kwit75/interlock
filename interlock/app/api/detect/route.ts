@@ -58,7 +58,15 @@ export async function POST(req: NextRequest) {
     const b64 = frame.replace(/^data:image\/[a-zA-Z]+;base64,/, "");
 
     const attempts: { model: string; error?: string }[] = [];
-    for (const model of MODEL_CHAIN) {
+    // Detection-specific order: lite model first (parses JSON reliably + fast),
+    // then 3.5-flash, then 3.1-pro for harder calls.
+    const DETECT_CHAIN = [
+      "gemini-3.1-flash-lite-preview",
+      "gemini-3.5-flash",
+      "gemini-3.1-pro-preview",
+      "gemini-2.5-flash",
+    ];
+    for (const model of DETECT_CHAIN) {
       try {
         const resp = await ai.models.generateContent({
           model,
