@@ -21,8 +21,11 @@ A Google Workspace add-on that detects deepfake-CEO scams on every Meet call whe
 
 ```
 Live demo:           https://interlock-mu.vercel.app
-Live Meet add-on:    https://interlock-mu.vercel.app/meet
-Architecture page:   https://interlock-mu.vercel.app/how-it-connects
+Live Meet add-on:    https://interlock-mu.vercel.app/meet (press D)
+Pitch slides:        https://interlock-mu.vercel.app/pitch
+Antigravity Console: https://interlock-mu.vercel.app/app/agents
+Integrations:        https://interlock-mu.vercel.app/app/integrations
+Architecture:        https://interlock-mu.vercel.app/how-it-connects
 Trust center:        https://interlock-mu.vercel.app/trust
 API reference:       https://interlock-mu.vercel.app/docs
 GitHub repo:         https://github.com/kwit75/interlock
@@ -36,7 +39,7 @@ Deloitte projects deepfake-driven fraud losses at **$200 billion by 2027**. The 
 
 ## What it does
 
-INTERLOCK is a **Google Workspace add-on + Chrome Extension hybrid** that runs continuously during every Meet call between authorized signers (CFO, CEO, Treasury). When a synthetic-media signal crosses threshold:
+INTERLOCK is an **enterprise SaaS** that catches deepfake-CEO scams on every videoconference where money decisions get made — **Google Meet, Microsoft Teams, Zoom, Webex, Slack huddles, Discord calls** — through a single Chrome Extension that captures any tab plus native per-platform integrations where the vendor exposes a sidebar SDK. When a synthetic-media signal crosses threshold:
 
 1. **Forensics** (Gemini 3.1 Pro Preview, multimodal) runs six independent detectors in parallel on the live video stream — AV-sync error, BRDF lighting residual, blink cadence, spatial-frequency analysis, optical flow discontinuity, voice MFCC distance. Joint posterior probability of synthesis.
 

@@ -33,6 +33,12 @@ export default function Home() {
           <Link href="/meet" className="hover:text-white">
             Live demo
           </Link>
+          <Link href="/pitch" className="hover:text-white">
+            Pitch
+          </Link>
+          <Link href="/login" className="hover:text-white">
+            Sign in
+          </Link>
         </div>
         <Link
           href="/install"
