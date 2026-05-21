@@ -422,6 +422,78 @@
 
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+  // --- Audio (Web Audio API in the page world; no external files) ---
+  let audioCtx = null;
+  function ctx() {
+    if (audioCtx) return audioCtx;
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      return audioCtx;
+    } catch {
+      return null;
+    }
+  }
+  function tone(freq, durMs, opts = {}) {
+    const c = ctx();
+    if (!c) return;
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.type = opts.type || "sine";
+    osc.frequency.setValueAtTime(freq, c.currentTime);
+    const peak = opts.gain ?? 0.18;
+    g.gain.setValueAtTime(0, c.currentTime);
+    g.gain.linearRampToValueAtTime(peak, c.currentTime + 0.01);
+    g.gain.linearRampToValueAtTime(0, c.currentTime + durMs / 1000);
+    osc.connect(g).connect(c.destination);
+    osc.start();
+    osc.stop(c.currentTime + durMs / 1000 + 0.05);
+  }
+  function playSlam() {
+    for (let i = 0; i < 3; i++) {
+      setTimeout(() => {
+        tone(800, 180, { type: "square", gain: 0.22 });
+        setTimeout(() => tone(600, 120, { type: "square", gain: 0.18 }), 200);
+      }, i * 380);
+    }
+  }
+  function playFreeze() {
+    const c = ctx();
+    if (!c) return;
+    tone(60, 350, { type: "square", gain: 0.34 });
+    tone(120, 350, { type: "sine", gain: 0.22 });
+    try {
+      const buf = c.createBuffer(1, c.sampleRate * 0.15, c.sampleRate);
+      const ch = buf.getChannelData(0);
+      for (let i = 0; i < ch.length; i++) {
+        ch[i] = (Math.random() * 2 - 1) * (1 - i / ch.length) * 0.18;
+      }
+      const src = c.createBufferSource();
+      src.buffer = buf;
+      src.connect(c.destination);
+      src.start();
+    } catch {
+      /* ignore */
+    }
+  }
+  function playChime() {
+    [523.25, 659.25, 783.99].forEach((f, i) => {
+      setTimeout(() => tone(f, 320, { type: "sine", gain: 0.15 }), i * 110);
+    });
+  }
+  // Routed by sendMessage from the state machine.
+  const SOUNDS = { slam: playSlam, freeze: playFreeze, chime: playChime };
+
+  // Override the chrome.runtime PLAY_SOUND dispatcher to play locally.
+  const originalSend = chrome.runtime.sendMessage.bind(chrome.runtime);
+  chrome.runtime.sendMessage = (msg, ...rest) => {
+    if (msg && msg.type === "PLAY_SOUND" && SOUNDS[msg.id]) {
+      try {
+        SOUNDS[msg.id]();
+      } catch {}
+    }
+    return originalSend(msg, ...rest);
+  };
+
   // Hotkeys
   window.addEventListener("keydown", (e) => {
     if (!e.metaKey || !e.shiftKey) return;

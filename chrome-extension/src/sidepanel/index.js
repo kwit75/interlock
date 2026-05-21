@@ -1,5 +1,28 @@
 const status = document.getElementById("status");
 const tabid = document.getElementById("tabid");
+const frame = document.getElementById("ilk-frame");
+
+// Relay cinematic phase changes from the content script (cinematic.js
+// running on meet.google.com) into the iframe (Next.js /meet/sidepanel).
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg.type === "STATUS_UPDATE") refresh();
+  if (msg.type === "CINEMATIC_PHASE" && frame?.contentWindow) {
+    frame.contentWindow.postMessage(
+      { source: "interlock-ext", type: "CINEMATIC_PHASE", phase: msg.phase },
+      "*",
+    );
+  }
+  if (msg.type === "CINEMATIC_PROGRESS" && frame?.contentWindow) {
+    frame.contentWindow.postMessage(
+      {
+        source: "interlock-ext",
+        type: "CINEMATIC_PROGRESS",
+        evidence: msg.evidence,
+      },
+      "*",
+    );
+  }
+});
 
 async function refresh() {
   try {

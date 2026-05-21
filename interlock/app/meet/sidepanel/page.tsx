@@ -57,6 +57,28 @@ export default function SidePanelView() {
     return () => esRef.current?.close();
   }, []);
 
+  // External trigger from the Chrome Extension (when running embedded as the
+  // Workspace add-on side panel). The content script on meet.google.com fires
+  // the cinematic and posts a phase update; the side-panel host relays via
+  // postMessage. We listen and start our own state machine in lockstep.
+  useEffect(() => {
+    function onMsg(e: MessageEvent) {
+      if (!e.data || e.data.source !== "interlock-ext") return;
+      if (e.data.type === "CINEMATIC_PHASE") {
+        if (e.data.phase === "scanning" && phase === "idle") startDemo();
+        if (e.data.phase === "awaiting_approval") setPhase("awaiting_approval");
+        if (e.data.phase === "executing") {
+          // Trigger the local executing flow if not already in progress
+          if (phase === "awaiting_approval") void approveStrategy();
+        }
+        if (e.data.phase === "resolved") setPhase("done");
+      }
+    }
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
+
   function startDemo() {
     setPhase("detection");
     setEvidence([]);
