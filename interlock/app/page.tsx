@@ -61,16 +61,18 @@ export default function Home() {
             ◆ Google Workspace add-on · Live in Meet
           </div>
           <h1 className="text-4xl md:text-6xl font-semibold tracking-tight leading-[1.05]">
-            Catch the deepfake CEO
+            The wire-fraud kill-switch
             <br />
-            <span className="text-slate-400">before the wire clears.</span>
+            <span className="text-slate-400">for synthetic-media calls.</span>
           </h1>
           <p className="text-[17px] text-slate-400 leading-relaxed max-w-2xl">
-            INTERLOCK runs inside every Meet call your CFO joins, screens the
-            video stream for synthetic media on every frame, and — on
-            detection — freezes the pending wire in your bank&apos;s API and
-            drafts an SEC&nbsp;Form&nbsp;8-K Item&nbsp;1.05 disclosure for the
-            authorized officer to sign.
+            INTERLOCK runs inside every video call where money moves. Seven{" "}
+            <span className="font-mono text-slate-200">gemini-3.5-flash</span>{" "}
+            sub-agents fan out in parallel — frame forensics, voice-print,
+            reverse provenance, counter-strategy, regulatory precedent, verdict,
+            comms. On a synthetic verdict, INTERLOCK freezes the pending wire in
+            your bank&apos;s API and drafts an SEC&nbsp;Form&nbsp;8-K
+            Item&nbsp;1.05 disclosure for the authorized officer to sign.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mt-2">
             <Link
@@ -120,21 +122,32 @@ export default function Home() {
           ◆ How it works
         </div>
         <h2 className="text-3xl md:text-4xl font-semibold tracking-tight max-w-3xl">
-          Three Gemini agents wired to your bank API, one human approval gate
-          per irreversible action.
+          One orchestrator. Five forensic sub-agents in parallel. One verdict
+          aggregator. One containment sandbox. One disclosure draft. All
+          Gemini 3.5 Flash.
         </h2>
+        <p className="mt-5 text-[14px] text-slate-400 max-w-3xl leading-relaxed">
+          The pattern Google announced at I/O 2026 — verbatim from Tulsee Doshi,
+          DeepMind:&nbsp;
+          <span className="text-slate-200 italic">
+            &ldquo;3.5 Pro becomes your orchestrator, your planner, and then it
+            actually can leverage Flash to be the various sub-agents.&rdquo;
+          </span>{" "}
+          INTERLOCK runs the same topology, replacing Pro with a Flash
+          orchestrator: same model, lower cost, four-times faster output.
+        </p>
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
           <Step
             n={1}
-            title="Forensics"
-            model="gemini-3.1-pro-preview"
-            body="On every wire-authorizing Meet call, INTERLOCK samples the video stream at the Meeting Server edge. Six detectors run in parallel: AV-sync, BRDF lighting residual, blink cadence, spatial-frequency analysis, optical flow, voice MFCC distance. Joint posterior of synthesis is the verdict."
+            title="Council · 7 parallel calls"
+            model="gemini-3.5-flash × 7"
+            body="Orchestrator (thinking: medium) fans out to 5 forensic workers in parallel — Frame Forensics (multimodal), Voice-Print, Reverse Provenance (Search-grounded), Counter-Strategy, Regulatory Precedent (Search-grounded). Each streams reasoning live. The verdict aggregator (thinking: high) returns structured JSON in ~7 seconds."
           />
           <Step
             n={2}
             title="Containment"
             model="Managed Agents · antigravity-preview-05-2026"
-            body="On verdict, an isolated Linux sandbox is spawned via the Managed Agents API. It writes Python that hits your bank's wire-freeze endpoint, locks the impersonated executive's account, and notifies the board — all under a single human approval gate."
+            body="On a synthetic verdict, an isolated Linux sandbox is spawned via the Managed Agents API — itself running on 3.5 Flash. It writes Python that hits your bank's wire-freeze endpoint, locks the impersonated executive's account, and notifies the board — all under a single human approval gate."
           />
           <Step
             n={3}

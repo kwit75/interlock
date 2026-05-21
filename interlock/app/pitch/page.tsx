@@ -19,6 +19,7 @@ const slides = [
   "threat",
   "math",
   "stack",
+  "doshi",
   "demo",
   "antigravity",
   "operating",
@@ -57,6 +58,7 @@ export default function Pitch() {
         {slide === "threat" && <Threat />}
         {slide === "math" && <MathSlide />}
         {slide === "stack" && <Stack />}
+        {slide === "doshi" && <DoshiQuote />}
         {slide === "demo" && <Demo />}
         {slide === "antigravity" && <AntigravitySlide />}
         {slide === "operating" && <Operating />}
@@ -163,19 +165,26 @@ function Title() {
           </div>
         </div>
         <H1>
-          Catch the deepfake CEO
+          The wire-fraud kill-switch
           <br />
-          <span style={{ color: C.textDim }}>before the wire clears.</span>
+          <span style={{ color: C.textDim }}>for synthetic-media calls.</span>
         </H1>
         <Sub>
-          INTERLOCK is an enterprise SaaS that detects deepfake-CEO scams on
-          every Meet, Zoom, Teams, or Webex call — in the browser, in real
-          time, with the same three Gemini agents that freeze the wire and
-          draft the SEC Form 8-K disclosure.
+          Seven{" "}
+          <span style={{ color: C.purple }} className="font-mono">
+            gemini-3.5-flash
+          </span>{" "}
+          sub-agents fan out in parallel — frame forensics, voice-print,
+          reverse provenance, counter-strategy, regulatory precedent, verdict,
+          comms. INTERLOCK freezes the wire and drafts the SEC Form 8-K
+          Item&nbsp;1.05 inside an Antigravity Managed Agent. Browser-native,
+          enterprise, cross-platform.
         </Sub>
         <div className="mt-12 flex items-center gap-6 text-[12px]" style={{ color: C.textMuted }}>
-          <span>Built by Dmitrii Karataev · solo · 70 hours</span>
-          <span style={{ color: C.purple }}>● Powered by Google Antigravity 2.0</span>
+          <span>Built by Dmitrii Karataev · solo</span>
+          <span style={{ color: C.purple }}>
+            ● 7 visible Gemini 3.5 Flash calls per detection
+          </span>
         </div>
       </div>
     </Slide>
@@ -228,29 +237,29 @@ function MathSlide() {
   );
 }
 
-// 4. Stack — three agents
+// 4. Stack — Council + Containment + Comms
 function Stack() {
   return (
     <Slide>
-      <Label>How it works</Label>
+      <Label>How it works · 7 Gemini 3.5 Flash calls per detection</Label>
       <H1>
-        Three Gemini agents
+        One orchestrator. Five workers.
         <br />
-        <span style={{ color: C.textDim }}>one human approval gate.</span>
+        <span style={{ color: C.textDim }}>One verdict. All 3.5 Flash.</span>
       </H1>
       <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-5 flex-1">
         <Agent
           n="1"
-          title="Forensics"
-          model="gemini-3.1-pro multimodal"
-          body="Six detectors fire in parallel on every video frame. AV-sync, BRDF lighting residual, blink cadence, spatial-frequency artifacts, optical flow, voice MFCC distance. Joint posterior of synthesis."
+          title="Council"
+          model="gemini-3.5-flash × 7 (orchestrator + 5 workers + verdict)"
+          body="Orchestrator (thinking: medium) fans out to 5 parallel workers — Frame Forensics (multimodal), Voice-Print, Reverse Provenance (Search), Counter-Strategy, Regulatory Precedent (Search) — each thinking: low. Verdict aggregator (thinking: high) gates on 3-of-5 consensus."
           tone="rose"
         />
         <Agent
           n="2"
           title="Containment"
-          model="Managed Agents · antigravity-preview-05-2026"
-          body="Isolated Linux sandbox writes Python that hits the bank's wire-freeze and account-lock endpoints. Never debits. Wire pill flips amber → emerald FROZEN."
+          model="Managed Agents · antigravity-preview-05-2026 (3.5 Flash)"
+          body="Isolated Linux sandbox writes Python that hits the bank's wire-freeze and account-lock endpoints. Never debits. The Antigravity harness itself runs on 3.5 Flash — entire pipeline Flash-native."
           tone="purple"
         />
         <Agent
@@ -260,6 +269,71 @@ function Stack() {
           body="Drafts SEC Form 8-K Item 1.05 cybersecurity-incident disclosure, board alert, customer statement. INTERLOCK never auto-files — officer signs via FIDO2 hardware key."
           tone="blue"
         />
+      </div>
+    </Slide>
+  );
+}
+
+// 4.5 Doshi — the orchestrator/worker quote
+function DoshiQuote() {
+  return (
+    <Slide>
+      <Label>The pattern Google blessed at I/O 2026 · May 19</Label>
+      <div className="flex-1 flex flex-col justify-center">
+        <div
+          className="text-[clamp(28px,3.6vw,52px)] font-semibold leading-[1.15] tracking-tight"
+          style={{ color: C.text }}
+        >
+          <span style={{ color: C.purple }}>&ldquo;</span>3.5 Pro becomes your
+          orchestrator, your planner, and then it actually can leverage{" "}
+          <span style={{ color: C.purple }}>Flash to be the various sub-agents</span>
+          .<span style={{ color: C.purple }}>&rdquo;</span>
+        </div>
+        <div className="mt-10 text-[18px]" style={{ color: C.textDim }}>
+          <span style={{ color: C.text }} className="font-medium">
+            Tulsee Doshi
+          </span>{" "}
+          · Head of Product, Gemini · DeepMind ·{" "}
+          <span className="font-mono text-[14px]">techcrunch.com · May 19 2026</span>
+        </div>
+        <div
+          className="mt-14 grid grid-cols-3 gap-6 max-w-5xl"
+          style={{ color: C.textDim }}
+        >
+          <div>
+            <div className="text-[12px] tracking-[0.25em] uppercase font-medium" style={{ color: C.purple }}>
+              What Google does
+            </div>
+            <div className="mt-2 text-[14px] leading-relaxed">
+              Antigravity 2.0 stage demo, I/O 2026: Varun Mohan ran{" "}
+              <span style={{ color: C.text }}>93 parallel 3.5 Flash sub-agents</span>{" "}
+              · 15,000 model calls · 2.6B tokens · 12 hours · &lt;$1,000 to build
+              an OS from scratch.
+            </div>
+          </div>
+          <div>
+            <div className="text-[12px] tracking-[0.25em] uppercase font-medium" style={{ color: C.purple }}>
+              What we do
+            </div>
+            <div className="mt-2 text-[14px] leading-relaxed">
+              INTERLOCK Council: orchestrator (Flash) + 5 workers (Flash) +
+              verdict (Flash) ={" "}
+              <span style={{ color: C.text }}>7 parallel 3.5 Flash calls per detection</span>
+              , ~7 seconds wall-clock, ~$0.04 per incident.
+            </div>
+          </div>
+          <div>
+            <div className="text-[12px] tracking-[0.25em] uppercase font-medium" style={{ color: C.purple }}>
+              Why Flash, not Pro
+            </div>
+            <div className="mt-2 text-[14px] leading-relaxed">
+              4× faster output, $1.50/$9 vs Pro&apos;s pricing, MCP Atlas{" "}
+              <span style={{ color: C.text }}>83.6% #1</span>, Terminal-Bench 2.1{" "}
+              <span style={{ color: C.text }}>76.2%</span>. Built for sub-agent
+              deployment from launch day.
+            </div>
+          </div>
+        </div>
       </div>
     </Slide>
   );
