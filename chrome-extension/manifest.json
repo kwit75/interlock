@@ -31,11 +31,27 @@
   ],
   "host_permissions": [
     "https://meet.google.com/*",
+    "https://teams.microsoft.com/*",
+    "https://teams.live.com/*",
+    "https://*.zoom.us/*",
+    "https://app.webex.com/*",
+    "https://*.webex.com/*",
+    "https://app.slack.com/*",
+    "https://discord.com/channels/*",
     "https://interlock-mu.vercel.app/*"
   ],
   "content_scripts": [
     {
-      "matches": ["https://meet.google.com/*"],
+      "matches": [
+        "https://meet.google.com/*",
+        "https://teams.microsoft.com/*",
+        "https://teams.live.com/*",
+        "https://*.zoom.us/*",
+        "https://app.webex.com/*",
+        "https://*.webex.com/*",
+        "https://app.slack.com/*",
+        "https://discord.com/channels/*"
+      ],
       "js": ["src/content/meet-hook.js", "src/content/cinematic.js"],
       "css": ["src/content/meet-overlay.css"],
       "run_at": "document_idle"
@@ -44,7 +60,16 @@
   "web_accessible_resources": [
     {
       "resources": ["src/sidepanel/*", "src/offscreen/*", "icons/*"],
-      "matches": ["https://meet.google.com/*"]
+      "matches": [
+        "https://meet.google.com/*",
+        "https://teams.microsoft.com/*",
+        "https://teams.live.com/*",
+        "https://*.zoom.us/*",
+        "https://app.webex.com/*",
+        "https://*.webex.com/*",
+        "https://app.slack.com/*",
+        "https://discord.com/channels/*"
+      ]
     }
   ]
 }

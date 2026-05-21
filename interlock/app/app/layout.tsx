@@ -100,6 +100,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <NavLink href="/app/sandboxes" on={is("/app/sandboxes")} icon="⌘">
             Sandboxes
           </NavLink>
+          <NavSection>Surface</NavSection>
+          <NavLink
+            href="/app/integrations"
+            on={is("/app/integrations")}
+            icon="⇆"
+          >
+            Integrations
+          </NavLink>
+          <NavLink href="/pitch" on={false} icon="▶">
+            Pitch deck
+          </NavLink>
           <NavSection>Account</NavSection>
           <NavLink href="/app/settings" on={is("/app/settings")} icon="⚙">
             Settings

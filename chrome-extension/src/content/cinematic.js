@@ -506,11 +506,22 @@
     }
   });
 
-  // Auto-fire: 12 seconds after the conference URL becomes active.
+  // Auto-fire: 12 seconds after a conference URL on any supported platform.
   let autoFireScheduled = false;
   function checkAutoFire() {
-    const path = location.pathname.slice(1);
-    if (!/^[a-z]{3}-[a-z]{4}-[a-z]{3}$/.test(path)) return;
+    const host = location.hostname;
+    const path = location.pathname;
+    const onActiveCall =
+      (host === "meet.google.com" &&
+        /^\/[a-z]{3}-[a-z]{4}-[a-z]{3}/.test(path)) ||
+      (host === "teams.microsoft.com" &&
+        /\/meeting\/|\/_#\/modern-calling\//.test(path)) ||
+      (host === "teams.live.com" && /\/meet\//.test(path)) ||
+      (/\.zoom\.us$/.test(host) && /\/(wc|j)\//.test(path)) ||
+      (/webex\.com$/.test(host) && /\/meet\/|\/webappng\/sites\//.test(path)) ||
+      host === "app.slack.com" ||
+      (host === "discord.com" && /\/channels\//.test(path));
+    if (!onActiveCall) return;
     if (autoFireScheduled) return;
     autoFireScheduled = true;
     setTimeout(() => {
