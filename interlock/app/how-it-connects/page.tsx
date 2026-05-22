@@ -554,7 +554,7 @@ function SequenceDiagram() {
     ],
     [
       "T+1.0s … T+1.5s",
-      "Council orchestrator (gemini-3.5-flash, thinkingLevel: medium) fans out to 6 parallel sub-agents — Frame Forensics (multimodal), Voice-Print, Reverse Provenance (+Search grounding), Counter-Strategy, Regulatory Precedent (+Search grounding). All gemini-3.5-flash · thinkingLevel: low. Per-worker 12s AbortController.",
+      "Council orchestrator (gemini-3.5-flash, thinkingLevel: medium) fans out to 6 parallel sub-agents — Frame Forensics (multimodal), Voice-Print, Reverse Provenance (+Search grounding), Counter-Strategy, Regulatory Precedent (+Search grounding), Injection Guard (safety). All gemini-3.5-flash · thinkingLevel: low. Per-worker 12s AbortController.",
     ],
     [
       "T+1.5s … T+7s",

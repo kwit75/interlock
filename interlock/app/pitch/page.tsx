@@ -306,9 +306,9 @@ function Counter({ attack, rebut }: { attack: string; rebut: string }) {
 function Stack() {
   return (
     <Slide>
-      <Label>How it works · 7 Gemini 3.5 Flash calls per detection</Label>
+      <Label>How it works · 8 Gemini 3.5 Flash calls per detection</Label>
       <H1>
-        One orchestrator. Five workers.
+        One orchestrator. Six workers.
         <br />
         <span style={{ color: C.textDim }}>One verdict. All 3.5 Flash.</span>
       </H1>
@@ -317,7 +317,7 @@ function Stack() {
           n="1"
           title="Council"
           model="gemini-3.5-flash × 8 (orchestrator + 6 workers + verdict)"
-          body="Orchestrator (thinking: medium) fans out to 6 parallel workers — Frame Forensics (multimodal), Voice-Print, Reverse Provenance (Search), Counter-Strategy, Regulatory Precedent (Search) — each thinking: low. Verdict aggregator (thinking: high) gates on 3-of-6 consensus."
+          body="Orchestrator (thinking: medium) fans out to 6 parallel workers — Frame Forensics (multimodal), Voice-Print, Reverse Provenance (Search), Counter-Strategy, Regulatory Precedent (Search), Injection Guard (safety) — each thinking: low. Verdict aggregator (thinking: high) gates on 3-of-6 consensus."
           tone="rose"
         />
         <Agent
