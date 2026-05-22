@@ -175,6 +175,8 @@ See `docs/qa-flashcards.md` for full ≤8-second answers.
 - Kill-switch (cached): `https://interlock-mu.vercel.app/meet?mode=cached`
 - Pitch deck: `https://interlock-mu.vercel.app/pitch`
 - Integration spec: `https://interlock-mu.vercel.app/how-it-connects`
+- **SEC 8-K Item 1.05 diff** (Q&A artifact): `https://interlock-mu.vercel.app/sec-1-05-diff` — Microsoft 2024-01-17 (Midnight Blizzard) vs INTERLOCK's auto-draft on the four mandatory elements
+- **vs Resemble.ai** (Q&A artifact): `https://interlock-mu.vercel.app/vs-resemble` — 11-row architectural comparison · "Resemble is a detector, INTERLOCK is the kill-chain on top"
 
 ### Reference
 - Repo: `https://github.com/kwit75/interlock`
