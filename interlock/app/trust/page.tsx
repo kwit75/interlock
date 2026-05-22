@@ -577,8 +577,8 @@ function SubProcessors() {
       "DPA active",
     ],
     [
-      "Anthropic (LLM provider)",
-      "On-premise Gemini compatible · reasoning",
+      "Google (Gemini API · LLM provider)",
+      "gemini-3.5-flash · 3.1-pro-preview · Managed Agents API",
       "USA",
       "DPA active",
     ],
