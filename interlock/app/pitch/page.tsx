@@ -269,7 +269,7 @@ function CounterNarrative() {
         />
         <Counter
           attack="“Frame Forensics = image analyzer.”"
-          rebut="Frame Forensics is 1 of 5 votes, gated 3-of-6. The system never fires on Frame Forensics alone — by design, because deepfakes already defeat naive frame analysis. The differentiator is the consensus topology."
+          rebut="Frame Forensics is 1 of 6 votes, gated 3-of-6. The system never fires on Frame Forensics alone — by design, because deepfakes already defeat naive frame analysis. The differentiator is the consensus topology."
         />
         <Counter
           attack="“Why not 3.5 Pro?”"

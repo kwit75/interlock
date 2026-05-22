@@ -1,7 +1,7 @@
 # INTERLOCK
 
 > **The wire-fraud kill-switch for synthetic-media video calls.**
-> Seven `gemini-3.5-flash` sub-agents fan out in parallel — Frame Forensics, Voice-Print, Reverse Provenance, Counter-Strategy, Regulatory Precedent, Verdict, Comms — freeze the wire in a sandboxed Linux Managed Agent (`antigravity-preview-05-2026`, itself running on 3.5 Flash), and draft the SEC Form 8-K Item 1.05 disclosure for an authorized officer to sign.
+> Eight `gemini-3.5-flash` sub-agents fan out in parallel — Frame Forensics, Voice-Print, Reverse Provenance, Counter-Strategy, Regulatory Precedent, Injection Guard, Verdict, Comms — freeze the wire in a sandboxed Linux Managed Agent (`antigravity-preview-05-2026`, itself running on 3.5 Flash), and draft the SEC Form 8-K Item 1.05 disclosure for an authorized officer to sign.
 > Built for the **Google I/O Hackathon** (Cerebral Valley × Google DeepMind), Shack15 SF, May 23, 2026.
 > Live demo: **https://interlock-mu.vercel.app**
 

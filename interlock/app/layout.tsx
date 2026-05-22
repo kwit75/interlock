@@ -25,7 +25,7 @@ const roboto = Roboto({
 export const metadata: Metadata = {
   title: "INTERLOCK · Wire-Fraud Kill-Switch",
   description:
-    "Enterprise wire-fraud kill-switch for synthetic-media video calls. Seven Gemini 3.5 Flash sub-agents fan out in parallel — Frame Forensics, Voice-Print, Reverse Provenance, Counter-Strategy, Regulatory Precedent, Verdict, Comms — freeze the wire in a sandboxed Linux Managed Agent, and draft the SEC Form 8-K Item 1.05 disclosure for an authorized officer to sign. Built for the Google I/O Hackathon at Shack15, San Francisco, May 23, 2026.",
+    "Enterprise wire-fraud kill-switch for synthetic-media video calls. Eight Gemini 3.5 Flash sub-agents fan out in parallel — Frame Forensics, Voice-Print, Reverse Provenance, Counter-Strategy, Regulatory Precedent, Injection Guard, Verdict, Comms — freeze the wire in a sandboxed Linux Managed Agent, and draft the SEC Form 8-K Item 1.05 disclosure for an authorized officer to sign. Built for the Google I/O Hackathon at Shack15, San Francisco, May 23, 2026.",
 };
 
 export default function RootLayout({
