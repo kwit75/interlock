@@ -52,22 +52,31 @@ export function cachedOutput(): WorkerOutput {
     verdict: "synthetic",
     confidence: 0.82,
     finding:
-      "3 analogous 8-K Item 1.05 filings · Clorox 09/2023 · MGM 10/2023 · Caesars 09/2023 — same playbook, faster disclosure each year",
+      "3 analogous post-effective-date 8-K Item 1.05 filings · Microsoft 2024-01-17 · UnitedHealth 2024-02-22 · Prudential 2024-02-14 — gold-standard four-business-day templates",
     citations: [
-      { title: "Clorox 8-K Item 1.05 · 2023-09-14", url: "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000021076&type=8-K" },
-      { title: "MGM Resorts 8-K Item 1.05 · 2023-10-05", url: "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000789570&type=8-K" },
-      { title: "Caesars 8-K Item 1.05 · 2023-09-14", url: "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000858339&type=8-K" },
+      {
+        title: "Microsoft 8-K Item 1.05 · 2024-01-17 · Midnight Blizzard",
+        url: "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000789019&type=8-K",
+      },
+      {
+        title: "UnitedHealth Group 8-K Item 1.05 · 2024-02-22 · Change Healthcare",
+        url: "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000731766&type=8-K",
+      },
+      {
+        title: "Prudential Financial 8-K Item 1.05 · 2024-02-14",
+        url: "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0001137774&type=8-K",
+      },
     ],
   };
 }
 
 export function cachedStream(): string[] {
   return [
-    "Searching SEC EDGAR for 8-K Item 1.05 filings disclosing CEO-impersonation or wire-fraud incidents since 2023. ",
-    "Three close matches surface. Clorox (CLX) filed 14 September 2023 — initial filing within two business days of the company's materiality determination; the eventual cost ran past $356M in lost revenue. ",
-    "MGM Resorts (MGM) filed 5 October 2023 disclosing the September 2023 social-engineering incident; the company invoked Item 1.05 plus separate cybersecurity-risk language under Item 7.01. ",
-    "Caesars (CZR) filed 14 September 2023 disclosing a ransomware payment of roughly $15M — disclosure was within four business days but the company chose to characterize the impact as not yet material at filing. ",
-    "Across the three, the trend is fast disclosure and conservative materiality language. For this incident profile, the closest playbook is Clorox: file the disclosure within two days, state the wire was frozen pre-loss, characterize losses as not yet material pending audit.\n\n",
-    "VERDICT: synthetic · CONFIDENCE: 82 · KEY_ARTIFACT: Clorox 2023-09-14 playbook is closest precedent",
+    "Searching SEC EDGAR for Item 1.05 cybersecurity disclosures filed AFTER the rule's effective date of 18 December 2023 (non-smaller-reporters). Earlier filings like Clorox 09/2023 and Caesars 09/2023 use Item 8.01 (Other Events) — pre-effective-date, not a 1.05 precedent. ",
+    "Microsoft (MSFT) filed Item 1.05 on 17 January 2024 disclosing the Midnight Blizzard nation-state intrusion. Initial filing within four business days of materiality determination; first amendment two months later — the canonical gold standard. ",
+    "UnitedHealth Group (UNH) filed Item 1.05 on 22 February 2024 for the Change Healthcare incident. The company's filing language is the model most outside counsels use for material-impact characterization. ",
+    "Prudential Financial (PRU) filed Item 1.05 on 14 February 2024 — a public-facing technical-incident playbook with conservative materiality framing. ",
+    "Across the three, the pattern is: file within four business days of MATERIALITY DETERMINATION (not detection), cover the four mandatory elements (nature · scope · timing · material impact), amend later as facts develop. For this incident profile, the closest template is Microsoft 2024-01-17: state the wire was frozen pre-loss, characterize losses as not yet material pending audit.\n\n",
+    "VERDICT: synthetic · CONFIDENCE: 82 · KEY_ARTIFACT: Microsoft 2024-01-17 four-business-day playbook is closest post-effective-date precedent",
   ];
 }

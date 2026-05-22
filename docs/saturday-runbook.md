@@ -157,10 +157,10 @@ See `docs/qa-flashcards.md` for full ≤8-second answers.
 | # | Attack | Short response |
 |---|---|---|
 | 1 | "Just a wrapper" | 8-call orchestrator-worker on 3.5 Flash, 3-of-6 consensus — Doshi's pattern verbatim |
-| 2 | "Wizard of Oz / mocked bank" | Containment is real Antigravity sandbox; 8-K is real Search-grounded; diff against Clorox 2023-09-14 |
+| 2 | "Wizard of Oz / mocked bank" | Containment is real Antigravity sandbox; 8-K is real Search-grounded; diff against Microsoft 2024-01-17 (Midnight Blizzard) |
 | 3 | "Frame Forensics = image analyzer" | 1 of 6 votes, 3-of-6 gate. System never fires on Frame alone — by design |
 | 4 | "Solo build · brittle" | 12s AbortController + cached SSE fallback + 3-of-6 gate + `mode=cached` kill-switch |
-| 5 | "Why not 3.5 Pro" | Pichai: Pro internal-only until June. Doshi: Pro orchestrates, Flash sub-agents |
+| 5 | "Why not 3.5 Pro" | Pichai: Pro rolling out next month, Pichai onstage. Doshi: Pro orchestrates, Flash sub-agents |
 | 6 | "Latency vs Resemble 300ms" | Resemble is a classifier. We produce verdict + containment + 8-K in 7s. Different baseline |
 | 7 | "Where's the multimodal" | Frame (vision) + Voice-Print (audio) + Reverse Provenance (web/multimodal Search) + reasoning |
 | 8 | "Why not real EDGAR live" | We ARE — Reverse Provenance + Regulatory Precedent are Search-grounded against EDGAR |
@@ -220,7 +220,7 @@ See `docs/qa-flashcards.md` for full ≤8-second answers.
 | 30% of enterprises by 2026 · **face biometrics** | Akif Khan, VP Analyst, Gartner 2024-02-01 |
 | SEC 8-K Item 1.05 · 4 business days from materiality | SEC Press Release 2023-139, July 26 2023 |
 | `gemini-3.5-flash` GA | May 19, 2026 at Google I/O |
-| MCP Atlas 83.6% · CharXiv 84.2% · MMMU-Pro 83.6% · Terminal-Bench 76.2% | deepmind.google/models/gemini/flash/ |
+| MCP Atlas 83.6% · CharXiv 84.2% · MMMU-Pro 83.6% · Terminal-Bench 2.1 76.2% | deepmind.google/models/gemini/flash/ |
 | Doshi "orchestrator/planner ... Flash to be the various sub-agents" | TechCrunch, May 19, 2026 |
 
 ---

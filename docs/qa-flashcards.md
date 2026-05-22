@@ -13,7 +13,7 @@ plus primary citations verified inline.
 > It's a 7-call orchestrator-worker fan-out on Gemini 3.5 Flash with 3-of-6 consensus gating and a hot-swap to cached SSE per worker — exactly the pattern Tulsee Doshi described to TechCrunch on May 19. The novelty is the verdict topology and the containment handoff to a managed Antigravity agent, not the base model.
 
 ### 2. *"Mocked bank API — Wizard of Oz."*
-> The bank freeze is mocked because no judge wants to watch a real wire freeze on stage; the containment path runs on `antigravity-preview-05-2026` Managed Agents end-to-end — itself running on 3.5 Flash — and the 8-K Item 1.05 draft is real, Search-grounded against EDGAR. Happy to diff it against Clorox's 2023-09-14 filing right now.
+> The bank freeze is mocked because no judge wants to watch a real wire freeze on stage; the containment path runs on `antigravity-preview-05-2026` Managed Agents end-to-end — itself running on 3.5 Flash — and the 8-K Item 1.05 draft is real, Search-grounded against EDGAR. Happy to diff it against Microsoft's 2024-01-17 Item 1.05 filing (Midnight Blizzard) right now.
 
 ### 3. *"Frame Forensics = image analyzer. That's on the banned list."*
 > Frame Forensics is one of six votes and the verdict is gated 3-of-6 — by design, the system does not fire if Frame Forensics is the only signal, precisely because naive frame-level deepfake detection is already defeated. The differentiator is the consensus topology, not the pixel work.
@@ -22,7 +22,7 @@ plus primary citations verified inline.
 > Solo is the point: Doshi's sub-agent-deployment thesis is exactly what makes a one-person team viable now — six months ago this took five people. Robustness is shipped: 12-second AbortController per worker, cached-SSE hot-swap per worker, verdict-aggregator local fallback, and a `/meet?mode=cached` venue-Wi-Fi kill-switch.
 
 ### 5. *"Why Flash and not 3.5 Pro?"*
-> Sundar Pichai at I/O: 3.5 Pro is internal-only until June. Tulsee Doshi: Pro is the orchestrator, Flash is the sub-agent. We use the model Google itself says is right for this job, at a latency a real bank's risk-ops can afford on every call.
+> Sundar Pichai at I/O: 3.5 Pro is rolling out next month, Pichai onstage. Tulsee Doshi: Pro is the orchestrator, Flash is the sub-agent. We use the model Google itself says is right for this job, at a latency a real bank's risk-ops can afford on every call.
 
 ### 6. *"7-second latency vs Resemble's <300 ms — uncompetitive."*
 > Resemble's 300 ms is a single-model audio/video classifier — they integrate Gemini 3 Flash on top of it (per the Google AI Studio showcase). Our 7 seconds produces a verdict, a containment action, and a draft 8-K. The relevant baseline is "how fast can a CFO escalate," not "how fast can a classifier classify."
@@ -35,6 +35,18 @@ plus primary citations verified inline.
 
 ### 9. *"How is this not built in two weeks by Google?"*
 > It probably will be — that's the bet. We're the team that builds the eval and the audit trail when they do. The 8-K Item 1.05 draft is the moat: nobody at Google is going to ship a model that prefills a public-company disclosure.
+
+### 10. *"Doshi says 3.5 Pro is the orchestrator — but you're using Flash for both. Inconsistent."*
+> Doshi described the roadmap. 3.5 Pro isn't GA until next month per Pichai onstage. We use 3.5 Flash for both orchestrator and workers because that's what's shippable today — when Pro ships, the orchestrator role upgrades transparently. The Doshi quote is literally our future-state architecture.
+
+### 11. *"$40B is Deloitte's aggressive scenario. What's the conservative number?"*
+> About $22 billion — same direction, same CAGR shape, half the magnitude. We cite the aggressive scenario because it's the projection Deloitte uses for boardroom risk-ops planning. Conservative confirms the trend, not the magnitude.
+
+### 12. *"Is `antigravity-preview-05-2026` even a real model ID?"*
+> It's the version string the Managed Agents API returns after spawn — Google's public blog calls it "the new Antigravity agent" and confirms it's powered by Gemini 3.5 Flash (blog.google "100 things we announced," May 19-20 2026, items 60–61). The preview-tag is what `ai.live.managedAgents.spawn()` writes into the sandbox metadata.
+
+### 13. *"Clorox / Caesars 8-K — those are Item 8.01, not 1.05."*
+> Correct — those are pre-effective-date filings; Item 1.05 became mandatory on December 18, 2023 per SEC press release 2023-139. The actual gold-standard Item 1.05 precedent is Microsoft's January 17, 2024 Midnight Blizzard disclosure, with UnitedHealth (Feb 22, 2024, Change Healthcare) and Prudential (Feb 14, 2024) as the second and third comparable. Our Regulatory Precedent sub-agent surfaces all three.
 
 ---
 

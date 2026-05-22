@@ -265,7 +265,7 @@ function CounterNarrative() {
         />
         <Counter
           attack="“Mocked bank API — Wizard of Oz.”"
-          rebut="Containment runs on antigravity-preview-05-2026 end-to-end. The 8-K Item 1.05 draft is real, Search-grounded against EDGAR. Diff it against Clorox 2023-09-14 live."
+          rebut="Containment runs on antigravity-preview-05-2026 end-to-end. The 8-K Item 1.05 draft is real, Search-grounded against EDGAR. Diff it against Microsoft 2024-01-17 (Midnight Blizzard) live."
         />
         <Counter
           attack="“Frame Forensics = image analyzer.”"
@@ -273,7 +273,7 @@ function CounterNarrative() {
         />
         <Counter
           attack="“Why not 3.5 Pro?”"
-          rebut="Pichai, I/O 2026: Pro is internal-only until June. Doshi: Pro is orchestrator, Flash is the sub-agent. We use the model Google itself says is right for this job."
+          rebut="Pichai, I/O 2026: Pro is rolling out next month, Pichai onstage. Doshi: Pro is orchestrator, Flash is the sub-agent. We use the model Google itself says is right for this job."
         />
       </div>
     </Slide>
