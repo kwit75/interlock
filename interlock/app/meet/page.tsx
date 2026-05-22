@@ -802,6 +802,10 @@ export default function MeetIncidentPage() {
       activeEvidence={evidence}
       verdict={verdict}
       liveStream={liveStream}
+      // Mute + pause the deepfake clip once any terminal overlay lands —
+      // SignatureCeremony 8-K modal, $50M end-card, Stack Credits should
+      // all sit in silence. Resumes on Cmd+Shift+R reset back to idle.
+      paused={phase === "awaiting_signature" || phase === "done"}
     />
   );
 

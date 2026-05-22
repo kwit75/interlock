@@ -8,11 +8,21 @@ export default function IncomingCallCard({
   activeEvidence,
   verdict,
   liveStream,
+  paused = false,
 }: {
   playing: boolean;
   activeEvidence: ForensicsEvidence[];
   verdict?: string | null;
   liveStream?: MediaStream | null;
+  /**
+   * When true, the video is paused and muted. Driven by the parent when
+   * a terminal overlay (SignatureCeremony 8-K, $50M end-card, Stack
+   * Credits) is on screen — audio should not bleed under the modals.
+   * When the parent flips this back to false (Cmd+Shift+R reset), the
+   * video resumes and unmutes (subject to the existing user-gesture
+   * gate for browser autoplay policy).
+   */
+  paused?: boolean;
 }) {
   const vref = useRef<HTMLVideoElement>(null);
   const [videoSrc, setVideoSrc] = useState<string>("/clips/deepfake.mp4");
@@ -88,14 +98,39 @@ export default function IncomingCallCard({
   // overlays). The video element itself runs continuously from mount —
   // we no longer pause it when `playing` is false. This effect is kept as
   // a safety net to re-kick playback if the browser ever pauses the
-  // element on its own (e.g. tab backgrounded then refocused).
+  // element on its own (e.g. tab backgrounded then refocused) — UNLESS
+  // the parent explicitly asked for paused (overlay screen showing).
   useEffect(() => {
     if (usingLive) return;
     const v = vref.current;
     if (!v) return;
+    if (paused) return;
     if (v.paused) v.play().catch(() => {});
-    // intentionally don't pause on playing=false
-  }, [playing, usingLive]);
+  }, [playing, usingLive, paused]);
+
+  // Pause / resume on overlay state — kills the audio (and the loop) when
+  // a terminal modal lands so $50M end-card / Stack Credits land in
+  // silence over a frozen frame. Resumes on reset.
+  useEffect(() => {
+    if (usingLive) return;
+    const v = vref.current;
+    if (!v) return;
+    if (paused) {
+      try {
+        v.pause();
+        v.muted = true;
+      } catch {
+        /* ignore */
+      }
+    } else {
+      try {
+        v.muted = false;
+        v.play().catch(() => {});
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [paused, usingLive]);
 
   // Audio gating — Chrome's autoplay policy requires `muted` for
   // immediate playback. Once any user gesture (the SPACE through the
