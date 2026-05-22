@@ -8,15 +8,22 @@ export const metadata = {
 };
 
 export function buildPrompt(inputs: CouncilInputs): string {
-  return `You are a deepfake forensics analyst on a live enterprise video call. Examine the attached frame and the call context for synthesis artifacts: temporal coherence loss, eye-blink rhythm anomalies, lighting BRDF residuals, micro-expression continuity gaps, frequency-domain artifacts.
+  const hasFrame = !!inputs.frameImageDataUrl;
+  return `You are a deepfake forensics analyst on a live enterprise video call.
+
+${hasFrame
+  ? "A live frame from the call has been attached to this prompt as inline image data. Examine it visually — describe what you actually see in the pixels (lighting, facial geometry, hair flow, background, frame composition) and what specifically is anomalous or consistent."
+  : "No frame is attached on this run — reason from the call context alone and qualify your verdict accordingly."}
+
+Look for synthesis artifacts: temporal coherence loss, eye-blink rhythm anomalies, lighting BRDF residuals, micro-expression continuity gaps, frequency-domain up-sampling artifacts (e.g. 1/8-pixel boundary patterns from a face-swap pipeline), inconsistent skin-pore detail vs background sharpness.
 
 Call context: ${inputs.callContext}
 Claimed identity: ${inputs.ceoName} (${inputs.companyTicker})
 Amount under question: $${inputs.amountUsd.toLocaleString()}
 
-Stream your reasoning as 4–6 short analyst-voice sentences (connected prose, NOT bullets). End with EXACTLY this final line:
+Stream your reasoning as 4–6 short analyst-voice sentences (connected prose, NOT bullets). Reference at least one specific visual detail from the attached frame if one was attached. End with EXACTLY this final line:
 
-VERDICT: <synthetic|authentic|inconclusive> · CONFIDENCE: <0–100> · KEY_ARTIFACT: <one short phrase>`;
+VERDICT: <synthetic|authentic|inconclusive> · CONFIDENCE: <0–100> · KEY_ARTIFACT: <one short phrase grounding the verdict in the frame>`;
 }
 
 export function parseFinal(text: string): WorkerOutput {

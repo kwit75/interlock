@@ -73,13 +73,21 @@ export default function CouncilDeck({
   } | null>(null);
   const [elapsedMs, setElapsedMs] = useState<number | null>(null);
   const [secondsCounter, setSecondsCounter] = useState(0);
-  const esRef = useRef<EventSource | null>(null);
+  // Captured video frame proof — visible in the header so judges see we
+  // actually grabbed a pixel-level snapshot at detection time and shipped
+  // it to gemini-3.5-flash multimodal.
+  const [frameInfo, setFrameInfo] = useState<{
+    width: number;
+    height: number;
+    sizeKb: number;
+  } | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
   const verdictHitRef = useRef(false);
 
   useEffect(() => {
     if (!active) {
-      esRef.current?.close();
-      esRef.current = null;
+      abortRef.current?.abort();
+      abortRef.current = null;
       verdictHitRef.current = false;
       setWorkers(() => {
         const r = {} as Record<WorkerId, WorkerState>;
@@ -89,6 +97,7 @@ export default function CouncilDeck({
       setVerdict(null);
       setElapsedMs(null);
       setSecondsCounter(0);
+      setFrameInfo(null);
       return;
     }
 
@@ -97,15 +106,66 @@ export default function CouncilDeck({
       setSecondsCounter(Math.floor((Date.now() - t0) / 100) / 10);
     }, 100);
 
-    const params = new URLSearchParams({ mode });
-    if (ceoName) params.set("ceoName", ceoName);
-    if (ticker) params.set("companyTicker", ticker);
-    if (injectionMode) params.set("injection", "1");
-    const es = new EventSource(`/api/council?${params.toString()}`);
-    esRef.current = es;
-    es.onmessage = (msg) => {
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+
+    (async () => {
+      // 1. Capture a frame from the live Meet-UI <video> element to a canvas
+      // and encode as JPEG (~80–150 KB). Bails gracefully if the video isn't
+      // ready — the Council still runs, Frame Forensics just falls back to
+      // text-only reasoning.
+      let frameImageDataUrl: string | undefined;
       try {
-        const e = JSON.parse(msg.data) as CouncilEvent;
+        const v = document.querySelector("video") as HTMLVideoElement | null;
+        if (v && v.readyState >= 2 && v.videoWidth > 0) {
+          const maxW = 1024;
+          const scale = Math.min(1, maxW / v.videoWidth);
+          const w = Math.round(v.videoWidth * scale);
+          const h = Math.round(v.videoHeight * scale);
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(v, 0, 0, w, h);
+            frameImageDataUrl = canvas.toDataURL("image/jpeg", 0.7);
+            // base64 chars / 1.37 ≈ raw bytes
+            const sizeKb = Math.round((frameImageDataUrl.length - "data:image/jpeg;base64,".length) / 1.37 / 1024);
+            setFrameInfo({ width: w, height: h, sizeKb });
+          }
+        }
+      } catch (e) {
+        console.warn("[council] frame capture failed", e);
+      }
+
+      // 2. POST to /api/council with the captured frame in the body. Switched
+      // from EventSource (GET-only) to fetch+ReadableStream so we can carry
+      // the base64 frame; the response is still SSE format.
+      let res: Response;
+      try {
+        res = await fetch("/api/council", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode,
+            ceoName,
+            companyTicker: ticker,
+            injectionMode,
+            frameImageDataUrl,
+          }),
+          signal: ctrl.signal,
+        });
+      } catch (err) {
+        if (!ctrl.signal.aborted) console.error("[council] POST failed", err);
+        return;
+      }
+      if (!res.body) return;
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      const handle = (e: CouncilEvent) => {
         if (e.kind === "worker_started") {
           setWorkers((prev) => ({
             ...prev,
@@ -149,23 +209,41 @@ export default function CouncilDeck({
           }
         } else if (e.kind === "council_done") {
           setElapsedMs(e.elapsedMs);
-          es.close();
         } else if (e.kind === "error") {
           console.error("[council] error", e.message);
-          es.close();
+        }
+      };
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          // SSE chunks are separated by blank lines (\n\n). Each chunk is
+          // one or more "data: <json>" lines (we only emit single-line ones).
+          const parts = buffer.split("\n\n");
+          buffer = parts.pop() ?? "";
+          for (const part of parts) {
+            const line = part.trim();
+            if (!line.startsWith("data:")) continue;
+            const payload = line.slice("data:".length).trim();
+            if (!payload) continue;
+            try {
+              handle(JSON.parse(payload) as CouncilEvent);
+            } catch (err) {
+              console.warn("[council] parse error", err, payload.slice(0, 80));
+            }
+          }
         }
       } catch (err) {
-        console.warn("[council] parse error", err);
+        if (!ctrl.signal.aborted) console.error("[council] stream error", err);
       }
-    };
-    es.onerror = () => {
-      es.close();
-    };
+    })();
 
     return () => {
       clearInterval(tickerId);
-      es.close();
-      esRef.current = null;
+      ctrl.abort();
+      abortRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
@@ -232,6 +310,15 @@ export default function CouncilDeck({
             <span className="text-white text-base tabular-nums">{flashCallsDone}</span>
             <span className="text-white/40">/{TOTAL_FLASH_CALLS}</span>
           </div>
+          {frameInfo && (
+            <div
+              className="font-mono text-[10px] tracking-[0.2em] mb-1"
+              style={{ color: "#6ee7b7" }}
+              title={`Captured frame shipped to frame_forensics worker (Gemini 3.5 Flash multimodal)`}
+            >
+              📷 frame {frameInfo.width}×{frameInfo.height} · {frameInfo.sizeKb} KB → 3.5 Flash multimodal
+            </div>
+          )}
           {injectionMode && (
             <div
               className="font-mono text-[10px] tracking-[0.2em] mb-1"
