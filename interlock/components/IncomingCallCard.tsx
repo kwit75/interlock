@@ -49,40 +49,22 @@ export default function IncomingCallCard({
     }
   }, [liveStream]);
 
-  // Seek past any black intro frames so the still poster is a visible face.
-  // Skip when live-streaming (no file metadata to seek on).
+  // Seek past black intro frames + KEEP PLAYING continuously. Per user
+  // feedback (2026-05-22): the Tom Cruise clip should be alive from the
+  // moment the user lands on /meet, not frozen until they press D.
+  // On loop wrap-around the `seeked` listener jumps from t=0 back to the
+  // face frame so the black intro never shows again after first play.
   useEffect(() => {
     if (usingLive) return;
     const v = vref.current;
     if (!v) return;
-    const seekToFace = () => {
-      if (v.currentTime < 0.5) {
-        v.currentTime = usingUploaded ? 0.05 : 1.5;
-      }
-      v.play()
-        .then(() => {
-          requestAnimationFrame(() => {
-            v.pause();
-            v.currentTime = usingUploaded ? 0.05 : 1.5;
-          });
-        })
-        .catch(() => {});
-    };
-    if (v.readyState >= 1) seekToFace();
-    v.addEventListener("loadedmetadata", seekToFace);
-    return () => v.removeEventListener("loadedmetadata", seekToFace);
-  }, [videoSrc, usingUploaded, usingLive]);
 
-  // Respond to play/pause from parent with retry-on-gesture fallback.
-  // Live streams auto-play continuously and ignore the playing flag.
-  useEffect(() => {
-    if (usingLive) return;
-    const v = vref.current;
-    if (!v) return;
-    let cancelled = false;
-    const attemptPlay = () => {
+    const FACE_T = usingUploaded ? 0.05 : 1.5;
+
+    const startFromFace = () => {
+      if (v.currentTime < 0.5) v.currentTime = FACE_T;
       v.play().catch(() => {
-        if (cancelled) return;
+        // Autoplay blocked → retry on the first user gesture anywhere.
         const retry = () => {
           v.play().catch(() => {});
           document.removeEventListener("click", retry);
@@ -92,11 +74,35 @@ export default function IncomingCallCard({
         document.addEventListener("keydown", retry, { once: true });
       });
     };
-    if (playing) attemptPlay();
-    else v.pause();
-    return () => {
-      cancelled = true;
+
+    // When the video loops back to ~0 it would replay the black intro;
+    // intercept and re-seek to the face frame.
+    const onTimeUpdate = () => {
+      if (!usingUploaded && v.currentTime < 0.4 && v.currentTime > 0) {
+        v.currentTime = FACE_T;
+      }
     };
+
+    if (v.readyState >= 1) startFromFace();
+    v.addEventListener("loadedmetadata", startFromFace);
+    v.addEventListener("timeupdate", onTimeUpdate);
+    return () => {
+      v.removeEventListener("loadedmetadata", startFromFace);
+      v.removeEventListener("timeupdate", onTimeUpdate);
+    };
+  }, [videoSrc, usingUploaded, usingLive]);
+
+  // `playing` prop is now purely a UI flag (drives the scan-line + bracket
+  // overlays). The video element itself runs continuously from mount —
+  // we no longer pause it when `playing` is false. This effect is kept as
+  // a safety net to re-kick playback if the browser ever pauses the
+  // element on its own (e.g. tab backgrounded then refocused).
+  useEffect(() => {
+    if (usingLive) return;
+    const v = vref.current;
+    if (!v) return;
+    if (v.paused) v.play().catch(() => {});
+    // intentionally don't pause on playing=false
   }, [playing, usingLive]);
 
   const scanning = playing && !verdict;
@@ -111,6 +117,7 @@ export default function IncomingCallCard({
         ref={vref}
         src={usingLive ? undefined : videoSrc}
         muted
+        autoPlay
         playsInline
         loop={!usingLive}
         preload="auto"
