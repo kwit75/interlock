@@ -59,7 +59,9 @@ export default function IncomingCallCard({
     const v = vref.current;
     if (!v) return;
 
-    const FACE_T = usingUploaded ? 0.05 : 1.5;
+    // New HD clip (2026-05-22): pre-trimmed clean — no black intro to skip.
+    // Start at 0.05s to dodge any initial decoder glitch frame.
+    const FACE_T = 0.05;
 
     const startFromFace = () => {
       if (v.currentTime < 0.5) v.currentTime = FACE_T;
@@ -75,20 +77,10 @@ export default function IncomingCallCard({
       });
     };
 
-    // When the video loops back to ~0 it would replay the black intro;
-    // intercept and re-seek to the face frame.
-    const onTimeUpdate = () => {
-      if (!usingUploaded && v.currentTime < 0.4 && v.currentTime > 0) {
-        v.currentTime = FACE_T;
-      }
-    };
-
     if (v.readyState >= 1) startFromFace();
     v.addEventListener("loadedmetadata", startFromFace);
-    v.addEventListener("timeupdate", onTimeUpdate);
     return () => {
       v.removeEventListener("loadedmetadata", startFromFace);
-      v.removeEventListener("timeupdate", onTimeUpdate);
     };
   }, [videoSrc, usingUploaded, usingLive]);
 
@@ -122,13 +114,7 @@ export default function IncomingCallCard({
         loop={!usingLive}
         preload="auto"
         className="w-full h-full object-cover"
-        style={{
-          objectPosition:
-            usingLive || usingUploaded ? "center" : "center 35%",
-          transform:
-            usingLive || usingUploaded ? "none" : "scale(1.55)",
-          transformOrigin: "center 38%",
-        }}
+        style={{ objectPosition: "center" }}
       />
 
       {/* Bottom mask absorbs source-clip watermarks; only for the default clip */}
