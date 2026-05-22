@@ -79,11 +79,15 @@ Press **D** in `/meet`. The Council overlay takes over the screen.
 
 *(point at the screen)*
 
-> "INTERLOCK is the same topology. Orchestrator, five forensic workers, verdict aggregator — **seven parallel three-point-five-flash calls**, around seven seconds wall-clock, four cents an incident. Containment runs on the Antigravity managed agent — itself three-point-five-flash under the hood. The entire pipeline is Flash-native, end to end."
+> "INTERLOCK is the same topology. Orchestrator, six forensic workers, verdict aggregator — **eight parallel three-point-five-flash calls**, around seven seconds wall-clock, four cents an incident. Containment runs on the Antigravity managed agent — itself three-point-five-flash under the hood. The entire pipeline is Flash-native, end to end."
+
+*(brief — named-latency line, deliver SLOWER than the rest)*
+
+> "Six workers thinking in parallel — verdict in under four seconds. What a forensic accountant takes a week, INTERLOCK does before the wire clears."
 
 *(brief)*
 
-> "Twelve-second AbortController per worker. Verdict gates on three-of-five consensus — any single sub-agent crash never stops the demo."
+> "Twelve-second AbortController per worker. Verdict gates on three-of-six consensus — any single sub-agent crash never stops the demo."
 
 ---
 

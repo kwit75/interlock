@@ -142,6 +142,49 @@ export default function HowItConnectsPage() {
           </table>
         </Section>
 
+        <Section title="Deeper Q&A artifacts">
+          <p className="text-[14px] text-slate-300 leading-relaxed mb-5">
+            Two purpose-built pages defend the most-likely judging attacks
+            with primary-source evidence:
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Link
+              href="/sec-1-05-diff"
+              className="block rounded-xl p-5 border border-purple-500/30 bg-purple-950/20 hover:border-purple-400/50 transition"
+            >
+              <div className="text-[10px] tracking-[0.25em] uppercase text-purple-300 font-medium mb-2">
+                ◆ Regulatory artifact
+              </div>
+              <div className="text-[16px] font-semibold text-white mb-1.5">
+                SEC 8-K Item 1.05 diff
+              </div>
+              <div className="text-[12.5px] text-slate-300 leading-relaxed">
+                Side-by-side: Microsoft Corp&apos;s 2024-01-17 Midnight Blizzard
+                disclosure vs INTERLOCK&apos;s auto-draft, on the four mandatory
+                Item 1.05 elements per SEC Press Release 2023-139. Defends
+                against the &ldquo;mocked compliance&rdquo; attack.
+              </div>
+            </Link>
+            <Link
+              href="/vs-resemble"
+              className="block rounded-xl p-5 border border-purple-500/30 bg-purple-950/20 hover:border-purple-400/50 transition"
+            >
+              <div className="text-[10px] tracking-[0.25em] uppercase text-purple-300 font-medium mb-2">
+                ◆ Architectural comparison
+              </div>
+              <div className="text-[16px] font-semibold text-white mb-1.5">
+                INTERLOCK vs Resemble.ai
+              </div>
+              <div className="text-[12.5px] text-slate-300 leading-relaxed">
+                11-row comparison defusing the &ldquo;isn&apos;t this just
+                Resemble?&rdquo; question. Resemble integrates Gemini 3 Flash as
+                explainer; INTERLOCK uses Gemini 3.5 Flash as the reasoning
+                fabric. Different product category.
+              </div>
+            </Link>
+          </div>
+        </Section>
+
         <div className="mt-14 rounded-xl p-5 border border-blue-500/30 bg-blue-950/20 flex flex-wrap items-center justify-between gap-3">
           <div className="text-[14px] text-slate-200">
             Want the production deployment runbook? Talks through tenant
