@@ -48,6 +48,9 @@ plus primary citations verified inline.
 ### 13. *"Clorox / Caesars 8-K — those are Item 8.01, not 1.05."*
 > Correct — those are pre-effective-date filings; Item 1.05 became mandatory on December 18, 2023 per SEC press release 2023-139. The actual gold-standard Item 1.05 precedent is Microsoft's January 17, 2024 Midnight Blizzard disclosure, with UnitedHealth (Feb 22, 2024, Change Healthcare) and Prudential (Feb 14, 2024) as the second and third comparable. Our Regulatory Precedent sub-agent surfaces all three.
 
+### 14. *"Is analyzing video calls in real-time legal in California without recording?"*
+> California two-party consent under CIPA Penal Code 632 — INTERLOCK runs entirely in volatile memory with zero recording, same legal posture as Otter, Gong, or Microsoft Copilot Recall, just stricter because we don't persist transcripts. Company-side disclosure happens at the Workspace add-on install consent flow plus employee handbook plus calendar-invite banner. Voice-print biometrics are opt-in with explicit CPRA consent against enrolled CEO samples only — we never enroll non-consenting participants.
+
 ---
 
 ## Vocabulary to repeat verbatim in answers
