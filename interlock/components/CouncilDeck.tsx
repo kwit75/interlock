@@ -81,6 +81,10 @@ export default function CouncilDeck({
     height: number;
     sizeKb: number;
   } | null>(null);
+  const [audioInfo, setAudioInfo] = useState<{
+    durationMs: number;
+    sizeKb: number;
+  } | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const verdictHitRef = useRef(false);
 
@@ -98,6 +102,7 @@ export default function CouncilDeck({
       setElapsedMs(null);
       setSecondsCounter(0);
       setFrameInfo(null);
+      setAudioInfo(null);
       return;
     }
 
@@ -138,9 +143,70 @@ export default function CouncilDeck({
         console.warn("[council] frame capture failed", e);
       }
 
-      // 2. POST to /api/council with the captured frame in the body. Switched
+      // 2. Capture ~1.5s of audio from the same <video> element via
+      // captureStream() + MediaRecorder. Ships to voice_print as inline
+      // audio/webm;codecs=opus. Gemini 3.5 Flash accepts audio modality.
+      // Bails gracefully if browser blocks captureStream() or video has no
+      // audio track — Voice-Print falls back to text-only.
+      let audioDataUrl: string | undefined;
+      try {
+        const v = document.querySelector("video") as HTMLVideoElement | null;
+        if (
+          v &&
+          typeof (v as HTMLVideoElement & {
+            captureStream?: () => MediaStream;
+          }).captureStream === "function" &&
+          typeof window.MediaRecorder !== "undefined"
+        ) {
+          const stream = (
+            v as HTMLVideoElement & { captureStream: () => MediaStream }
+          ).captureStream();
+          const audioTracks = stream.getAudioTracks();
+          if (audioTracks.length > 0) {
+            const audioOnly = new MediaStream(audioTracks);
+            const mime = MediaRecorder.isTypeSupported(
+              "audio/webm;codecs=opus",
+            )
+              ? "audio/webm;codecs=opus"
+              : "audio/webm";
+            const recorder = new MediaRecorder(audioOnly, { mimeType: mime });
+            const chunks: Blob[] = [];
+            recorder.ondataavailable = (e) => {
+              if (e.data && e.data.size > 0) chunks.push(e.data);
+            };
+            const recordStart = performance.now();
+            recorder.start();
+            await new Promise((r) => setTimeout(r, 1500));
+            const stopped = new Promise<void>((r) => {
+              recorder.onstop = () => r();
+            });
+            recorder.stop();
+            await stopped;
+            const durationMs = Math.round(performance.now() - recordStart);
+            const blob = new Blob(chunks, { type: mime });
+            if (blob.size > 0) {
+              const ab = await blob.arrayBuffer();
+              let binary = "";
+              const bytes = new Uint8Array(ab);
+              for (let i = 0; i < bytes.length; i++) {
+                binary += String.fromCharCode(bytes[i]);
+              }
+              const base64 = btoa(binary);
+              audioDataUrl = `data:${mime};base64,${base64}`;
+              setAudioInfo({
+                durationMs,
+                sizeKb: Math.round(blob.size / 1024),
+              });
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("[council] audio capture failed", e);
+      }
+
+      // 3. POST to /api/council with captured frame + audio in body. Switched
       // from EventSource (GET-only) to fetch+ReadableStream so we can carry
-      // the base64 frame; the response is still SSE format.
+      // the base64 media; response is still SSE format.
       let res: Response;
       try {
         res = await fetch("/api/council", {
@@ -152,6 +218,7 @@ export default function CouncilDeck({
             companyTicker: ticker,
             injectionMode,
             frameImageDataUrl,
+            audioDataUrl,
           }),
           signal: ctrl.signal,
         });
@@ -314,9 +381,18 @@ export default function CouncilDeck({
             <div
               className="font-mono text-[10px] tracking-[0.2em] mb-1"
               style={{ color: "#6ee7b7" }}
-              title={`Captured frame shipped to frame_forensics worker (Gemini 3.5 Flash multimodal)`}
+              title="Captured frame shipped to frame_forensics worker (Gemini 3.5 Flash multimodal)"
             >
-              📷 frame {frameInfo.width}×{frameInfo.height} · {frameInfo.sizeKb} KB → 3.5 Flash multimodal
+              📷 frame {frameInfo.width}×{frameInfo.height} · {frameInfo.sizeKb} KB → 3.5 Flash
+            </div>
+          )}
+          {audioInfo && (
+            <div
+              className="font-mono text-[10px] tracking-[0.2em] mb-1"
+              style={{ color: "#6ee7b7" }}
+              title="Captured audio chunk shipped to voice_print worker (Gemini 3.5 Flash multimodal)"
+            >
+              🎙 audio {(audioInfo.durationMs / 1000).toFixed(1)}s · {audioInfo.sizeKb} KB → 3.5 Flash
             </div>
           )}
           {injectionMode && (

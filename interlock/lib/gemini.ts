@@ -40,6 +40,8 @@ export type GenerateOpts = {
   searchGrounding?: boolean;
   /** Inline image data for sub-agents (frame analysis). */
   imageDataUrl?: string;
+  /** Inline audio data (data URL) for voice-print analysis. */
+  audioDataUrl?: string;
   thinkingLevel?: ThinkingLevel;
   retries?: number;
   /** AbortController signal — workers hard-cap at 12s. */
@@ -73,6 +75,14 @@ function buildParts(opts: GenerateOpts) {
   }
   if (opts.imageDataUrl) {
     const match = opts.imageDataUrl.match(/^data:(.+?);base64,(.+)$/);
+    if (match) {
+      parts.push({
+        inlineData: { mimeType: match[1], data: match[2] },
+      });
+    }
+  }
+  if (opts.audioDataUrl) {
+    const match = opts.audioDataUrl.match(/^data:(.+?);base64,(.+)$/);
     if (match) {
       parts.push({
         inlineData: { mimeType: match[1], data: match[2] },

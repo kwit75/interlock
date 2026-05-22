@@ -97,6 +97,36 @@ export default function IncomingCallCard({
     // intentionally don't pause on playing=false
   }, [playing, usingLive]);
 
+  // Audio gating — Chrome's autoplay policy requires `muted` for
+  // immediate playback. Once any user gesture (the SPACE through the
+  // OpeningHook, a click anywhere, a keypress) lands, unmute the deepfake
+  // clip so judges actually hear Tom Cruise speaking. One-shot — listeners
+  // self-remove after firing.
+  useEffect(() => {
+    if (usingLive) return;
+    const v = vref.current;
+    if (!v) return;
+    const unmute = () => {
+      try {
+        v.muted = false;
+        v.volume = 0.85;
+      } catch {
+        /* ignore — silent fallback */
+      }
+      document.removeEventListener("keydown", unmute);
+      document.removeEventListener("click", unmute);
+      document.removeEventListener("touchstart", unmute);
+    };
+    document.addEventListener("keydown", unmute, { once: false });
+    document.addEventListener("click", unmute, { once: false });
+    document.addEventListener("touchstart", unmute, { once: false });
+    return () => {
+      document.removeEventListener("keydown", unmute);
+      document.removeEventListener("click", unmute);
+      document.removeEventListener("touchstart", unmute);
+    };
+  }, [usingLive, videoSrc]);
+
   const scanning = playing && !verdict;
   const detected = verdict === "SYNTHETIC";
   const evidenceCount = activeEvidence.length;

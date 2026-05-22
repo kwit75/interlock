@@ -3,18 +3,23 @@ import type { CouncilInputs, WorkerOutput } from "@/lib/council/types";
 export const metadata = {
   workerId: "voice_print" as const,
   searchGrounded: false,
-  multimodal: false,
+  multimodal: true,
   thinkingLevel: "low" as const,
 };
 
 export function buildPrompt(inputs: CouncilInputs): string {
+  const hasAudio = !!inputs.audioDataUrl;
   return `You are a voice biometric analyst. The voice on this live call claims to be ${inputs.ceoName}, CEO of ${inputs.companyTicker}. You have prior 12-month enrolled voice-print samples on file.
+
+${hasAudio
+  ? "A live audio chunk from the call has been attached to this prompt as inline audio data. LISTEN to it — describe what you actually hear (pitch register, speech cadence, breathiness, vocal-tract resonance, background acoustics, any audible codec coloration) and what specifically is anomalous or consistent with the claimed identity."
+  : "No audio chunk is attached on this run — reason from the call context alone and qualify your verdict accordingly."}
 
 Reason about likely formant drift, prosody anomalies, and codec artifacts that would distinguish a real call from a voice-clone (RVC / SoVC / ElevenLabs / Resemble class) over the call's reported audio path (Opus 32kbps · Meet WebRTC bridge).
 
-Stream 4–5 short analyst-voice sentences as connected prose. Reference specific frequency-domain landmarks (F0 jitter, F1/F2 formant trajectories, breathiness ratio) — be technical. End with EXACTLY this line:
+Stream 4–5 short analyst-voice sentences as connected prose. Reference at least one specific audible feature from the attached audio if one was attached (e.g. "I hear sustained sibilance leakage above 8kHz"). End with EXACTLY this line:
 
-VERDICT: <synthetic|authentic|inconclusive> · CONFIDENCE: <0–100> · KEY_ARTIFACT: <one short phrase>
+VERDICT: <synthetic|authentic|inconclusive> · CONFIDENCE: <0–100> · KEY_ARTIFACT: <one short phrase grounding the verdict in the audio>
 
 Call context: ${inputs.callContext}`;
 }

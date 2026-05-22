@@ -97,6 +97,10 @@ export async function POST(req: NextRequest) {
     typeof body.frameImageDataUrl === "string" && body.frameImageDataUrl.startsWith("data:")
       ? (body.frameImageDataUrl as string)
       : undefined;
+  const audio =
+    typeof body.audioDataUrl === "string" && body.audioDataUrl.startsWith("data:")
+      ? (body.audioDataUrl as string)
+      : undefined;
 
   const inputs: CouncilInputs = {
     ...DEFAULT_INPUTS,
@@ -106,6 +110,7 @@ export async function POST(req: NextRequest) {
     amountUsd: num("amountUsd", DEFAULT_INPUTS.amountUsd),
     injectionMode: body.injectionMode === true || body.injectionMode === "1",
     frameImageDataUrl: frame,
+    audioDataUrl: audio,
   };
   return streamResponse(inputs, mode);
 }

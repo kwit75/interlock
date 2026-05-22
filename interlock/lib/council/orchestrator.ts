@@ -72,7 +72,14 @@ async function runLiveWorker(
   try {
     for await (const c of generateStream({
       prompt: worker.buildPrompt(inputs),
-      imageDataUrl: worker.metadata.multimodal ? inputs.frameImageDataUrl : undefined,
+      imageDataUrl:
+        worker.metadata.multimodal && worker.metadata.workerId === "frame_forensics"
+          ? inputs.frameImageDataUrl
+          : undefined,
+      audioDataUrl:
+        worker.metadata.multimodal && worker.metadata.workerId === "voice_print"
+          ? inputs.audioDataUrl
+          : undefined,
       searchGrounding: worker.metadata.searchGrounded,
       thinkingLevel: worker.metadata.thinkingLevel,
       model: "gemini-3.5-flash",

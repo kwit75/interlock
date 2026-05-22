@@ -47,7 +47,7 @@ export const WORKER_META: Record<
     label: "Voice-Print Cross-Match",
     tagline: "formant drift · prosody anomalies",
     searchGrounded: false,
-    multimodal: false,
+    multimodal: true,
   },
   reverse_provenance: {
     label: "Reverse Provenance",
@@ -112,6 +112,8 @@ export type CouncilInputs = {
   amountUsd: number;
   /** Optional inline frame image (data URL) for frame_forensics multimodal. */
   frameImageDataUrl?: string;
+  /** Optional inline audio clip (data URL, webm/opus or wav) for voice_print. */
+  audioDataUrl?: string;
   /**
    * When true, the cached scenario for Injection Guard switches from "clean"
    * to "prompt-injection attempt detected" — the deepfake clip is presumed
