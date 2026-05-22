@@ -281,8 +281,8 @@ export default function IncidentPage() {
 
           <div className="col-span-8 grid grid-cols-1 gap-4">
             <AgentPanel
-              title="FORENSICS"
-              subtitle="Gemini 3.1 Pro multimodal"
+              title="COUNCIL"
+              subtitle="gemini-3.5-flash × 8 · orchestrator + 6 workers + verdict"
               status={
                 evidence.length === 0
                   ? "idle"

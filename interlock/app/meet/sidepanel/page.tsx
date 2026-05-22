@@ -353,8 +353,8 @@ function ActiveBody({
       )}
 
       <SidebarItem
-        title="Forensics"
-        subtitle="gemini-3.1-pro · multimodal"
+        title="Council"
+        subtitle="gemini-3.5-flash × 8 · orchestrator + 6 workers + verdict"
         status={forensicsStatus}
       >
         {evidence.length === 0 ? (

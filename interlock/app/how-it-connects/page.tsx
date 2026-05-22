@@ -109,7 +109,7 @@ export default function HowItConnectsPage() {
                 note="Capture path implemented as content script; backend WS endpoint mocked. Demo uses cached forensics trace instead."
               />
               <StatusRow
-                surface="Council · 7-call gemini-3.5-flash fan-out"
+                surface="Council · 8-call gemini-3.5-flash fan-out"
                 status="live"
                 note="/api/council SSE endpoint. Orchestrator + 5 parallel forensic workers (Frame Forensics multimodal, Voice-Print, Reverse Provenance Search-grounded, Counter-Strategy, Regulatory Precedent Search-grounded) + verdict aggregator (thinkingLevel: high). Auto mode falls back to deterministic cached streams on per-worker 12s timeout."
               />
@@ -558,7 +558,7 @@ function SequenceDiagram() {
     ],
     [
       "T+1.5s … T+7s",
-      "Each sub-agent streams its chain-of-thought to /api/council SSE; CouncilDeck overlay renders 5 token-by-token panels + a radial agent graph in real time.",
+      "Each sub-agent streams its chain-of-thought to /api/council SSE; CouncilDeck overlay renders 6 token-by-token panels + a radial agent graph in real time.",
     ],
     [
       "T+7.2s",

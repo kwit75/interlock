@@ -278,9 +278,11 @@ function DetectorTab() {
       <Row k="Operating point" v="0.3% FPR · 2.1% FNR" />
       <Row k="Latency p50" v="287ms (cached / mock)" />
       <Row k="Mode" v="CACHED · production toggle in plugin footer" />
-      <SectionLabel>Detector explainer</SectionLabel>
-      <Row k="Model" v={<Mono>gemini-3.1-pro-preview</Mono>} />
-      <Row k="Frame sample rate" v="12 fps · 480p" />
+      <SectionLabel>Council orchestrator</SectionLabel>
+      <Row k="Primary model" v={<Mono>gemini-3.5-flash</Mono>} />
+      <Row k="Sub-agents" v="6 parallel workers + verdict aggregator" />
+      <Row k="Consensus" v="3-of-6 worker agreement" />
+      <Row k="Frame sample rate" v="12 fps · 480p · multimodal inline" />
       <Row k="Threshold" v="confidence ≥ 0.85 triggers verdict" />
       <SectionLabel>Local-first option</SectionLabel>
       <Row
