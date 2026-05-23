@@ -55,7 +55,7 @@ export function cachedOutput(): WorkerOutput {
     verdict: "synthetic",
     confidence: 0.94,
     finding:
-      "Eye-blink cadence breaks at 1.4Hz vs human baseline 0.2–0.3Hz · BRDF residual at left cheek",
+      "blink-rate Z-score 8.7σ (cv2 face-landmark · 32 frames) · optical-flow entropy 0.18 vs baseline 2.1 bits · periorbital spectral notch at 0.42 of Nyquist",
   };
 }
 

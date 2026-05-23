@@ -39,13 +39,13 @@ export const WORKER_META: Record<
 > = {
   frame_forensics: {
     label: "Frame Forensics",
-    tagline: "synthesis artifacts · temporal coherence",
+    tagline: "Antigravity sandbox · OpenCV + scipy.signal",
     searchGrounded: false,
     multimodal: true,
   },
   voice_print: {
     label: "Voice-Print Cross-Match",
-    tagline: "formant drift · prosody anomalies",
+    tagline: "Antigravity sandbox · librosa MFCC + F0",
     searchGrounded: false,
     multimodal: true,
   },

@@ -53,7 +53,7 @@ export function cachedOutput(): WorkerOutput {
     verdict: "synthetic",
     confidence: 0.91,
     finding:
-      "F0 jitter ≤0.4% (real baseline 1.2–2.0%) · breathiness ratio collapsed to RVC signature",
+      "F0 std 0.4% vs enrolled baseline 1.2–2.0% (librosa.yin) · MFCC band-8 cosine 0.91 to RVC reference · enrollment cross-match 0.34 vs 0.78 threshold",
   };
 }
 
