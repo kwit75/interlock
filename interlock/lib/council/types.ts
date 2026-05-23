@@ -34,6 +34,7 @@ export const WORKER_META: Record<
     tagline: string;
     searchGrounded: boolean;
     multimodal: boolean;
+    sandbox?: boolean;
     safety?: boolean;
   }
 > = {
@@ -42,12 +43,14 @@ export const WORKER_META: Record<
     tagline: "Antigravity sandbox · OpenCV + scipy.signal",
     searchGrounded: false,
     multimodal: true,
+    sandbox: true,
   },
   voice_print: {
     label: "Voice-Print Cross-Match",
     tagline: "Antigravity sandbox · librosa MFCC + F0",
     searchGrounded: false,
     multimodal: true,
+    sandbox: true,
   },
   reverse_provenance: {
     label: "Reverse Provenance",

@@ -586,7 +586,7 @@ function WorkerPanel({ id, state }: { id: WorkerId; state: WorkerState }) {
           <Pill>gemini-3.5-flash</Pill>
           <Pill>thinking: low</Pill>
           {meta.searchGrounded && <Pill>+Search</Pill>}
-          {meta.multimodal && <Pill>multimodal</Pill>}
+          {meta.sandbox ? <Pill>+sandbox</Pill> : meta.multimodal && <Pill>multimodal</Pill>}
           {tokRate !== null && (
             <span
               className="text-[8.5px] px-1.5 py-0.5 rounded font-mono tracking-tight tabular-nums"
