@@ -1,4 +1,6 @@
+import { GoogleGenAI } from "@google/genai";
 import type { CouncilInputs, WorkerOutput } from "@/lib/council/types";
+import { extractFrameFeaturesViaSandbox } from "@/lib/council/workers/sandbox-tools";
 
 export const metadata = {
   workerId: "frame_forensics" as const,
@@ -56,6 +58,52 @@ export function cachedOutput(): WorkerOutput {
     confidence: 0.94,
     finding:
       "blink-rate Z-score 8.7σ (cv2 face-landmark · 32 frames) · optical-flow entropy 0.18 vs baseline 2.1 bits · periorbital spectral notch at 0.42 of Nyquist",
+  };
+}
+
+/**
+ * Architecturally-honest live path: spawn the Antigravity sandbox, run
+ * OpenCV + scipy.signal Python for face-landmark + spatial-frequency
+ * feature extraction, then ask Gemini 3.5 Flash to reason over the
+ * numerical array.
+ *
+ * Wired and callable (see /api/sandbox-demo for invocation). Default
+ * demo path remains cached SSE replay for venue-Wi-Fi resilience —
+ * toggle via councilMode="live-sandbox" or by calling this directly.
+ */
+export async function runViaSandbox(inputs: CouncilInputs): Promise<
+  WorkerOutput & { sandbox: { env_id: string; interaction_id?: string; features: Record<string, unknown> } }
+> {
+  const sandbox = await extractFrameFeaturesViaSandbox();
+
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+  const reasoningPrompt = `You are a deepfake forensics analyst. The Antigravity sandbox just executed OpenCV + scipy.signal on the call frame and returned the following numerical features:
+
+${JSON.stringify(sandbox.features, null, 2)}
+
+The claimed identity is ${inputs.ceoName} (${inputs.companyTicker}). Authentic-capture baselines: high_freq_outlier_pct < 3.0%, spectral_entropy_bits 6.5–7.5, optical_flow_variance > 50, face_count = 1.
+
+Reason over the numerical array (NOT over raw pixels — cv2 already extracted the features deterministically). Stream 4–5 short analyst-voice sentences referencing specific numerical fields from the JSON above. End with EXACTLY this line:
+
+VERDICT: <synthetic|authentic|inconclusive> · CONFIDENCE: <0–100> · KEY_ARTIFACT: <short phrase grounding the verdict in the numerical features>`;
+
+  const stream = await ai.models.generateContentStream({
+    model: "gemini-3.5-flash",
+    contents: [{ role: "user", parts: [{ text: reasoningPrompt }] }],
+  });
+
+  let fullText = "";
+  for await (const chunk of stream) {
+    fullText += chunk.text || "";
+  }
+
+  return {
+    ...parseFinal(fullText),
+    sandbox: {
+      env_id: sandbox.env_id,
+      interaction_id: sandbox.interaction_id,
+      features: sandbox.features,
+    },
   };
 }
 
