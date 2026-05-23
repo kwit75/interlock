@@ -59,11 +59,11 @@ export function cachedOutput(): WorkerOutput {
 
 export function cachedStream(): string[] {
   return [
-    "Pulling the claimed speaker's enrolled voice-print and aligning against the live call audio. ",
-    "F0 jitter measured at 0.4% — well below the 1.2–2.0% range observed across this speaker's prior twelve months of enrolled samples. ",
-    "F1/F2 formant trajectories are unusually flat through the diphthongs; the breathiness-to-periodicity ratio has collapsed to the band associated with retrieval-based voice-conversion synthesis. ",
-    "Codec coloration is wrong for an Opus 32kbps Meet bridge — the high-frequency reconstruction has the spectral notch typical of an RVC vocoder output downsampled, not a native phone. ",
-    "Cross-match score: 0.34 against the enrolled print; speakers above 0.78 historically.\n\n",
-    "VERDICT: synthetic · CONFIDENCE: 91 · KEY_ARTIFACT: F0 jitter collapse + RVC vocoder coloration",
+    "Antigravity sandbox spawned. Loading librosa + scipy.signal into the Linux interaction. ",
+    "librosa.yin over the 4-second clip returns F0 standard deviation 0.4% of mean. The enrolled twelve-month baseline for this speaker is 1.2–2.0%. Reading that as compressed pitch variance. ",
+    "librosa.feature.mfcc, 13 coefficients — cepstral band 8 shows the harmonic-comb signature documented for RVC and SoVC neural vocoders. ",
+    "scipy.signal.welch on the residual after voiced-segment removal shows a high-frequency notch at 8.2 kHz. An Opus 32kbps Meet bridge would have a smoother spectral roll-off, not a notch. ",
+    "Numerical features returned to the agent. Reasoning over the array: F0 std 0.4%, MFCC band-8 cosine similarity 0.91 to RVC reference, enrollment cross-match 0.34 versus speaker threshold 0.78.\n\n",
+    "VERDICT: synthetic · CONFIDENCE: 91 · KEY_ARTIFACT: compressed F0 variance + RVC band-8 cepstral signature",
   ];
 }

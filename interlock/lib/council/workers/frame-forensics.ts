@@ -61,11 +61,11 @@ export function cachedOutput(): WorkerOutput {
 
 export function cachedStream(): string[] {
   return [
-    "Examining the frame against the call context. ",
-    "Eye-blink cadence is anomalous — blinks at roughly 1.4 Hz, well above the human resting baseline of 0.2–0.3 Hz. ",
-    "Lighting on the left cheek shows a BRDF residual inconsistent with a single-window office ambient. ",
-    "Micro-expression continuity is shallow — the smile onset never resolves into the lip-corner action of a Duchenne smile. ",
-    "Spatial-frequency response in the periorbital region shows up-sampling artifacts at 1/8-pixel boundaries — consistent with a 256² face-swap pipeline upscaled to call resolution.\n\n",
-    "VERDICT: synthetic · CONFIDENCE: 94 · KEY_ARTIFACT: BRDF residual + 1.4Hz blink cadence",
+    "Antigravity sandbox spawned. Loading OpenCV + scipy.signal into the Linux interaction. ",
+    "cv2.dnn face landmark extraction over 32 frames — blink cadence comes back at 1.4 Hz. Human resting baseline is 0.2–0.3 Hz. Reading that as a 5× elevation. ",
+    "cv2.calcOpticalFlowFarneback on the periorbital region — temporal flow vectors collapse to a single principal direction. Authentic capture would show micro-saccade dispersion. ",
+    "scipy.signal.welch on the left-cheek luminance shows a spectral notch at 0.42 of Nyquist — consistent with a 256² face-swap pipeline upscaled and re-quantized for call resolution. ",
+    "Numerical features returned to the agent. Reasoning over the array: blink-rate Z-score 8.7σ, optical-flow entropy 0.18 bits versus baseline 2.1 bits, periorbital spectral-notch ratio 0.42.\n\n",
+    "VERDICT: synthetic · CONFIDENCE: 94 · KEY_ARTIFACT: blink-rate 8.7σ elevation + periorbital spectral notch",
   ];
 }

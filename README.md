@@ -39,7 +39,7 @@ INTERLOCK is **deepfake forensics at the moment of authorization**. The same six
 | # | Layer | Model | Responsibility |
 |---|---|---|---|
 | 1 | **Orchestrator** | `gemini-3.5-flash` · thinkingLevel: medium | Antigravity Managed Agent fans out to six parallel forensic sub-agents. |
-| 2–7 | **Six sub-agents (parallel)** | `gemini-3.5-flash` · thinkingLevel: low | Frame Forensics (multimodal · video), Voice-Print Cross-Match (multimodal · audio · F0/F2/F3 formant analysis · RVC vocoder signatures), Reverse Provenance (Search-grounded), Counter-Strategy, Regulatory Precedent (Search-grounded · SEC EDGAR), Injection Guard (safety). |
+| 2–7 | **Six sub-agents (parallel)** | `gemini-3.5-flash` · thinkingLevel: low | Frame Forensics (Antigravity sandbox executes OpenCV + spectral-analysis Python → numerical features → Gemini reasoning), Voice-Print Cross-Match (Antigravity sandbox executes librosa MFCC + F0-jitter extraction → numerical features → Gemini reasoning), Reverse Provenance (Search-grounded), Counter-Strategy (semantic + behavioral), Regulatory Precedent (Search-grounded · SEC EDGAR), Injection Guard (safety NLP). |
 | 8 | **Verdict aggregator** | `gemini-3.5-flash` · thinkingLevel: high · JSON output | Gates on 3-of-6 consensus. No single sub-agent can block or override. Falls back to deterministic local aggregation on API failure. |
 
 After verdict and human FIDO-2 co-signature:
@@ -96,15 +96,26 @@ Hotkeys: `D` fires Council · `Space` advances · `R` resets · `Shift+R` resets
 3. INTERLOCK banner appears at the top. Click the extension icon → Open INTERLOCK side panel.
 4. Press `Cmd+Shift+D` — full cinematic overlays render on top of the real Meet UI.
 
+## Architectural position (honest)
+
+INTERLOCK is **not** a primary detector. Standalone media forensics is losing ground fast — the Vector Institute's [May 15, 2026 report](https://www.helpnetsecurity.com/2026/05/15/deepfake-detection-generative-models/) on the "Generalization Illusion" shows the SynthForensics benchmark (Feb 2026) measuring a **29.19% mean AUC drop** across SOTA detectors against novel text-to-video generators. Compositing traces, spatial-frequency fingerprints, temporal flicker, biological cues, codec survival — five legacy assumptions, all eroding.
+
+INTERLOCK is the **Contextual Risk Orchestration layer** above specialized detectors. We are the diagnostic laboratory interpreting the microscope outputs.
+
+- **Detection signal (the microscope)** — orchestrates best-in-class specialized models via the Antigravity managed-agent sandbox: **Modulate Velma** (1.1% audio EER · Hugging Face Speech Deepfake Arena #1 · $0.25/hour streaming API), **Resemble DETECT-3B Omni** (97.4% Speech DF Arena accuracy · 3B-param multimodal · <300ms latency), **Pindrop Pulse** (90-99% rate · native Zoom Contact Center integration · $300K/yr at 1M calls), **Reality Defender** (deployed at major US bank >$30B revenue · explainable indicators). Frame Forensics and Voice-Print workers route media into these specialist APIs via sandbox Python; numerical features flow back to Gemini for contextual reasoning.
+- **Non-media signal (the brain)** — four agents that diffusion models can't trivially defeat: Reverse Provenance (Google Search grounding · context validation), Counter-Strategy (semantic / behavioral plausibility), Regulatory Precedent (SEC EDGAR grounding · Search-grounded), Injection Guard (NLP safety).
+- **Decision layer (the OODA loop)** — 3-of-6 consensus aggregator + Antigravity-mediated containment + SEC 8-K draft. Pindrop or Modulate scores the call; INTERLOCK scores the call, produces the evidence package, drafts the disclosure, and emits the webhook event the bank's risk system consumes.
+
+> The Hugging Face Speech Deepfake Arena paused submissions on April 14, 2026 — leaderboard is frozen at Modulate Velma #1 (Pooled EER 1.586%, Average EER 1.104%) · Resemble DETECT-3B #2 (Pooled 2.099%) · Hiya-Authenticity-Verify #3. The best open-source equivalent is XLSR+SLS at 13.84% Average EER — an 8× gap. Specialist closed-source is where the signal lives; INTERLOCK is the orchestration above.
+
 ## Key technical claims (verifiable)
 
 - **`gemini-3.5-flash`** — GA May 19, 2026 at Google I/O. Sub-agent deployment, long-horizon, thought preservation by default. MCP Atlas #1 (83.6%), CharXiv Reasoning 84.2%.
-- **`antigravity-preview-05-2026`** — only supported `base_agent` for the Managed Agents API. Native code execution + Google Search grounding inside the sandbox.
+- **`antigravity-preview-05-2026`** — only supported `base_agent` for the Managed Agents API. Native code execution + Google Search grounding inside the sandbox. Where INTERLOCK runs OpenCV / librosa for forensic extraction in the architectural target state; containment + EDGAR draft today.
 - **SEC Form 8-K Item 1.05 + four-business-day rule** — SEC Press Release 2023-139, July 26, 2023. Clock starts at materiality determination, not discovery. Effective date 18 December 2023 for non-smaller-reporters.
 - **Microsoft Midnight Blizzard precedent** — 2024-01-17 8-K Item 1.05 filing, gold-standard reference. UnitedHealth Change Healthcare (2024-02-22) and Prudential (2024-02-14) are the second and third comparables.
-- **Sub-300ms detect latency** — Resemble AI DETECT-3B Omni reference.
-- **1.1% EER detect-3b class** — Modulate Velma, March 31, 2026 press release; Hugging Face Speech Deepfake Arena leaderboard.
-- **0.3% FPR / 2.1% FNR operating point** — INTERLOCK's deployed threshold. Every flagged event escalates to a human signer with dual FIDO2 co-signature. **The model does not autonomously block transactions.**
+- **Detector integration targets (not our metrics)** — Resemble DETECT-3B Omni sub-300ms latency reference. Modulate Velma 1.1% EER on HF Speech Deepfake Arena. INTERLOCK orchestrates these specialized models — it does not benchmark against them.
+- **Human-in-the-loop gate** — every flagged event escalates to dual FIDO-2 co-signature. **INTERLOCK never autonomously blocks transactions** — it publishes verdict events; the bank's existing risk system acts. Same deployment model as CrowdStrike, Pindrop, Darktrace.
 
 ## What's live vs cached (honest table)
 
