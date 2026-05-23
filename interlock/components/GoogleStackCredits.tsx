@@ -17,22 +17,32 @@
 
 const STACK = [
   {
-    tier: "Models",
+    tier: "Gemini 3.5 Flash · the orchestrator",
     items: [
-      "Gemini 3.5 Flash · sub-agent deployment · GA May 19, 2026",
-      "Gemini 3.1 Pro Preview · multimodal forensics",
-      "Gemini 3.1 Flash Lite Preview · sub-second verdicts",
-      "Gemini 3.1 Flash Live Preview · streaming WebSocket",
-      "Google Lyria · lyria-realtime-exp · cinematic soundtrack",
+      "GA May 19, 2026 · 8 calls per detection",
+      "thinkingLevel: low (workers) · medium (orchestrator) · high (aggregator)",
+      "MCP Atlas #1 · 83.6% multi-tool coordination",
+      "Native multimodal · image + audio + Search grounding",
+      "4× speed globally · 12× inside Antigravity sandboxes",
     ],
   },
   {
     tier: "Agents & infrastructure",
     items: [
       "Managed Agents · antigravity-preview-05-2026",
+      "interactions.create({base_agent}) · sandboxed Linux Python",
       "Google Antigravity 2.0 · CLI + SDK + IDE",
-      "Google Search grounding · regulatory citations",
-      "Ephemeral auth tokens · Live API security",
+      "Google Search grounding · EDGAR + provenance",
+      "Ephemeral auth tokens · WebAuthn / FIDO-2 co-sign",
+    ],
+  },
+  {
+    tier: "Orchestration targets (specialist detectors)",
+    items: [
+      "Modulate Velma · 1.1% EER · HF Speech Arena #1",
+      "Resemble DETECT-3B Omni · 97.4% Speech DF Arena",
+      "Pindrop Pulse · secures 8 of 10 largest US banks",
+      "Reality Defender SLIM · NeurIPS 2024 consensus",
     ],
   },
   {
@@ -41,7 +51,7 @@ const STACK = [
       "Google Meet Add-ons SDK · sidePanel + mainStage",
       "Google Workspace Marketplace · Apps Script",
       "Chrome Extensions Manifest v3 · tabCapture + sidePanel",
-      "Web Audio API · synthesized cinematic SFX",
+      "Next.js 16 · App Router · SSE streaming · Vercel",
     ],
   },
 ];

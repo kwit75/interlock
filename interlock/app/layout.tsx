@@ -23,9 +23,9 @@ const roboto = Roboto({
 });
 
 export const metadata: Metadata = {
-  title: "INTERLOCK · Wire-Fraud Kill-Switch",
+  title: "INTERLOCK · Gemini 3.5 Flash × Antigravity Managed Agent",
   description:
-    "Enterprise wire-fraud kill-switch for synthetic-media video calls. Eight Gemini 3.5 Flash sub-agents fan out in parallel — Frame Forensics, Voice-Print, Reverse Provenance, Counter-Strategy, Regulatory Precedent, Injection Guard, Verdict, Comms — freeze the wire in a sandboxed Linux Managed Agent, and draft the SEC Form 8-K Item 1.05 disclosure for an authorized officer to sign. Built for the Google I/O Hackathon at Shack15, San Francisco, May 23, 2026.",
+    "Agentic orchestration layer for deepfake forensics at the moment of authorization. Gemini 3.5 Flash orchestrates 6 parallel sub-agents — Frame Forensics, Voice-Print, Reverse Provenance, Counter-Strategy, Regulatory Precedent, Injection Guard — wrapping specialist detectors (Modulate Velma, Resemble DETECT-3B, Pindrop Pulse) via Antigravity Managed Agent (antigravity-preview-05-2026) sandbox. 3-of-6 consensus gate; the bank's risk system acts on the verdict event. Built for the Google I/O Hackathon at Shack15, San Francisco, May 23, 2026.",
 };
 
 export default function RootLayout({

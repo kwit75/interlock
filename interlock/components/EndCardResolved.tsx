@@ -67,39 +67,37 @@ export default function EndCardResolved({
           </div>
         </div>
         <div>
-          <div className="text-3xl md:text-4xl text-white">3</div>
+          <div className="text-3xl md:text-4xl text-white">8</div>
           <div className="text-[10px] uppercase tracking-widest text-slate-400 mt-1">
-            agents orchestrated
+            Gemini 3.5 Flash calls
           </div>
         </div>
         <div>
           <div className="text-3xl md:text-4xl text-white">
-            &lt;300<span className="text-xl text-slate-400">ms</span>
+            3<span className="text-xl text-slate-400">/6</span>
           </div>
           <div className="text-[10px] uppercase tracking-widest text-slate-400 mt-1">
-            detect latency<sup>1</sup>
+            consensus gate
           </div>
         </div>
         <div>
-          <div className="text-3xl md:text-4xl text-white">
-            1.1<span className="text-xl text-slate-400">% EER</span>
-          </div>
+          <div className="text-3xl md:text-4xl text-emerald-300">⬢</div>
           <div className="text-[10px] uppercase tracking-widest text-slate-400 mt-1">
-            detect-3b class<sup>2</sup>
+            Antigravity sandbox
           </div>
         </div>
       </div>
-      <div className="mt-4 text-[9px] font-mono text-slate-600 tracking-wide text-center">
-        <sup>1</sup>resemble.ai/deepfake-detection-software · <sup>2</sup>modulate.ai velma 03/2026
-      </div>
-      <div className="mt-3 text-[11px] text-slate-400 text-center max-w-2xl mx-auto leading-relaxed">
-        Operating point: <span className="font-mono text-slate-200">0.3% FPR · 2.1% FNR</span>{" "}
-        · every flagged event escalates to a human signer with dual FIDO2 co-signature.
+      <div className="mt-6 text-[11px] text-slate-400 text-center max-w-2xl mx-auto leading-relaxed">
+        Orchestrated under{" "}
+        <span className="font-mono text-emerald-300">antigravity-preview-05-2026</span>
+        . Six sub-agents wrap specialist detectors (Modulate Velma, Resemble
+        DETECT-3B, Pindrop Pulse). Every flagged event escalates to dual
+        FIDO-2 human co-signature.
         <br className="hidden md:inline" />
         <span className="text-slate-500">INTERLOCK does not autonomously block transactions.</span>
       </div>
       <div className="mt-6 text-xs font-mono text-slate-500 tracking-wide">
-        wire W-7821 · FROZEN · Item 1.05 disclosure drafted for officer review
+        verdict event emitted · wire W-7821 paused by bank · Item 1.05 disclosure drafted for officer review
       </div>
 
       {onAdvance && (

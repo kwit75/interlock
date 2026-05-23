@@ -176,11 +176,12 @@ function Title() {
           <span style={{ color: C.purple }} className="font-mono">
             gemini-3.5-flash
           </span>{" "}
-          sub-agents fan out in parallel — frame forensics, voice-print,
-          reverse provenance, counter-strategy, regulatory precedent,
-          injection guard, verdict, comms. INTERLOCK freezes the wire and
-          drafts the SEC Form 8-K Item&nbsp;1.05 inside an Antigravity Managed
-          Agent. Browser-native, enterprise, cross-platform.
+          calls per detection — orchestrator + six parallel sub-agents wrapping
+          specialist detectors (Modulate Velma, Resemble DETECT-3B, Pindrop
+          Pulse) via the Antigravity Managed Agent sandbox, plus a 3-of-6
+          consensus verdict aggregator. INTERLOCK publishes the verdict event
+          to the bank&apos;s risk pipeline and drafts the SEC Form 8-K Item&nbsp;1.05.
+          The diagnostic laboratory. Not the microscope.
         </Sub>
         <div className="mt-12 flex items-center gap-6 text-[12px]" style={{ color: C.textMuted }}>
           <span>Built by Dmitrii Karataev · solo</span>

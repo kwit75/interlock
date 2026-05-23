@@ -66,14 +66,15 @@ export default function Home() {
             <span className="text-slate-400">for synthetic-media calls.</span>
           </h1>
           <p className="text-[17px] text-slate-400 leading-relaxed max-w-2xl">
-            INTERLOCK runs inside every video call where money moves. Eight{" "}
+            INTERLOCK is the agentic orchestration layer for deepfake forensics
+            at the moment of authorization. Eight{" "}
             <span className="font-mono text-slate-200">gemini-3.5-flash</span>{" "}
-            sub-agents fan out in parallel — frame forensics, voice-print,
-            reverse provenance, counter-strategy, regulatory precedent, injection
-            guard, verdict, comms. On a synthetic verdict, INTERLOCK freezes the
-            pending wire in your bank&apos;s API and drafts an
+            calls per detection — orchestrator, six parallel sub-agents wrapping
+            specialist detectors via the Antigravity sandbox, and a 3-of-6
+            consensus verdict aggregator. On a synthetic verdict, INTERLOCK
+            publishes the event to your bank&apos;s risk pipeline and drafts an
             SEC&nbsp;Form&nbsp;8-K Item&nbsp;1.05 disclosure for the authorized
-            officer to sign.
+            officer to sign. The diagnostic laboratory. Not the microscope.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mt-2">
             <Link

@@ -754,9 +754,9 @@ export default function MeetIncidentPage() {
           >
             <div className="flex items-center gap-2 text-[11px]">
               <span style={{ color: C.textMuted }}>◆</span>
-              <span>Detector</span>
+              <span>Orchestrator</span>
               <span className="font-mono" style={{ color: C.textMuted }}>
-                detect-3b-omni · 1.1% EER · {detectorMode}
+                gemini-3.5-flash × antigravity · {detectorMode}
               </span>
               <button
                 onClick={() =>

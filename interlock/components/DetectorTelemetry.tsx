@@ -45,12 +45,12 @@ export default function DetectorTelemetry({
           value={mode === "cached" ? "cached" : "—"}
           dim={mode === "cached"}
         />
-        <Field label="EER" value="1.1%" title="modulate.ai velma 03/2026 press release" />
-        <Field label="FP" value="0/12,847" title="cross-domain target, voicewukong arxiv:2409.06348" />
+        <Field label="orchestrated" value="velma+detect-3b" title="Modulate Velma 1.1% EER · Resemble DETECT-3B Omni 97.4% — orchestration targets, not our metrics" />
+        <Field label="consensus" value="3-of-6" title="3-of-6 sub-agent consensus gate. No single agent can block or override." />
         <Field
-          label="model"
-          value="detect-3b-omni-v2.1"
-          title="resemble.ai/detect · sub-300ms latency target"
+          label="orchestrator"
+          value="gemini-3.5-flash"
+          title="Gemini 3.5 Flash orchestrates specialist detectors via Antigravity Managed Agent sandbox"
         />
 
         <div className="ml-auto flex items-center gap-1.5">

@@ -409,10 +409,10 @@ export default function CouncilDeck({
             className="text-[10px] tracking-[0.5em] uppercase mb-1"
             style={{ color: "#a855f7" }}
           >
-            ◆ INTERLOCK COUNCIL · GEMINI 3.5 FLASH SUB-AGENT FAN-OUT
+            ◆ INTERLOCK COUNCIL · GEMINI 3.5 FLASH × ANTIGRAVITY MANAGED AGENT
           </div>
           <div className="text-[26px] font-semibold tracking-tight leading-tight">
-            Six parallel <span style={{ color: "#a855f7" }}>3.5 Flash</span> reasoning streams →{" "}
+            Six parallel <span style={{ color: "#a855f7" }}>3.5 Flash</span> agents orchestrate the microscopes →{" "}
             one verdict.
           </div>
           <div className="mt-2 flex items-center gap-2 text-[11px] font-mono">
@@ -716,7 +716,7 @@ function VerdictTile({
           {rationale ??
             (streaming
               ? "Aggregating 6 parallel forensic streams into a single consensus verdict…"
-              : "Verdict pending. Orchestrator will fan out to 6 Gemini 3.5 Flash workers, each thinking in parallel.")}
+              : "Verdict pending. Gemini 3.5 Flash orchestrator routes to 6 sub-agents wrapping specialist detectors via the Antigravity sandbox.")}
         </div>
       </div>
       {verdict && (

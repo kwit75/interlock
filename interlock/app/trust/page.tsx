@@ -127,18 +127,19 @@ export default function TrustPage() {
           <Card>
             <CardTitle>Model risk management</CardTitle>
             <CardBody>
-              Detector operates at{" "}
-              <span className="text-slate-200 font-mono">0.3% FPR</span> /{" "}
-              <span className="text-slate-200 font-mono">2.1% FNR</span> at
-              calibrated threshold (vs. 1.1% EER benchmark on the Hugging Face
-              Speech Deepfake Arena leaderboard, per Modulate Velma 03/2026).
-              Every flagged event escalates to a human signer with dual FIDO2
-              co-signature.{" "}
+              INTERLOCK orchestrates specialist detectors — Modulate Velma
+              (1.1% EER · HF Speech Deepfake Arena #1, March 2026), Resemble
+              DETECT-3B Omni (97.4% Speech DF Arena accuracy), Pindrop Pulse
+              (90-99% rate on contact-center voice fraud), Reality Defender
+              SLIM (NeurIPS 2024 consensus pattern, deployed at major US bank
+              &gt;$30B revenue). The 3-of-6 sub-agent consensus gate ensures
+              no single specialist can block or override.{" "}
               <span className="text-slate-200 font-medium">
                 INTERLOCK does not autonomously block transactions.
               </span>{" "}
-              Validation aligned to SR&nbsp;26-2 (formerly SR&nbsp;11-7) model
-              risk management guidance.
+              Every flagged event escalates to a human signer with dual FIDO2
+              co-signature. Validation aligned to SR&nbsp;26-2 (formerly
+              SR&nbsp;11-7) model risk management guidance.
             </CardBody>
           </Card>
         </div>
