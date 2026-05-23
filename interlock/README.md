@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# interlock — Next.js app
 
-## Getting Started
+The deployed Vercel site. For the full project README — architecture, demo paths, technical claims — see the [root `README.md`](../README.md).
 
-First, run the development server:
+## Local development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000/meet](http://localhost:3000/meet).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy `.env.example` → `.env.local` and set:
 
-## Learn More
+| Variable | Purpose |
+|---|---|
+| `GEMINI_API_KEY` | Required. Tier 1+ key from ai.studio with `gemini-3.5-flash` access. |
+| `DEMO_MODE` | Optional. `cached` (default) replays deterministic SSE for demo resilience. `live` hits the real Gemini API. `auto` tries live, falls back to cached on failure. |
+| `MANAGED_AGENT_ENV_ID` | Optional. Reused `env_id` for the containment sandbox interaction. Leave empty to provision a fresh remote environment on first call. |
+| `FORENSICS_FILE_URI` | Optional. `gs://` URI for a pre-uploaded video file used by the legacy three-stage forensics pipeline. The Council path does not need this. |
 
-To learn more about Next.js, take a look at the following resources:
+## Build
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run build
+npm run start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project layout
 
-## Deploy on Vercel
+```
+app/                    Next.js App Router routes
+  meet/                 the live demo
+  pitch/                11-slide deck
+  api/council/route.ts  SSE endpoint that streams the 6-worker Council
+components/             React components (CouncilDeck, MeetShell, etc.)
+lib/
+  council/              orchestrator + 6 workers + verdict aggregator
+  agents/               containment.ts (real Antigravity), comms.ts
+  gemini.ts             @google/genai SDK wrapper with model fallback chain
+docs/
+  pitch/                pitch script + Q&A
+public/                 cached SSE traces, demo video, static assets
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Deployed to https://interlock-mu.vercel.app
