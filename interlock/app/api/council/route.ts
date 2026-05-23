@@ -26,7 +26,7 @@ function streamResponse(inputs: CouncilInputs, mode: RunMode): Response {
     try {
       const workerOutputs = await runCouncil(inputs, mode, send);
 
-      const verdict = await runVerdictAggregator(workerOutputs);
+      const verdict = await runVerdictAggregator(workerOutputs, mode);
       send({
         kind: "verdict_ready",
         verdict: verdict.verdict,

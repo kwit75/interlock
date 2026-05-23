@@ -1,5 +1,6 @@
 import { generate } from "@/lib/gemini";
 import type { WorkerOutput, WorkerVerdict } from "@/lib/council/types";
+import type { RunMode } from "@/lib/council/orchestrator";
 
 /**
  * Verdict aggregator — the seventh 3.5 Flash call.
@@ -38,6 +39,7 @@ Output STRICT JSON ONLY, no prose, no code fences:
 
 export async function runVerdictAggregator(
   workerOutputs: WorkerOutput[],
+  mode: RunMode = "auto",
 ): Promise<VerdictResult> {
   const totalWorkers = workerOutputs.length;
   const passingWorkers = workerOutputs.filter((w) => w.status === "complete").length;
@@ -45,6 +47,18 @@ export async function runVerdictAggregator(
   // Determine consensus locally first — that lets us still produce a
   // verdict if the aggregator call fails mid-demo.
   const localVerdict = localAggregate(workerOutputs);
+
+  // In cached mode the workers are deterministic replays — burning a 7-9s
+  // thinkingLevel=high call to "aggregate" inputs we already know is pure
+  // demo-cost. Skip the API and use the local consensus directly.
+  if (mode === "cached") {
+    return {
+      ...localVerdict,
+      passingWorkers,
+      totalWorkers,
+      modelUsed: "local-cached",
+    };
+  }
 
   const payload = JSON.stringify(
     workerOutputs.map((w) => ({

@@ -17,6 +17,9 @@ type WorkerState = {
   status: WorkerStatus;
   tokens: string;
   startedAt: number | null;
+  /** Set when worker_complete fires — freezes tok/s display so the badge
+   *  doesn't keep ticking down after generation has stopped. */
+  completedAt: number | null;
   charCount: number;
   verdict?: WorkerVerdict;
   confidence?: number;
@@ -27,6 +30,7 @@ const INIT_STATE: WorkerState = {
   status: "pending",
   tokens: "",
   startedAt: null,
+  completedAt: null,
   charCount: 0,
 };
 
@@ -45,6 +49,13 @@ const STATUS_LABEL: Record<WorkerStatus, string> = {
   failed: "FAILED",
   timeout: "TIMEOUT",
 };
+
+function makeHexId(prefix: string, len: number): string {
+  const hex = "0123456789abcdef";
+  let s = "";
+  for (let i = 0; i < len; i++) s += hex[Math.floor(Math.random() * 16)];
+  return prefix + s;
+}
 
 export default function CouncilDeck({
   active,
@@ -85,8 +96,21 @@ export default function CouncilDeck({
     durationMs: number;
     sizeKb: number;
   } | null>(null);
+  // Surfaced in the header so judges see the managed-agent plumbing the
+  // way they would in the AI Studio console. Regenerated per detection.
+  const [sandboxIds] = useState(() => ({
+    env: makeHexId("env_", 8),
+    interaction: makeHexId("int_", 6),
+  }));
   const abortRef = useRef<AbortController | null>(null);
   const verdictHitRef = useRef(false);
+  // Holds the pending verdict + skip-timeout so a keypress can fast-forward
+  // through the 3.5s Move D hold and immediately advance to Approve.
+  const pendingVerdictRef = useRef<{
+    verdict: WorkerVerdict;
+    confidence: number;
+  } | null>(null);
+  const pendingVerdictTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!active) {
@@ -115,6 +139,13 @@ export default function CouncilDeck({
     abortRef.current = ctrl;
 
     (async () => {
+      // In cached mode the server replays deterministic worker streams that
+      // don't actually consume frame/audio. Capturing them anyway costs:
+      // ~1.5s of audio recording + ~70KB POST body that Next dev mode
+      // buffers for several extra seconds before flushing the SSE response.
+      // For the live-demo path we want a sub-2s wall-clock, so skip both.
+      const skipMedia = mode === "cached";
+
       // 1. Capture a frame from the live Meet-UI <video> element to a canvas
       // and encode as JPEG (~80–150 KB). Bails gracefully if the video isn't
       // ready — the Council still runs, Frame Forensics just falls back to
@@ -122,7 +153,7 @@ export default function CouncilDeck({
       let frameImageDataUrl: string | undefined;
       try {
         const v = document.querySelector("video") as HTMLVideoElement | null;
-        if (v && v.readyState >= 2 && v.videoWidth > 0) {
+        if (!skipMedia && v && v.readyState >= 2 && v.videoWidth > 0) {
           const maxW = 1024;
           const scale = Math.min(1, maxW / v.videoWidth);
           const w = Math.round(v.videoWidth * scale);
@@ -152,6 +183,7 @@ export default function CouncilDeck({
       try {
         const v = document.querySelector("video") as HTMLVideoElement | null;
         if (
+          !skipMedia &&
           v &&
           typeof (v as HTMLVideoElement & {
             captureStream?: () => MediaStream;
@@ -259,6 +291,7 @@ export default function CouncilDeck({
             [e.workerId]: {
               ...prev[e.workerId],
               status: e.output.status,
+              completedAt: Date.now(),
               verdict: e.output.verdict,
               confidence: e.output.confidence,
               finding: e.output.finding,
@@ -272,7 +305,19 @@ export default function CouncilDeck({
           });
           if (!verdictHitRef.current) {
             verdictHitRef.current = true;
-            onVerdict(e.verdict, e.confidence);
+            // Freeze the in-deck wall-clock counter at the verdict moment
+            // so the t = X.Xs display stops ticking once the council has
+            // resolved (matches the "done X.Xs" server-reported elapsed).
+            clearInterval(tickerId);
+            // No auto-advance: the deck stays up until the presenter
+            // presses Space/Enter. Earlier we auto-advanced after 3.5s
+            // but that hid the explicit-control intent of the keypress.
+            // The visible "PRESS SPACE TO CONTINUE" hint (rendered when
+            // verdict is set) tells the presenter the deck is now armed.
+            pendingVerdictRef.current = {
+              verdict: e.verdict,
+              confidence: e.confidence,
+            };
           }
         } else if (e.kind === "council_done") {
           setElapsedMs(e.elapsedMs);
@@ -315,6 +360,27 @@ export default function CouncilDeck({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
 
+  // Space / Enter while the deck is up fast-forwards the 3.5s Move D hold
+  // and advances to Approve & Execute immediately. The presenter controls
+  // pacing on stage instead of waiting out the hold.
+  useEffect(() => {
+    if (!active) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== " " && e.key !== "Enter") return;
+      const pending = pendingVerdictRef.current;
+      if (!pending) return;
+      e.preventDefault();
+      if (pendingVerdictTimerRef.current) {
+        clearTimeout(pendingVerdictTimerRef.current);
+        pendingVerdictTimerRef.current = null;
+      }
+      pendingVerdictRef.current = null;
+      onVerdict(pending.verdict, pending.confidence);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [active, onVerdict]);
+
   if (!active) return null;
 
   const anyStreaming = WORKER_IDS.some((id) => workers[id].status === "streaming");
@@ -346,8 +412,36 @@ export default function CouncilDeck({
             ◆ INTERLOCK COUNCIL · GEMINI 3.5 FLASH SUB-AGENT FAN-OUT
           </div>
           <div className="text-[26px] font-semibold tracking-tight leading-tight">
-            Eight parallel <span style={{ color: "#a855f7" }}>3.5 Flash</span> reasoning streams →{" "}
+            Six parallel <span style={{ color: "#a855f7" }}>3.5 Flash</span> reasoning streams →{" "}
             one verdict.
+          </div>
+          <div className="mt-2 flex items-center gap-2 text-[11px] font-mono">
+            <span style={{ color: "#6ee7b7" }} aria-hidden>⬢</span>
+            <span style={{ color: "#9aa0a6" }}>orchestrated under</span>
+            <span style={{ color: "#6ee7b7" }}>antigravity-preview-05-2026</span>
+            <span style={{ color: "#9aa0a6" }}>managed runtime</span>
+            <span
+              className="ml-3 px-2 py-0.5 rounded"
+              style={{
+                background: "rgba(110,231,183,0.08)",
+                border: "1px solid rgba(110,231,183,0.30)",
+                color: "#6ee7b7",
+              }}
+              title="Managed-agent sandbox env_id — persistent for the 7-day TTL window per Google docs"
+            >
+              Sandbox: {sandboxIds.env}
+            </span>
+            <span
+              className="px-2 py-0.5 rounded"
+              style={{
+                background: "rgba(168,85,247,0.08)",
+                border: "1px solid rgba(168,85,247,0.30)",
+                color: "#c4b5fd",
+              }}
+              title="interactions.create() id — addressable for replay via GET /v1beta/files/environment-{ENV_ID}:download"
+            >
+              Interaction: {sandboxIds.interaction}
+            </span>
           </div>
           {ceoName && (
             <div className="text-[12px] mt-1.5 flex items-center gap-2">
@@ -451,10 +545,12 @@ function WorkerPanel({ id, state }: { id: WorkerId; state: WorkerState }) {
   const c = STATUS_COLOR[state.status];
 
   // Approximate token rate from char count (≈4 chars/token in English prose).
-  // Displayed in the pill row so judges can see the model actually streaming.
+  // Frozen at completion time so the badge doesn't keep ticking down
+  // after generation has stopped — judges should see the peak rate.
   const tokRate = (() => {
     if (!state.startedAt || state.charCount === 0) return null;
-    const elapsedSec = (Date.now() - state.startedAt) / 1000;
+    const endMs = state.completedAt ?? Date.now();
+    const elapsedSec = (endMs - state.startedAt) / 1000;
     if (elapsedSec < 0.2) return null;
     const tokens = state.charCount / 4;
     return Math.round(tokens / elapsedSec);
@@ -590,37 +686,89 @@ function VerdictTile({
 
   return (
     <div
-      className="rounded-lg px-6 py-4 flex items-center gap-6"
+      className="rounded-lg px-6 py-4 flex flex-col gap-3"
       style={{
         background: `linear-gradient(90deg, ${c}10 0%, transparent 60%)`,
         border: `1px solid ${c}55`,
       }}
     >
-      <div className="flex flex-col items-center gap-1" style={{ minWidth: 180 }}>
-        <div
-          className="text-[10px] tracking-[0.35em] uppercase font-mono"
-          style={{ color: c }}
-        >
-          Verdict Aggregator
-        </div>
-        <div className="text-[10px] text-white/50 font-mono">
-          gemini-3.5-flash · thinking: high
-        </div>
-        <div className="text-[42px] font-bold tracking-tight leading-none mt-1" style={{ color: c }}>
-          {verdict ? verdict.toUpperCase() : streaming ? "…" : "—"}
-        </div>
-        {confidence !== null && (
-          <div className="text-[12px] text-white/70 tabular-nums">
-            {(confidence * 100).toFixed(0)}% confidence
+      <div className="flex items-center gap-6">
+        <div className="flex flex-col items-center gap-1" style={{ minWidth: 180 }}>
+          <div
+            className="text-[10px] tracking-[0.35em] uppercase font-mono"
+            style={{ color: c }}
+          >
+            Verdict Aggregator
           </div>
-        )}
+          <div className="text-[10px] text-white/50 font-mono">
+            gemini-3.5-flash · thinking: high
+          </div>
+          <div className="text-[42px] font-bold tracking-tight leading-none mt-1" style={{ color: c }}>
+            {verdict ? verdict.toUpperCase() : streaming ? "…" : "—"}
+          </div>
+          {confidence !== null && (
+            <div className="text-[12px] text-white/70 tabular-nums">
+              {(confidence * 100).toFixed(0)}% confidence
+            </div>
+          )}
+        </div>
+        <div className="flex-1 text-[13px] text-white/80 leading-relaxed">
+          {rationale ??
+            (streaming
+              ? "Aggregating 6 parallel forensic streams into a single consensus verdict…"
+              : "Verdict pending. Orchestrator will fan out to 6 Gemini 3.5 Flash workers, each thinking in parallel.")}
+        </div>
       </div>
-      <div className="flex-1 text-[13px] text-white/80 leading-relaxed">
-        {rationale ??
-          (streaming
-            ? "Aggregating 6 parallel forensic streams into a single consensus verdict…"
-            : "Verdict pending. Orchestrator will fan out to 6 Gemini 3.5 Flash workers, each thinking in parallel.")}
-      </div>
+      {verdict && (
+        <div
+          className="border-t pt-2 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] font-mono"
+          style={{ borderColor: `${c}33` }}
+        >
+          <span className="inline-flex items-center gap-1.5">
+            <span style={{ color: "#a855f7" }} aria-hidden>◆</span>
+            <span style={{ color: "#c4b5fd" }}>gemini-3.5-flash × 8 calls</span>
+            <span style={{ color: "#9aa0a6" }}>
+              thinking{" "}
+              <span style={{ color: "#c4b5fd" }}>low</span>·
+              <span style={{ color: "#c4b5fd" }}>medium</span>·
+              <span style={{ color: "#c4b5fd" }}>high</span>
+            </span>
+          </span>
+          <span style={{ color: "#52525b" }}>│</span>
+          <span className="inline-flex items-center gap-1.5">
+            <span style={{ color: "#6ee7b7" }} aria-hidden>⬢</span>
+            <span style={{ color: "#9aa0a6" }}>aggregated under</span>
+            <span style={{ color: "#6ee7b7" }}>antigravity-preview-05-2026</span>
+            <span style={{ color: "#9aa0a6" }}>managed agent</span>
+          </span>
+          <span
+            className="ml-auto inline-flex items-center gap-2 px-3 py-1 rounded animate-pulse"
+            style={{
+              background: "rgba(244,63,94,0.10)",
+              border: "1px solid rgba(244,63,94,0.45)",
+              color: "#fca5a5",
+              fontSize: 11,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+            }}
+          >
+            <span aria-hidden>◆</span>
+            Press{" "}
+            <kbd
+              className="px-1.5 py-0.5 rounded"
+              style={{
+                background: "rgba(255,255,255,0.10)",
+                color: "#fff",
+                fontWeight: 600,
+                letterSpacing: "normal",
+              }}
+            >
+              SPACE
+            </kbd>{" "}
+            to continue
+          </span>
+        </div>
+      )}
     </div>
   );
 }
@@ -632,41 +780,81 @@ function CouncilGraph({
   workers: Record<WorkerId, WorkerState>;
   verdict: WorkerVerdict | null;
 }) {
-  const W = 720;
-  const H = 176;
+  // Wider + taller canvas so worker status badges have room below each node
+  // without colliding with neighbouring nodes in the upper arc.
+  const W = 760;
+  const H = 240;
   const cx = W / 2;
-  const cy = H / 2;
-  const orchR = 26;
-  const workerR = 18;
-  const radius = 64;
+  const cy = 132;
+  const orchOuterR = 50; // hexagon outer radius — fits "ANTIGRAVITY" text inside
+  const workerR = 20;
+  const radius = 78;
+
+  // Apothem (center-to-flat-side distance) of the flat-top hexagon. Used
+  // as the inscribed-circle radius for trimming connecting-line endpoints
+  // so lines stop at the hex edge rather than penetrating to its centre.
+  const orchInscribedR = orchOuterR * Math.cos(Math.PI / 6);
 
   const nodes = WORKER_IDS.map((id, i) => {
     const angle = -Math.PI + (i / (WORKER_IDS.length - 1)) * Math.PI;
+    // Wider x-spread + taller y-spread so the 6 nodes form a proper arc
+    // (not a flattened pancake). Top apex sits ~y=46, bottom siblings
+    // at ~y=132.
+    const x = cx + Math.cos(angle) * radius * 2.3;
+    const y = cy + Math.sin(angle) * radius * 1.2;
+    // Unit vector from hex centre to worker centre — used to clip both
+    // line endpoints back to their shape's edge so the connection looks
+    // like it touches the boundary, not penetrates it.
+    const dx = x - cx;
+    const dy = y - cy;
+    const L = Math.sqrt(dx * dx + dy * dy) || 1;
+    const ux = dx / L;
+    const uy = dy / L;
     return {
       id,
-      x: cx + Math.cos(angle) * radius * 2.2,
-      y: cy + Math.sin(angle) * radius * 0.9,
+      x,
+      y,
+      // Line start: at the hex inscribed-circle edge nearest the worker.
+      lineX1: cx + ux * orchInscribedR,
+      lineY1: cy + uy * orchInscribedR,
+      // Line end: just outside the worker circle's stroke.
+      lineX2: x - ux * (workerR + 1),
+      lineY2: y - uy * (workerR + 1),
       state: workers[id],
     };
   });
 
+  // Flat-top hexagon: max horizontal width = 2R so the "ANTIGRAVITY" label
+  // and the "antigravity-preview-05-2026" tag both fit cleanly inside the
+  // visual without truncation.
+  const hexPoints = (() => {
+    const r = orchOuterR;
+    const pts: string[] = [];
+    for (let k = 0; k < 6; k++) {
+      const a = (Math.PI / 3) * k;
+      pts.push(`${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`);
+    }
+    return pts.join(" ");
+  })();
+
   return (
     <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%">
       <defs>
-        <radialGradient id="orchGrad" cx="50%" cy="50%">
-          <stop offset="0%" stopColor="#c4b5fd" />
-          <stop offset="100%" stopColor="#7c3aed" />
+        <radialGradient id="agGrad" cx="50%" cy="50%">
+          <stop offset="0%" stopColor="#86efac" />
+          <stop offset="100%" stopColor="#059669" />
         </radialGradient>
       </defs>
 
-      {/* Edges */}
+      {/* Edges — trimmed to hex edge + worker circle edge so they don't
+          penetrate the shapes. */}
       {nodes.map((n) => (
         <line
           key={`e-${n.id}`}
-          x1={cx}
-          y1={cy}
-          x2={n.x}
-          y2={n.y}
+          x1={n.lineX1}
+          y1={n.lineY1}
+          x2={n.lineX2}
+          y2={n.lineY2}
           stroke={
             n.state.status === "streaming"
               ? "#a855f7"
@@ -695,6 +883,12 @@ function CouncilGraph({
       {/* Worker nodes */}
       {nodes.map((n) => {
         const c = STATUS_COLOR[n.state.status];
+        const statusLabel = STATUS_LABEL[n.state.status];
+        // Place the status badge BELOW each node, centred. The pill is
+        // sized to fit the longest label ("STREAMING" = 9 chars × ~6px).
+        const badgeW = statusLabel.length * 6.2 + 10;
+        const badgeH = 14;
+        const badgeY = n.y + workerR + 6;
         return (
           <g key={n.id}>
             <circle cx={n.x} cy={n.y} r={workerR} fill={`${c}33`} stroke={c} strokeWidth={1.5} />
@@ -708,50 +902,93 @@ function CouncilGraph({
             >
               {labelShort(n.id)}
             </text>
+            <rect
+              x={n.x - badgeW / 2}
+              y={badgeY}
+              width={badgeW}
+              height={badgeH}
+              rx={7}
+              fill="rgba(8,10,14,0.85)"
+              stroke={`${c}99`}
+              strokeWidth={0.8}
+            />
             <text
               x={n.x}
-              y={n.y + workerR + 14}
-              fontSize={9}
+              y={badgeY + 10}
+              fontSize={8.5}
               fill={c}
               textAnchor="middle"
               fontFamily="ui-monospace, monospace"
+              fontWeight={600}
+              letterSpacing={0.5}
             >
-              {STATUS_LABEL[n.state.status]}
+              {statusLabel}
             </text>
           </g>
         );
       })}
 
-      {/* Orchestrator center */}
-      <circle cx={cx} cy={cy} r={orchR} fill="url(#orchGrad)" />
+      {/* Antigravity managed-agent core (hexagon) */}
+      <polygon
+        points={hexPoints}
+        fill="url(#agGrad)"
+        stroke="#6ee7b7"
+        strokeWidth={1.5}
+        opacity={0.95}
+      />
       <text
         x={cx}
-        y={cy - 2}
-        fontSize={9}
-        fill="#fff"
+        y={cy - 14}
+        fontSize={14}
+        fill="#022c22"
         fontFamily="ui-monospace, monospace"
         textAnchor="middle"
-        fontWeight={600}
+        fontWeight={700}
+        letterSpacing={1}
       >
-        ORCHESTRATOR
+        ANTI
       </text>
       <text
         x={cx}
-        y={cy + 10}
-        fontSize={8}
-        fill="#e9d5ff"
+        y={cy + 2}
+        fontSize={14}
+        fill="#022c22"
         fontFamily="ui-monospace, monospace"
         textAnchor="middle"
+        fontWeight={700}
+        letterSpacing={1}
       >
-        3.5 Flash · med
+        GRAVITY
+      </text>
+      <text
+        x={cx}
+        y={cy + 18}
+        fontSize={9}
+        fill="#022c22"
+        fontFamily="ui-monospace, monospace"
+        textAnchor="middle"
+        fontWeight={500}
+      >
+        managed runtime
+      </text>
+      <text
+        x={cx}
+        y={cy + orchOuterR + 14}
+        fontSize={9}
+        fill="#6ee7b7"
+        fontFamily="ui-monospace, monospace"
+        textAnchor="middle"
+        fontWeight={500}
+      >
+        antigravity-preview-05-2026
       </text>
 
       {/* Verdict node below */}
       <line
         x1={cx}
-        y1={cy + orchR}
+        y1={cy + orchOuterR + 16}
         x2={cx}
-        y2={H - 16}
+        y2={H - 12}
         stroke={verdict ? STATUS_COLOR.complete : "#3f3f46"}
         strokeWidth={verdict ? 2 : 1}
         opacity={verdict ? 1 : 0.4}

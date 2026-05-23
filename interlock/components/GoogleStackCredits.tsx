@@ -91,6 +91,9 @@ export default function GoogleStackCredits({
           className="text-[clamp(40px,5.6vw,80px)] font-semibold tracking-tight leading-[1.02] text-center mt-2"
           style={{ letterSpacing: "-0.01em" }}
         >
+          Managed by{" "}
+          <span style={{ color: "#6ee7b7" }}>Antigravity</span>
+          <br />
           Powered by{" "}
           <span style={{ color: "#a855f7" }}>Gemini 3.5 Flash</span>
           <br />

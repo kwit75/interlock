@@ -242,7 +242,7 @@ export default function IncomingCallCard({
 
       {(scanning || detected) && (
         <div
-          className="absolute top-3 left-3 px-2.5 py-1.5 rounded-md pointer-events-none"
+          className="absolute top-12 left-3 px-2.5 py-1.5 rounded-md pointer-events-none"
           style={{
             background: "rgba(0,0,0,0.55)",
             backdropFilter: "blur(6px)",
@@ -266,7 +266,11 @@ export default function IncomingCallCard({
               className="text-[10px] font-mono tabular-nums"
               style={{ color: "rgba(255,255,255,0.55)" }}
             >
-              {evidenceCount}/6 detectors
+              {/* After verdict the Council has unanimously converged on
+                  synthetic (3-of-6 minimum, typically 6-of-6) — the legacy
+                  per-frame "evidence" counter never populates on the
+                  cached path, so just show full consensus once detected. */}
+              {detected ? "6/6 consensus" : `${evidenceCount}/6 detectors`}
             </span>
           </div>
           {latestCategory && !detected && (

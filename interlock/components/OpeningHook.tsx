@@ -122,8 +122,40 @@ export default function OpeningHook({
         </Line>
 
         <Line on={true}>
+          <div className="mt-10 flex items-center justify-center gap-2 text-[11px] tracking-[0.32em] uppercase">
+            <span style={{ color: "#9aa0a6" }}>powered by</span>
+            <span
+              className="font-mono px-3 py-1.5 rounded inline-flex items-center gap-2 tracking-normal normal-case"
+              style={{
+                background: "rgba(168,85,247,0.10)",
+                border: "1px solid rgba(168,85,247,0.40)",
+                color: "#c4b5fd",
+                fontSize: 12,
+              }}
+            >
+              <span aria-hidden>◆</span>
+              gemini-3.5-flash
+            </span>
+            <span style={{ color: "#9aa0a6" }}>×</span>
+            <span
+              className="font-mono px-3 py-1.5 rounded inline-flex items-center gap-2 tracking-normal normal-case"
+              style={{
+                background: "rgba(110,231,183,0.08)",
+                border: "1px solid rgba(110,231,183,0.35)",
+                color: "#6ee7b7",
+                fontSize: 12,
+              }}
+            >
+              <span aria-hidden>⬢</span>
+              antigravity-preview-05-2026
+            </span>
+            <span style={{ color: "#9aa0a6" }}>managed agents</span>
+          </div>
+        </Line>
+
+        <Line on={true}>
           <div
-            className="mt-14 flex items-center justify-center gap-3 text-[13px] tracking-[0.3em] uppercase animate-pulse"
+            className="mt-10 flex items-center justify-center gap-3 text-[13px] tracking-[0.3em] uppercase animate-pulse"
             style={{ color: "#fca5a5" }}
           >
             <span>◆</span>

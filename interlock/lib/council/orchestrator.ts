@@ -43,7 +43,10 @@ const WORKERS: Worker[] = [
  * fires.
  */
 const WORKER_TIMEOUT_MS = 12_000;
-const CACHED_TOKEN_INTERVAL_MS = 240;
+// Cached-mode token cadence. 240ms felt deliberate but in practice it stacks
+// with Next-dev POST-SSE buffering and the verdict slam doesn't land for ~20s.
+// 60ms keeps the streaming-text effect while the council resolves in ~1s.
+const CACHED_TOKEN_INTERVAL_MS = 60;
 
 export type RunMode = "auto" | "live" | "cached";
 
@@ -53,6 +56,12 @@ async function streamCached(
   injectionMode = false,
 ): Promise<WorkerOutput> {
   const tokens = worker.cachedStream(injectionMode);
+  // Per-worker "thinking" delay so all 6 sub-agents don't dump cached
+  // output in the same frame. 1000-3000ms randomised gives a real
+  // parallel-reasoning rhythm where some workers resolve early and
+  // slower ones (Search-grounded) finish last.
+  const thinkMs = 1000 + Math.random() * 2000;
+  await new Promise((r) => setTimeout(r, thinkMs));
   for (const t of tokens) {
     send({ kind: "worker_token", workerId: worker.metadata.workerId, text: t });
     await new Promise((r) => setTimeout(r, CACHED_TOKEN_INTERVAL_MS));

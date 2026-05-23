@@ -98,14 +98,15 @@ export default function MeetIncidentPage() {
   // theme on demand. Persists across the Council run.
   const [injectionMode, setInjectionMode] = useState(false);
 
-  // Council mode override: ?mode=cached forces deterministic SSE replay
-  // (no Gemini API calls). For venue Wi-Fi worst-case demo robustness.
-  // ?mode=live forces live Gemini even if env DEMO_MODE says otherwise.
+  // Council mode override: ?mode=live or ?mode=auto override the default
+  // for testing the live Gemini path. Default is "cached" — deterministic
+  // SSE replay with no Gemini API calls — because the demo runs at venue
+  // Wi-Fi and live mode also burns API quota every rehearsal.
   const councilMode = (() => {
-    if (typeof window === "undefined") return "auto" as const;
+    if (typeof window === "undefined") return "cached" as const;
     const p = new URLSearchParams(window.location.search).get("mode");
     if (p === "cached" || p === "live" || p === "auto") return p;
-    return "auto" as const;
+    return "cached" as const;
   })();
 
   const esRef = useRef<EventSource | null>(null);
