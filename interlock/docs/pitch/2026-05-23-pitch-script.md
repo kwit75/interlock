@@ -10,6 +10,11 @@
 > Read slowly. Pause at the empty lines.
 > Tech terms stay (gemini-3.5-flash, antigravity-preview-05-2026, EDGAR, FIDO-2).
 
+> **Positioning (May 2026):** INTERLOCK is **deepfake forensics at the moment
+> of authorization** — works on **voice OR video** calls. Wire confirmations,
+> hiring interviews, claim assessments, customer service authentication.
+> Same six-agent Council architecture, different input modality.
+
 ---
 
 ## The pitch script
@@ -46,12 +51,17 @@ We need a kill-switch.
 ```
 In thirteen hours, alone, I built INTERLOCK.
 
+INTERLOCK is deepfake forensics
+at the moment of authorization.
+
 It runs on Gemini 3.5 Flash.
 The orchestrator is Antigravity Managed Agent —
 the backend API, not the desktop app.
+
+It works on any video or voice call.
 ```
 
-> **Speaker note:** Emphasize "alone" and "thirteen hours". The "backend API, not the desktop app" line signals to DeepMind judges you read the docs.
+> **Speaker note:** Emphasize "alone" and "thirteen hours". The "voice or video" line is the new strategic frame — opens the $10B+ market story. The "backend API, not the desktop app" line signals to DeepMind judges you read the docs.
 
 ---
 
@@ -61,23 +71,25 @@ the backend API, not the desktop app.
 > **Action:** Press **D** at 0:30 → Council Deck opens. Workers start streaming.
 
 ```
-A wire request comes in.
+A high-stakes call comes in.
+A wire confirmation. A job interview. A claim assessment.
 
 The Antigravity orchestrator starts six Gemini 3.5 Flash agents.
 They run in parallel.
 
-Frame Forensics looks at the video.
-Voice-Print checks the audio.
-Reverse Provenance searches Google for real videos of this person.
+Frame Forensics looks at the video — when video is present.
+Voice-Print analyzes the audio — formant drift, F0 jitter,
+voice-clone signatures.
+Reverse Provenance searches Google for real footage of this person.
 Counter-Strategy thinks like the attacker.
-Regulatory Precedent checks SEC EDGAR.
-Injection Guard looks for prompt injection in the call.
+Regulatory Precedent checks SEC EDGAR for analogous filings.
+Injection Guard looks for prompt-injection in the call.
 
 They all debate.
 Three of six must agree.
 ```
 
-> **Speaker note:** Read the six worker names slowly — one per beat. Point at the screen as each one resolves.
+> **Speaker note:** Lead with "A wire confirmation. A job interview. A claim assessment." — establishes the broad market in one breath. Read the six worker names slowly — one per beat. Point at the screen as each one resolves. Voice-Print is the worker that handles audio-only calls.
 
 ---
 
@@ -182,15 +194,18 @@ Sub-agent deployment at frontier speed.
 A human compliance officer is still reading the first email.
 
 INTERLOCK has already detected the fraud,
-frozen the wire,
+signaled the bank,
 and drafted the SEC filing.
+
+Wire confirmations. Job interviews. Claim assessments.
+Any call that authorizes value.
 
 To stop an AI threat, you need an AI kill-switch.
 
 Thank you.
 ```
 
-> **Speaker note:** Stop walking. Stand still. Hands open at your sides. Make eye contact with the judging panel.
+> **Speaker note:** Stop walking. Stand still. Hands open at your sides. The three-line list ("Wire confirmations. Job interviews. Claim assessments.") establishes the expanded market in seven seconds — judges leave thinking $10B+ TAM, not just wire fraud. Make eye contact with the judging panel.
 
 ---
 
@@ -298,6 +313,60 @@ We tested. Six is the right number.
 
 ---
 
+### Q9: "Pindrop already does voice fraud detection. What is your moat against them?"
+
+```
+Pindrop is single-modality. Voice only.
+Phoneprinting plus a Deep Voice engine.
+About one hundred million dollars in revenue.
+
+INTERLOCK is multimodal.
+Same six-agent Council handles voice or video.
+We add Frame Forensics, Reverse Provenance on Google Search,
+and Regulatory Precedent on SEC EDGAR.
+
+Pindrop scores the call.
+INTERLOCK scores the call,
+generates the forensic evidence package,
+and drafts the SEC 8-K Item 1.05 disclosure.
+
+Pindrop is twelve years old. Single signal.
+INTERLOCK is the agentic architecture for the next decade.
+Six adversarial sub-agents on Gemini 3.5 Flash,
+orchestrated by Antigravity Managed Agent.
+
+Pindrop is the incumbent. We are the upgrade path.
+```
+
+---
+
+### Q10: "Does it work on audio-only phone calls? Or only video?"
+
+```
+Both.
+
+The Voice-Print Cross-Match agent is fully functional
+on audio-only input.
+
+It analyzes formant drift in the F2 and F3 transitions.
+F0 jitter ratios against enrolled baseline.
+Breathiness-to-periodicity collapse — the RVC vocoder signature.
+
+When video is missing, Frame Forensics steps aside.
+The other five agents still reach consensus.
+Three of five is the gate in audio-only mode.
+
+This is the same architecture you saw in the demo.
+The orchestrator does not care about modality.
+It only cares about the verdict.
+
+Bank customer service, claim assessment, wire confirmation,
+KYC re-verification — all of these are voice-only calls today.
+INTERLOCK covers them.
+```
+
+---
+
 ### Q6: "Why does a video-call plugin have access to bank wires? That's a security nightmare."
 
 ```
@@ -332,26 +401,34 @@ not inside INTERLOCK.
 ### Q7: "Who buys this? What is the market?"
 
 ```
-Three buyer segments.
+Five buyer segments. Voice and video both.
 
-One: CISOs and Heads of Treasury at $1B+ enterprises
-with $10M+ daily wire flow.
-That is 3,000 US companies.
-At $100K average contract value,
-the directly addressable market is $300 million.
+One: CISOs and Heads of Treasury at $1B+ enterprises.
+Wire fraud video calls. About 3,000 US companies.
+Three hundred million SAM.
 
-Two: financial services — banks, brokerages, insurance.
-Larger contracts. 9-12 month sales cycle.
+Two: contact center and call center security
+at banks, insurers, telcos.
+Voice fraud. Pindrop owns part of this market today.
+Five to ten billion dollars.
 
-Three: treasury SaaS platforms — Tipalto, Brex Treasury, AvidXchange.
-They license INTERLOCK as a feature module. Revenue share model.
+Three: HR and recruiting at remote-hiring companies.
+North Korea has infiltrated three hundred US firms
+through fake IT worker interviews.
+The DOJ disclosed this in May 2024.
+Seven hundred fifty million to two and a half billion.
 
-The wedge is post-Arup compliance.
-After Arup lost twenty-five million dollars to a deepfake CEO call,
-every CISO at every Fortune 500 was asked the same question:
-how would you have detected this?
+Four: insurance claim assessment.
+Synthetic voice attacks in insurance grew four hundred
+seventy-five percent in 2025.
 
-INTERLOCK is the answer.
+Five: treasury and AP SaaS platforms — Tipalto, Brex Treasury,
+AvidXchange. They license INTERLOCK as a feature module.
+
+Combined SAM is ten to twenty billion dollars.
+
+The wedge is the moment of authorization.
+Any high-stakes call. Voice or video.
 ```
 
 ---
@@ -359,28 +436,35 @@ INTERLOCK is the answer.
 ### Q8: "How often do deepfake calls really happen? Is the threat real?"
 
 ```
-The data is clear.
+The data is clear and growing fast.
 
-Signicat reports two-thousand-percent growth in deepfake fraud
-incidents in 2024 versus 2021.
+Voice phishing attacks surged four hundred forty-two percent
+in 2025 alone.
 
-Visa flagged four times more deepfake fraud attempts in Q3 2024
-than the same quarter in 2023.
+One in every one hundred twenty-seven calls
+to contact centers today is fraudulent.
 
-Pindrop now detects one in every two hundred calls as synthetic.
-Two years ago that number was one in two thousand.
+Pindrop detects deepfake vishing attacks up sixteen hundred
+percent in Q1 2025 versus Q4 2024.
 
-The Arup incident was twenty-five million dollars in one day.
-Ferrari, WPP, and KnowBe4 had similar deepfake calls in 2024.
+Just three seconds of audio creates an eighty-five percent
+accurate voice clone now.
 
-Live video deepfakes on Google Meet or Zoom are still rare —
-maybe fifty incidents per year US-wide.
-But the average loss is five to fifty million dollars.
+The Arup incident was twenty-five million dollars from
+a video deepfake.
+A UK energy firm lost two hundred twenty thousand euros
+from a voice clone CEO call.
+
+For hiring: thirty-one percent of hiring managers
+have personally encountered a suspected deepfake candidate
+in 2025.
+Gartner predicts one in four job candidates worldwide
+will be fake by 2028.
 
 This is the highest-impact-per-incident attack vector
-that has no defense product today.
+that has no multimodal defense product today.
 
-INTERLOCK defends this exact vector.
+INTERLOCK defends voice and video, in one architecture.
 ```
 
 ---
@@ -476,12 +560,14 @@ Resetting now.
 
 ## Memory anchors (what judges should remember 24 hours later)
 
-1. **The number: $25.6M Arup, Hong Kong, January 2024.**
-2. **The architecture: six parallel Gemini 3.5 Flash agents, three-of-six consensus.**
-3. **The runtime: Antigravity Managed Agent backend, `interactions.create` with `antigravity-preview-05-2026`.**
-4. **The deployment model: INTERLOCK generates the signal. The bank's risk system acts. Like CrowdStrike.**
-5. **The brand line: "Managed by Antigravity. Powered by Gemini 3.5 Flash. Sub-agent deployment at frontier speed."**
-6. **The close: "To stop an AI threat, you need an AI kill-switch."**
+1. **The market frame: deepfake forensics at the moment of authorization — voice OR video. $10B-$20B combined SAM.**
+2. **The number: $25.6M Arup video deepfake (Jan 2024) + €220K UK energy voice clone + 300 US firms hired DPRK fake IT workers.**
+3. **The architecture: six parallel Gemini 3.5 Flash agents, three-of-six consensus, modality-agnostic.**
+4. **The runtime: Antigravity Managed Agent backend, `interactions.create` with `antigravity-preview-05-2026`.**
+5. **The deployment model: INTERLOCK generates the signal. The bank's risk system acts. Like CrowdStrike, but for video and voice.**
+6. **The competitor: Pindrop is voice-only single-modality at $100M ARR. INTERLOCK is multimodal Council — the upgrade path.**
+7. **The brand line: "Managed by Antigravity. Powered by Gemini 3.5 Flash. Sub-agent deployment at frontier speed."**
+8. **The close: "To stop an AI threat, you need an AI kill-switch."**
 
 If a judge can repeat any one of these the next morning when prizes are decided — the pitch worked.
 
@@ -493,33 +579,40 @@ INTERLOCK is **two products separated by an event bus**:
 
 ```
 DETECTION LAYER                       CONTROL LAYER
-(runs in the meeting)                 (runs inside the bank)
-─────────────────────                 ───────────────────────
-Meet Add-on / Zoom SDK / Teams app    Treasury risk pipeline
-↓                                     (already exists at the bank)
+(runs at the call edge)               (runs inside the buyer's system)
+──────────────────────                ──────────────────────────────────
+Meet Add-on / Zoom SDK /              Treasury risk pipeline (bank)
+Teams app / Twilio SIP /              OR ATS hiring workflow (HR)
+contact center IVR hook               OR claim assessment system (insurer)
+↓                                     OR contact center fraud engine
 Antigravity Managed Agent             ↑
 ↓                                     │ webhook event
 6× Gemini 3.5 Flash sub-agents        │ (SIEM JSON or FIX or ISO-20022)
+(adapts to voice or video)            │
 ↓                                     │
 3-of-6 verdict aggregator    ────────►│
 ↓                                     ↓
-Forensic evidence package             Bank's own system freezes wire
-+ SEC 8-K Item 1.05 draft             Bank's officer reviews SEC draft
+Forensic evidence package             Buyer's own system acts
++ SEC 8-K Item 1.05 draft             (freeze wire / hold offer /
+   (when applicable)                   pause claim / disconnect call)
 ```
 
 **INTERLOCK does NOT have wire-freeze authority.**
 INTERLOCK produces:
 1. A real-time verdict ("synthetic" or "authentic") with confidence score
 2. Forensic evidence (frame artifacts, voice spectrum, search-grounded provenance hits)
-3. A pre-drafted SEC 8-K Item 1.05 disclosure
+3. A pre-drafted SEC 8-K Item 1.05 disclosure (for financial-services incidents)
 4. A webhook event compatible with existing SIEM/treasury risk buses
 
-**The bank's existing infrastructure** consumes the event and decides:
-- Pause pending wires associated with this meeting / this CEO identity
-- Page the CISO / Treasury VP
-- Trigger dual FIDO-2 co-signature requirement
-- Send 8-K draft to General Counsel for review and EDGAR filing
+**The buyer's existing infrastructure** consumes the event and decides:
+- **Bank**: pause pending wires, page CISO/Treasury VP, trigger dual FIDO-2 co-sig
+- **HR**: hold the offer, flag candidate for manual identity verification
+- **Insurer**: pause claim payout, route to fraud investigation
+- **Contact center**: terminate call, lock account, notify customer
 
-This is the same deployment model as **CrowdStrike** (endpoint signal → company SOC acts), **Pindrop** (voice signal → bank's risk engine acts), **Darktrace** (network signal → SOC team acts).
+This is the same deployment model as:
+- **CrowdStrike** — endpoint signal → company SOC acts
+- **Pindrop** — voice signal → bank's risk engine acts (but Pindrop is voice-only)
+- **Darktrace** — network signal → SOC team acts
 
-INTERLOCK adds the missing input — **deepfake detection on live video calls** — to existing enterprise fraud workflows.
+INTERLOCK adds **the missing multimodal input** — deepfake detection on voice OR video calls — to existing enterprise fraud workflows across five verticals.
