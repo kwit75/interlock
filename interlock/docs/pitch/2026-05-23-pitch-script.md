@@ -98,40 +98,46 @@ All managed by antigravity-preview-05-2026.
 
 ---
 
-### [1:15 — 1:30] HUMAN-IN-THE-LOOP
+### [1:15 — 1:30] HUMAN-IN-THE-LOOP & DEPLOYMENT MODEL
 
 > **Action:** Press **SPACE** at 1:13 → Approve & Execute panel.
 
 ```
-But INTERLOCK does not block wires by itself.
+INTERLOCK is the detection layer.
+It publishes the verdict to the bank's existing risk system.
+The bank's treasury workflow then decides.
 
 For high-risk transactions, a human officer
 must approve with FIDO-2 hardware key.
+
+We never touch the wire directly.
 ```
 
-> **Speaker note:** This line answers the "is AI deciding things" objection BEFORE judges ask. Strong, calm delivery.
+> **Speaker note:** This line kills the "why does a video plugin have access to wires?" objection BEFORE judges ask. The deployment model is: INTERLOCK = signal generator, like CrowdStrike. The BANK acts.
 
 ---
 
-### [1:30 — 2:00] CONTAINMENT SANDBOX
+### [1:30 — 2:00] CONTAINMENT SANDBOX (simulating bank action)
 
 > **Action:** Click **Approve & Execute** at 1:30 → containment streaming.
 
 ```
-When the officer approves, the kill-switch sends
-the action to a Managed Agents sandbox.
+When the officer approves, INTERLOCK runs a Managed Agents sandbox.
+This simulates what the bank's own treasury system does next.
 
 That is `interactions.create` with antigravity-preview-05-2026.
 
 The sandbox starts.
-Python freezes wire W-7821.
-Locks the CEO account.
-Drafts the SEC 8-K Item 1.05 disclosure.
+Python signals the bank to freeze wire W-7821.
+Locks the CEO account in the bank's system.
+Drafts the SEC 8-K Item 1.05 disclosure on our side.
 
 The draft is grounded against Google Search on EDGAR.
 The template: Microsoft, January 17, 2024 —
 the Midnight Blizzard attack.
 ```
+
+> **Speaker note:** The word "simulates" and "signals the bank" matters. Be honest: INTERLOCK produces the event; the bank's existing infrastructure freezes the wire. The 8-K draft is the part WE produce that the bank's compliance team consumes.
 
 > **Speaker note:** Say "antigravity-preview-05-2026" slowly enough that DeepMind judges hear the exact correct string. Same with "Item 1.05".
 
@@ -292,6 +298,93 @@ We tested. Six is the right number.
 
 ---
 
+### Q6: "Why does a video-call plugin have access to bank wires? That's a security nightmare."
+
+```
+You are right. It does not.
+
+INTERLOCK is the detection layer.
+It runs in the meeting — Meet Add-on, Zoom SDK, Teams app.
+It produces a verdict event.
+
+The verdict goes to the bank's existing risk system.
+A webhook. SIEM-compatible JSON. Or FIX, or ISO-20022.
+
+The bank's treasury workflow consumes the event.
+The bank's own software freezes the wire.
+The bank's compliance officer reviews the SEC draft.
+
+Think CrowdStrike for endpoints.
+Or Pindrop for voice fraud.
+We generate the signal.
+The bank acts on it.
+
+The demo shows the full chain end-to-end for narrative,
+including the simulated bank action.
+In production, the wire-freeze happens inside the bank's system,
+not inside INTERLOCK.
+```
+
+> **Tip:** This is the single most important Q&A answer. Memorize it word-for-word. Judges (especially CISOs in the room) will absolutely ask this. Getting this right makes the difference between "interesting demo" and "real product".
+
+---
+
+### Q7: "Who buys this? What is the market?"
+
+```
+Three buyer segments.
+
+One: CISOs and Heads of Treasury at $1B+ enterprises
+with $10M+ daily wire flow.
+That is 3,000 US companies.
+At $100K average contract value,
+the directly addressable market is $300 million.
+
+Two: financial services — banks, brokerages, insurance.
+Larger contracts. 9-12 month sales cycle.
+
+Three: treasury SaaS platforms — Tipalto, Brex Treasury, AvidXchange.
+They license INTERLOCK as a feature module. Revenue share model.
+
+The wedge is post-Arup compliance.
+After Arup lost twenty-five million dollars to a deepfake CEO call,
+every CISO at every Fortune 500 was asked the same question:
+how would you have detected this?
+
+INTERLOCK is the answer.
+```
+
+---
+
+### Q8: "How often do deepfake calls really happen? Is the threat real?"
+
+```
+The data is clear.
+
+Signicat reports two-thousand-percent growth in deepfake fraud
+incidents in 2024 versus 2021.
+
+Visa flagged four times more deepfake fraud attempts in Q3 2024
+than the same quarter in 2023.
+
+Pindrop now detects one in every two hundred calls as synthetic.
+Two years ago that number was one in two thousand.
+
+The Arup incident was twenty-five million dollars in one day.
+Ferrari, WPP, and KnowBe4 had similar deepfake calls in 2024.
+
+Live video deepfakes on Google Meet or Zoom are still rare —
+maybe fifty incidents per year US-wide.
+But the average loss is five to fifty million dollars.
+
+This is the highest-impact-per-incident attack vector
+that has no defense product today.
+
+INTERLOCK defends this exact vector.
+```
+
+---
+
 ## Recovery scripts (if something breaks live)
 
 ### If the Wi-Fi dies
@@ -386,7 +479,47 @@ Resetting now.
 1. **The number: $25.6M Arup, Hong Kong, January 2024.**
 2. **The architecture: six parallel Gemini 3.5 Flash agents, three-of-six consensus.**
 3. **The runtime: Antigravity Managed Agent backend, `interactions.create` with `antigravity-preview-05-2026`.**
-4. **The brand line: "Managed by Antigravity. Powered by Gemini 3.5 Flash. Sub-agent deployment at frontier speed."**
-5. **The close: "To stop an AI threat, you need an AI kill-switch."**
+4. **The deployment model: INTERLOCK generates the signal. The bank's risk system acts. Like CrowdStrike.**
+5. **The brand line: "Managed by Antigravity. Powered by Gemini 3.5 Flash. Sub-agent deployment at frontier speed."**
+6. **The close: "To stop an AI threat, you need an AI kill-switch."**
 
 If a judge can repeat any one of these the next morning when prizes are decided — the pitch worked.
+
+---
+
+## Honest architecture (what to say if drilled on deployment)
+
+INTERLOCK is **two products separated by an event bus**:
+
+```
+DETECTION LAYER                       CONTROL LAYER
+(runs in the meeting)                 (runs inside the bank)
+─────────────────────                 ───────────────────────
+Meet Add-on / Zoom SDK / Teams app    Treasury risk pipeline
+↓                                     (already exists at the bank)
+Antigravity Managed Agent             ↑
+↓                                     │ webhook event
+6× Gemini 3.5 Flash sub-agents        │ (SIEM JSON or FIX or ISO-20022)
+↓                                     │
+3-of-6 verdict aggregator    ────────►│
+↓                                     ↓
+Forensic evidence package             Bank's own system freezes wire
++ SEC 8-K Item 1.05 draft             Bank's officer reviews SEC draft
+```
+
+**INTERLOCK does NOT have wire-freeze authority.**
+INTERLOCK produces:
+1. A real-time verdict ("synthetic" or "authentic") with confidence score
+2. Forensic evidence (frame artifacts, voice spectrum, search-grounded provenance hits)
+3. A pre-drafted SEC 8-K Item 1.05 disclosure
+4. A webhook event compatible with existing SIEM/treasury risk buses
+
+**The bank's existing infrastructure** consumes the event and decides:
+- Pause pending wires associated with this meeting / this CEO identity
+- Page the CISO / Treasury VP
+- Trigger dual FIDO-2 co-signature requirement
+- Send 8-K draft to General Counsel for review and EDGAR filing
+
+This is the same deployment model as **CrowdStrike** (endpoint signal → company SOC acts), **Pindrop** (voice signal → bank's risk engine acts), **Darktrace** (network signal → SOC team acts).
+
+INTERLOCK adds the missing input — **deepfake detection on live video calls** — to existing enterprise fraud workflows.
