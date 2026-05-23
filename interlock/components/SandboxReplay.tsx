@@ -49,7 +49,7 @@ export default function SandboxReplay({
       "  ↳ optical-flow temporal consistency: σ²=0.47 (baseline 0.06)",
       `→ sandbox verdict: SYNTHETIC · conf=${
         (confidence ?? 0.94).toFixed(2)
-      } · agrees with multimodal forensics`,
+      } · agrees with Council 3-of-6 consensus`,
       "$ exit 0",
     ];
     let i = 0;

@@ -623,7 +623,7 @@ export default function MeetIncidentPage() {
           status={forensicsStatus}
         >
           {evidence.length === 0 ? (
-            <Hint>Analyzing live video frames…</Hint>
+            <Hint>Routing live frames to specialist detectors via Antigravity sandbox…</Hint>
           ) : (
             <>
               <div className="font-mono text-[10.5px] leading-relaxed space-y-0.5 max-h-[120px] overflow-y-auto">
@@ -956,10 +956,10 @@ function SidebarIdle({
   return (
     <div className="px-4 py-4 space-y-3">
       <div className="text-[13px] leading-relaxed" style={{ color: C.textSubtle }}>
-        Real-time synthetic-media detection on every frame of a live call.
-        Choose a source: the default DeepTomCruise sample, a pre-uploaded
-        recording, or live screen-capture of any window (Zoom, Teams, real
-        Meet — anything).
+        Real-time agentic orchestration over specialist deepfake detectors,
+        gated by 3-of-6 consensus. Choose a source: the default
+        DeepTomCruise sample, a pre-uploaded recording, or live
+        screen-capture of any window (Zoom, Teams, real Meet — anything).
       </div>
       <SourcePicker onSourceChange={onSourceChange} />
 
@@ -1146,7 +1146,7 @@ function ConfidenceBadge({ confidence }: { confidence: number }) {
       <div className="text-[10.5px] mt-1" style={{ color: "#9aa0a6" }}>
         {ok
           ? "Threshold met — actions auto-execute under signer policy."
-          : "Below auto-execute threshold. Dual FIDO2 co-signature required for any action. Detector never blocks autonomously."}
+          : "Below auto-execute threshold. Dual FIDO2 co-signature required for any action. INTERLOCK never blocks autonomously — the bank's risk system acts on the verdict event."}
       </div>
     </div>
   );

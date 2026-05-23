@@ -358,7 +358,7 @@ function ActiveBody({
         status={forensicsStatus}
       >
         {evidence.length === 0 ? (
-          <Hint>Analyzing live video frames…</Hint>
+          <Hint>Routing live frames to specialist detectors via Antigravity sandbox…</Hint>
         ) : (
           <div className="font-mono text-[10.5px] leading-relaxed space-y-0.5 max-h-[120px] overflow-y-auto">
             {evidence.slice(-4).map((ev, i) => (

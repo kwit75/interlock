@@ -475,7 +475,7 @@ export default function CouncilDeck({
             <div
               className="font-mono text-[10px] tracking-[0.2em] mb-1"
               style={{ color: "#6ee7b7" }}
-              title="Captured frame shipped to frame_forensics worker (Gemini 3.5 Flash multimodal)"
+              title="Captured frame routed to frame_forensics → Antigravity sandbox executes OpenCV; Gemini 3.5 Flash reasons over numerical features"
             >
               📷 frame {frameInfo.width}×{frameInfo.height} · {frameInfo.sizeKb} KB → 3.5 Flash
             </div>
@@ -484,7 +484,7 @@ export default function CouncilDeck({
             <div
               className="font-mono text-[10px] tracking-[0.2em] mb-1"
               style={{ color: "#6ee7b7" }}
-              title="Captured audio chunk shipped to voice_print worker (Gemini 3.5 Flash multimodal)"
+              title="Captured audio chunk routed to voice_print → Antigravity sandbox executes librosa; Gemini 3.5 Flash reasons over numerical features"
             >
               🎙 audio {(audioInfo.durationMs / 1000).toFixed(1)}s · {audioInfo.sizeKb} KB → 3.5 Flash
             </div>
