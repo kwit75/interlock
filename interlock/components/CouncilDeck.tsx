@@ -67,7 +67,7 @@ export default function CouncilDeck({
 }: {
   active: boolean;
   onVerdict: (verdict: WorkerVerdict, confidence: number) => void;
-  mode?: "auto" | "live" | "cached";
+  mode?: "auto" | "live" | "cached" | "live-sandbox";
   ceoName?: string;
   ticker?: string;
   injectionMode?: boolean;
