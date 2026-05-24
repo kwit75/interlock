@@ -105,7 +105,13 @@ export default function MeetIncidentPage() {
   const councilMode = (() => {
     if (typeof window === "undefined") return "cached" as const;
     const p = new URLSearchParams(window.location.search).get("mode");
-    if (p === "cached" || p === "live" || p === "auto") return p;
+    if (
+      p === "cached" ||
+      p === "live" ||
+      p === "auto" ||
+      p === "live-sandbox"
+    )
+      return p;
     return "cached" as const;
   })();
 

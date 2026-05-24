@@ -144,7 +144,10 @@ export default function CouncilDeck({
       // ~1.5s of audio recording + ~70KB POST body that Next dev mode
       // buffers for several extra seconds before flushing the SSE response.
       // For the live-demo path we want a sub-2s wall-clock, so skip both.
-      const skipMedia = mode === "cached";
+      // Cached + live-sandbox don't consume captured media: cached replays
+      // pre-recorded SSE, live-sandbox uses librosa.ex('trumpet') and a
+      // synthesized OpenCV frame inside the Antigravity Linux interaction.
+      const skipMedia = mode === "cached" || mode === "live-sandbox";
 
       // 1. Capture a frame from the live Meet-UI <video> element to a canvas
       // and encode as JPEG (~80–150 KB). Bails gracefully if the video isn't
