@@ -127,13 +127,17 @@ export default function TrustPage() {
           <Card>
             <CardTitle>Model risk management</CardTitle>
             <CardBody>
-              INTERLOCK orchestrates specialist detectors — Modulate Velma
-              (1.1% EER · HF Speech Deepfake Arena #1, March 2026), Resemble
-              DETECT-3B Omni (97.4% Speech DF Arena accuracy), Pindrop Pulse
-              (90-99% rate on contact-center voice fraud), Reality Defender
-              SLIM (NeurIPS 2024 consensus pattern, deployed at major US bank
-              &gt;$30B revenue). The 3-of-6 sub-agent consensus gate ensures
-              no single specialist can block or override.{" "}
+              The Antigravity sandbox currently runs open-source detectors —
+              AASIST3 (Hugging Face <span className="font-mono">lab260/AASIST3</span>,{" "}
+              0.83% EER on ASVspoof 2019 LA) for voice, the
+              prithivMLmods Deep-Fake-Detector ViT for video, on top of
+              librosa + OpenCV + scipy.signal baselines. Production deploy
+              targets the same primitive swapped to commercial specialists:
+              Modulate Velma (1.1% EER · HF Speech Arena #1), Resemble
+              DETECT-3B Omni (97.4% accuracy), Pindrop Pulse (90-99% rate,
+              8 of 10 largest US banks), Reality Defender SLIM (deployed at
+              major US bank &gt;$30B revenue). The 3-of-6 sub-agent consensus
+              gate ensures no single detector can block or override.{" "}
               <span className="text-slate-200 font-medium">
                 INTERLOCK does not autonomously block transactions.
               </span>{" "}

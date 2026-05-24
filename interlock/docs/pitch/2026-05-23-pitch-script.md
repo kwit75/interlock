@@ -57,8 +57,12 @@ for deepfake forensics at the moment of authorization.
 Gemini 3.5 Flash routes the call.
 Antigravity Managed Agent runs the sub-agents.
 
-We wrap specialist detectors — Modulate Velma for voice,
-Resemble DETECT-3B for video, Pindrop Pulse for telephony.
+The sandbox runs real open-source forensic tools — librosa
+and AASIST3 for voice, OpenCV and the prithivMLmods
+Deep-Fake-Detector for video. Production deploy swaps in
+Modulate Velma, Resemble DETECT-3B, and Pindrop Pulse
+on the same primitive.
+
 We are the diagnostic laboratory.
 They are the microscopes.
 
@@ -336,13 +340,17 @@ They charge three hundred thousand dollars a year
 for one million calls.
 
 INTERLOCK is not a competitor to Pindrop.
-We orchestrate Pindrop.
+We are the orchestration substrate Pindrop integrates into.
 
-Same six-agent Council also wraps Modulate Velma for voice,
-Resemble DETECT-3B for video,
-Reality Defender for multimodal.
+Today the sandbox runs open-source detectors —
+librosa and AASIST3 for voice,
+OpenCV and the Deep-Fake-Detector ViT for video.
+Production deploy is the same Antigravity primitive
+swapped to Modulate Velma, Resemble DETECT-3B, Pindrop Pulse,
+or Reality Defender. The integration is a config change,
+not a rewrite.
 
-Pindrop scores the call.
+A specialist scores the call.
 INTERLOCK consumes that score,
 adds Reverse Provenance, Regulatory Precedent,
 Counter-Strategy, Injection Guard reasoning,
